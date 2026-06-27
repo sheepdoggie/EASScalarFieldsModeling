@@ -1,88 +1,83 @@
 # Enforceable Rank-3 Scalar Field Modeling Framework
 
-Current release: `0.1.6-support-seeded-two-ledger-charge-modules`
+Current release: `0.1.7-installed-run-manager`.
 
-This framework is a locked, declarative modeling harness for EAS rank-3 scalar-field diagnostics. It is designed to prevent model-specific Python overlays, post-hoc readout selection, and residual-update recipes from being treated as admitted SOO dynamics.
+This package is designed to be installed and then run from code-free workspaces. Do not execute candidate/admission runs from inside an extracted framework source tree containing `./rank3_enforced/`, because Python will import that local tree instead of the signed installed package.
 
-## Current core capabilities
-
-- Declarative overlays only.
-- Signed evidence packages.
-- GitHub signed-release guard with run-environment cache.
-- Association-indexed second-order SOO primitive: `association_indexed_soo_v1`.
-- Phase-indexed stiffness reports with default `K0=K1=K2=I` when feedback is not under test.
-- Stiffness-feedback diagnostic placeholder reports.
-- Support-seeded two-ledger initialization.
-- Optional/experimental module declarations.
-- Charge attraction/repulsion candidate module.
-- Gravitation path candidate module placeholder.
-- Explicit permutation-safe path construction `linear_support_path_v0_2`.
-- Relation-complete charge packet readouts.
-- Common-mode/zero-sum packet readouts.
-- Rebuilt charge same/opposite overlays for L16-L32.
-
-## Important status warning
-
-The framework is infrastructure. It does not certify charge attraction/repulsion, gravitation, or stiffness feedback. The current SOO-stiffness feedback module is a placeholder diagnostic handle. Final closure rules and admission gates remain future work.
-
-## Main overlay directories
-
-```text
-overlays/minimal_association_indexed_soo_feedback_overlay.json
-overlays/charge_same_opposite_association_indexed/*.json
-```
-
-## Running one overlay
+## Install and verify
 
 ```bash
-python run_signed_declarative_overlay.py \
-  overlays/charge_same_opposite_association_indexed/L16_same_association_indexed_soo.json \
-  runs/L16_same \
-  ~/.rank3/signing_private.pem
+python -m pip install --force-reinstall releases/current/enforceable_rank3_modeling.zip
+rank3-check-release-guard --force-refresh
 ```
 
-If your signing key uses the older filename, use:
+The release guard must report `"passed": true` before candidate/admission work.
+
+## Normal run workflow
+
+Create a workspace:
 
 ```bash
-~/.rank3/private_key.pem
+cd ~/Projects/EAS_runs
+rank3-init-workspace charge_assoc_workspace
+cd charge_assoc_workspace
 ```
 
-## Expected artifacts for association-indexed SOO runs
-
-```text
-SOO_EXECUTION_REPORT.json
-CYCLIC_RETURN_REPORT.json
-STIFFNESS_INPUT_REPORT.json
-RESPONSE_BURDEN_REPORT.json
-INDUCED_STIFFNESS_REPORT.json
-STIFFNESS_CLOSURE_REPORT.json
-STIFFNESS_FEEDBACK_REPORT.json
-INITIAL_TWO_LEDGER_REPORT.json
-OPTIONAL_MODULE_REPORT.json
-SOO_FUNCTIONAL_REPORT.json
-BASE_GATE_REPORT.json
-CERTIFICATE.json
-EVIDENCE_ENVELOPE.json
-```
-
-## Current tests
+List built-in suites:
 
 ```bash
-pytest -q
+rank3-list-suites
 ```
 
-Expected:
+Run the rebuilt charge same/opposite suite:
+
+```bash
+rank3-run-suite charge_same_opposite_association_indexed \
+  --output-root runs/charge_same_opposite_assoc_soo \
+  --signing-key ~/.rank3/private_key.pem
+```
+
+The suite runner loads overlays from the installed package, performs the release guard once, writes signed evidence packages under `runs/`, and writes:
 
 ```text
-27 passed
+SUITE_RUN_REPORT.json
+SHA256SUMS.csv
+release_guard.json
 ```
 
-## Technical Design Documents
+## Run one overlay
+
+```bash
+rank3-run-overlay path/to/overlay.json runs/case_id --signing-key ~/.rank3/private_key.pem
+```
+
+## Built-in overlay suites
+
+The framework currently packages this built-in suite as package data:
 
 ```text
-TDD_current_framework_state_v0.1.6.md
-TDD_association_indexed_SOO_feedback_core.md
-TDD_support_seeded_initialization.md
-TDD_locked_explicit_path_readouts.md
-TDD_signed_release_guard.md
+charge_same_opposite_association_indexed
 ```
+
+It contains the 34 rebuilt charge overlays for L16-L32 same/opposite tests using:
+
+```text
+support_seeded_two_ledger initialization
+association_indexed_soo_v1
+linear_support_path_v0_2
+charge path/support burden placeholders
+relation-complete packet readout
+common-mode / zero-sum readout
+```
+
+## Key architectural rule
+
+Framework source, overlays, and run workspaces are now separated:
+
+```text
+installed package:     rank3_enforced code and built-in overlay suites
+run workspace:         code-free results/logs/manifests only
+external overlays:     optional JSON-only overlays supplied with --overlays-dir
+```
+
+This prevents source-tree import shadowing and removes the need to copy scripts manually for each run.
