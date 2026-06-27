@@ -1,0 +1,12 @@
+# Never commit private keys
+*.private.pem
+*private_key*.pem
+release_private_key.pem
+.rank3/
+
+# Python/cache
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
