@@ -93,3 +93,8 @@ Generate and commit the signature/public key locally. Do not commit the private 
 * Candidate/admission runs must use the latest signed manifest and exact framework hash or accepted framework code hash.
 * Archive reproduction runs may use old framework versions, but must be labeled `archive_reproduction` and may not be admitted as current evidence.
 * Operators should pass configuration suites only, not framework ZIPs, scripts, or executable runners.
+
+
+## Current framework release
+
+`0.1.5-association-indexed-soo-feedback` adds the locked association-indexed second-order SOO primitive and modular stiffness-feedback closure diagnostics. After copying this update, re-sign `releases/current/FRAMEWORK_RELEASE_MANIFEST.json` with the existing release private key.
