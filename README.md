@@ -66,12 +66,30 @@ any private encryption key
 
 ## Current expected framework SHA-256
 
-```text
-1c4580077de449246ac8a8127881668ea2bd466807e763a71b3d8981028023ce
-```
+    d72251982fc7b3e8eeb68847009b403da86f47355eeffddf4de23938c75d427e
+
+## Current expected framework code SHA-256
+
+Source-tree execution:
+
+    0b3dc52a4c13ceaf428690b4ec1b75320678dfc7f523e758de78668ef6c5b5bf
+
+Pip-installed execution:
+
+    ad9da59e5b910e7e1d6ccb33281d7269321f8caa9cef1fd0bed81c752be58e70
+
+## Release guard status
+
+The current framework release requires these repository files before strict candidate/admission runs can execute:
+
+    releases/current/FRAMEWORK_RELEASE_MANIFEST.json
+    releases/current/FRAMEWORK_RELEASE_MANIFEST.sig
+    releases/current/FRAMEWORK_RELEASE_PUBLIC_KEY.pem
+
+Generate and commit the signature/public key locally. Do not commit the private key.
 
 ## Policy
 
-- Candidate/admission runs must use the latest signed manifest and exact framework hash.
-- Archive reproduction runs may use old framework versions, but must be labeled `archive_reproduction` and may not be admitted as current evidence.
-- Operators should pass configuration suites only, not framework ZIPs, scripts, or executable runners.
+* Candidate/admission runs must use the latest signed manifest and exact framework hash or accepted framework code hash.
+* Archive reproduction runs may use old framework versions, but must be labeled `archive_reproduction` and may not be admitted as current evidence.
+* Operators should pass configuration suites only, not framework ZIPs, scripts, or executable runners.

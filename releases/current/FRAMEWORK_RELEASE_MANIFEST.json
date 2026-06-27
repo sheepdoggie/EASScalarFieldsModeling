@@ -1,4 +1,8 @@
 {
+  "accepted_framework_code_sha256": [
+    "0b3dc52a4c13ceaf428690b4ec1b75320678dfc7f523e758de78668ef6c5b5bf",
+    "ad9da59e5b910e7e1d6ccb33281d7269321f8caa9cef1fd0bed81c752be58e70"
+  ],
   "archive_reproduction_policy": {
     "candidate_or_admission_allowed": false,
     "must_mark_run_kind": "archive_reproduction",
@@ -8,20 +12,21 @@
     "must_emit_dual_plaintext_encrypted_output_when_requested": true,
     "must_emit_soo_functional_report": true,
     "must_have_all_required_capabilities": true,
-    "must_match_latest_framework_sha256": true,
+    "must_match_latest_framework_sha256_or_code_sha256": true,
     "must_verify_release_manifest_signature": true,
     "wrong_or_unverified_manifest_action": "refuse_to_run"
   },
-  "created_utc": "2026-06-27T01:51:30Z",
+  "created_utc": "2026-06-27T02:23:27Z",
   "framework_zip_relative_path": "releases/current/enforceable_rank3_modeling.zip",
   "github_repository": "https://github.com/sheepdoggie/EASScalarFieldsModeling.git",
+  "latest_framework_code_sha256": "0b3dc52a4c13ceaf428690b4ec1b75320678dfc7f523e758de78668ef6c5b5bf",
   "latest_framework_filename": "enforceable_rank3_modeling.zip",
-  "latest_framework_release_label": "0.1.3-soo-functional-dual-output",
-  "latest_framework_sha256": "1c4580077de449246ac8a8127881668ea2bd466807e763a71b3d8981028023ce",
-  "latest_framework_size_bytes": 114017,
-  "latest_framework_version": "0.1.3",
+  "latest_framework_release_label": "0.1.4-release-guard",
+  "latest_framework_sha256": "d72251982fc7b3e8eeb68847009b403da86f47355eeffddf4de23938c75d427e",
+  "latest_framework_size_bytes": 124840,
+  "latest_framework_version": "0.1.4",
   "manifest_relative_path": "releases/current/FRAMEWORK_RELEASE_MANIFEST.json",
-  "notes": "This manifest must be signed with the user's release private key before it can be used as an enforceable latest-version guard. Do not commit the private key.",
+  "notes": "Manifest must be signed with the release private key. Do not commit private keys.",
   "package_name": "enforceable-rank3-modeling",
   "project": "EASScalarFieldsModeling",
   "public_key_relative_path": "releases/current/FRAMEWORK_RELEASE_PUBLIC_KEY.pem",
@@ -41,7 +46,10 @@
     "diagnostic_point_residual_samples",
     "relation_complete_packet_contrast",
     "dual_plaintext_encrypted_output",
-    "support_seeded_initialization"
+    "support_seeded_initialization",
+    "signed_release_manifest_guard",
+    "version_guard_environment_cache",
+    "configuration_only_job_bundles"
   ],
   "required_files_in_zip": [
     "enforceable_rank3_modeling/rank3_enforced/soo_functional.py",
@@ -49,9 +57,11 @@
     "enforceable_rank3_modeling/rank3_enforced/encryption.py",
     "enforceable_rank3_modeling/rank3_enforced/verify_dual_package.py",
     "enforceable_rank3_modeling/rank3_enforced/path_construction.py",
+    "enforceable_rank3_modeling/rank3_enforced/version_guard.py",
+    "enforceable_rank3_modeling/rank3_enforced/release_manifest.py",
+    "enforceable_rank3_modeling/rank3_enforced/capabilities.py",
     "enforceable_rank3_modeling/overlays/two_support_explicit_path_signed_packet_candidate_overlay.json"
   ],
-  "required_files_missing_in_this_manifest_build": [],
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "signature_relative_path": "releases/current/FRAMEWORK_RELEASE_MANIFEST.sig"
 }
