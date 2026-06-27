@@ -1,7 +1,7 @@
 {
   "accepted_framework_code_sha256": [
-    "c4420dd91cb5b84583ed1a481ba6e3270881ac53dd47f1ab541151d802945186",
-    "db57a648618315ee0d61fe2c84423fb379cdfe75346f39ca96c20a5c59675f6d"
+    "c2072c39e5ebade88104d2be0c894bc02e3f8bc3a096036cc79bc3cf6726e59a",
+    "04d47b9d30a6b132dd10fdba30ca45c1c72eb786bf0591ed7d3e60e36fadf664"
   ],
   "archive_reproduction_policy": {
     "candidate_or_admission_allowed": false,
@@ -16,17 +16,17 @@
     "must_verify_release_manifest_signature": true,
     "wrong_or_unverified_manifest_action": "refuse_to_run"
   },
-  "created_utc": "2026-06-27T17:20:00Z",
+  "created_utc": "2026-06-27T18:20:00Z",
   "framework_zip_relative_path": "releases/current/enforceable_rank3_modeling.zip",
   "github_repository": "https://github.com/sheepdoggie/EASScalarFieldsModeling.git",
-  "latest_framework_code_sha256": "c4420dd91cb5b84583ed1a481ba6e3270881ac53dd47f1ab541151d802945186",
+  "latest_framework_code_sha256": "c2072c39e5ebade88104d2be0c894bc02e3f8bc3a096036cc79bc3cf6726e59a",
   "latest_framework_filename": "enforceable_rank3_modeling.zip",
-  "latest_framework_release_label": "0.1.11-soo-settled-initialization-witness",
-  "latest_framework_sha256": "8549b3206aaed8a82a766d3857381213ea4d3c817d42745e482a82a7f441f095",
-  "latest_framework_size_bytes": 328765,
-  "latest_framework_version": "0.1.11",
+  "latest_framework_release_label": "0.1.12-long-initialization-debug-controls",
+  "latest_framework_sha256": "4d8cc68ca1c453a95e1115e74a9a5b234b81d48f667b9bf63d8ab8ad3120877d",
+  "latest_framework_size_bytes": 321809,
+  "latest_framework_version": "0.1.12",
   "manifest_relative_path": "releases/current/FRAMEWORK_RELEASE_MANIFEST.json",
-  "notes": "Version 0.1.11 adds mandatory SOO initialization-settling evidence over support-influenced exterior witness records and emits INITIALIZATION_SETTLING_REPORT.json. Candidate diagnostic packages may be written when settling fails, but BASE admission/certification remains fail-closed.",
+  "notes": "Version 0.1.12 makes initialization settling the priority diagnostic workflow: long scans up to operator-configured max cycles, early stop on fixed/recurrent witness settling, initialization progress output, CLI settling overrides, and a targeted same/opposite initialization-debug pair runner.",
   "package_name": "enforceable-rank3-modeling",
   "project": "EASScalarFieldsModeling",
   "public_key_relative_path": "releases/current/FRAMEWORK_RELEASE_PUBLIC_KEY.pem",
@@ -60,6 +60,9 @@
     "induced_stiffness_report",
     "initialization_measurement_cycle_separation",
     "initialization_measurement_epoch_report",
+    "initialization_settling_cli_overrides",
+    "initialization_settling_early_stop",
+    "initialization_settling_progress",
     "initialization_settling_report",
     "installed_console_run_manager",
     "linear_support_path_v0_2_permutation",
@@ -86,12 +89,14 @@
     "support_influenced_exterior_witness_settling",
     "support_seeded_initialization",
     "support_seeded_two_ledger_initialization",
+    "targeted_initialization_debug_pair_runner",
     "targeted_soo_debug_pair_runner",
     "two_ledger_soo_state",
     "version_guard_environment_cache"
   ],
   "required_files_in_zip": [
     "enforceable_rank3_modeling/TDD_association_indexed_SOO_feedback_core.md",
+    "enforceable_rank3_modeling/TDD_current_framework_state_v0.1.12.md",
     "enforceable_rank3_modeling/TDD_current_framework_state_v0.1.6.md",
     "enforceable_rank3_modeling/TDD_current_framework_state_v0.1.7.md",
     "enforceable_rank3_modeling/TDD_current_framework_state_v0.1.8.md",
@@ -107,6 +112,7 @@
     "enforceable_rank3_modeling/rank3_enforced/dual_package.py",
     "enforceable_rank3_modeling/rank3_enforced/encryption.py",
     "enforceable_rank3_modeling/rank3_enforced/init_workspace_cli.py",
+    "enforceable_rank3_modeling/rank3_enforced/initialization_debug_pair_cli.py",
     "enforceable_rank3_modeling/rank3_enforced/list_suites_cli.py",
     "enforceable_rank3_modeling/rank3_enforced/optional_modules.py",
     "enforceable_rank3_modeling/rank3_enforced/overlay_suites/charge_same_opposite_association_indexed/L16_same_association_indexed_soo.json",

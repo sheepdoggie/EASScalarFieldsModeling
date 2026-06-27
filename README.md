@@ -141,3 +141,21 @@ Version 0.1.11 adds `INITIALIZATION_SETTLING_REPORT.json`. For charge/path candi
 
 If initialization does not settle, candidate diagnostic packages may still be written, but BASE verdict-independence and leakage/manipulation checks fail. Admission/certification is blocked.
 
+
+## v0.1.12 initialization settling debug
+
+For SOO initialization investigations, run a targeted same/opposite initialization pair rather than the full suite:
+
+```bash
+rank3-run-initialization-debug-pair \
+  --path-length 31 \
+  --output-root runs/init_debug_L31_100cycles \
+  --signing-key ~/.rank3/private_key.pem \
+  --init-max-cycles 100 \
+  --init-min-cycles 10 \
+  --init-recurrence-period-max 12 \
+  --init-consecutive-stable-cycles 3 \
+  --init-progress-interval 10
+```
+
+This runs whole-field SOO during initialization and monitors only the support-influenced exterior witness set for fixed/recurrent settling. The witness set does not alter SOO.
