@@ -1,6 +1,7 @@
 {
   "accepted_framework_code_sha256": [
-    "1fa59a77b012636226c9dfbd01350d316bda1120e2f5dd0928fae96084ced052"
+    "1fa59a77b012636226c9dfbd01350d316bda1120e2f5dd0928fae96084ced052",
+    "12d1f3830d699a3b4cd1c295d1963b5990f77961ef4d36c1d6de07983b68dab1"
   ],
   "archive_reproduction_policy": {
     "candidate_or_admission_allowed": false,
@@ -18,6 +19,7 @@
   "created_utc": "2026-06-27T15:34:45Z",
   "framework_zip_relative_path": "releases/current/enforceable_rank3_modeling.zip",
   "github_repository": "https://github.com/sheepdoggie/EASScalarFieldsModeling.git",
+  "installed_wheel_code_sha256": "12d1f3830d699a3b4cd1c295d1963b5990f77961ef4d36c1d6de07983b68dab1",
   "latest_framework_code_sha256": "1fa59a77b012636226c9dfbd01350d316bda1120e2f5dd0928fae96084ced052",
   "latest_framework_filename": "enforceable_rank3_modeling.zip",
   "latest_framework_release_label": "0.1.8-run-debugging-path-neighborhood",
@@ -25,7 +27,7 @@
   "latest_framework_size_bytes": 566701,
   "latest_framework_version": "0.1.8",
   "manifest_relative_path": "releases/current/FRAMEWORK_RELEASE_MANIFEST.json",
-  "notes": "Version 0.1.8 adds optional run-debugging instrumentation for path-neighborhood SOO changes and path-facing association reports. The debug module is diagnostic only and does not alter whole-field SOO.",
+  "notes": "Version 0.1.8 adds optional run-debugging instrumentation for path-neighborhood SOO changes and path-facing association reports. The debug module is diagnostic only and does not alter whole-field SOO. Hotfix: accepted_framework_code_sha256 now includes the installed wheel-layout code hash so installed console commands pass the release guard.",
   "package_name": "enforceable-rank3-modeling",
   "project": "EASScalarFieldsModeling",
   "public_key_relative_path": "releases/current/FRAMEWORK_RELEASE_PUBLIC_KEY.pem",
