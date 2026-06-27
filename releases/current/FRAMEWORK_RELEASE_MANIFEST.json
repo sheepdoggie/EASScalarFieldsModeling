@@ -1,7 +1,7 @@
 {
   "accepted_framework_code_sha256": [
-    "a2cded196bbceed2b4fd034197039a2fc05a702d46fda5b105fb21868d04bd2f",
-    "13150f58f47d058aec07d2f98e2bd4046d6e29a194b02649e814c98233d49cf5"
+    "27c4797b69d3258ea1602f5d143b28ed36030b827c81c8447d43c56b6f5e44c3",
+    "1064b0e97578e7078b29501bc0da7e923f0815e8aa240182d8aa475408615584"
   ],
   "archive_reproduction_policy": {
     "candidate_or_admission_allowed": false,
@@ -16,17 +16,17 @@
     "must_verify_release_manifest_signature": true,
     "wrong_or_unverified_manifest_action": "refuse_to_run"
   },
-  "created_utc": "2026-06-27T04:08:21Z",
+  "created_utc": "2026-06-27T13:56:36Z",
   "framework_zip_relative_path": "releases/current/enforceable_rank3_modeling.zip",
   "github_repository": "https://github.com/sheepdoggie/EASScalarFieldsModeling.git",
-  "latest_framework_code_sha256": "a2cded196bbceed2b4fd034197039a2fc05a702d46fda5b105fb21868d04bd2f",
+  "latest_framework_code_sha256": "27c4797b69d3258ea1602f5d143b28ed36030b827c81c8447d43c56b6f5e44c3",
   "latest_framework_filename": "enforceable_rank3_modeling.zip",
-  "latest_framework_release_label": "0.1.5-association-indexed-soo-feedback",
-  "latest_framework_sha256": "d799235279fc316baaf40beaddaeac7dd3f841ea5c1cea26ed5eca1a10d5bb9c",
-  "latest_framework_size_bytes": 149281,
-  "latest_framework_version": "0.1.5",
+  "latest_framework_release_label": "0.1.6-support-seeded-two-ledger-charge-modules",
+  "latest_framework_sha256": "49f9caefe252844edbd20c282c8ec65c6ccab7dbba7fe59a4a876ac72ed3f137",
+  "latest_framework_size_bytes": 212241,
+  "latest_framework_version": "0.1.6",
   "manifest_relative_path": "releases/current/FRAMEWORK_RELEASE_MANIFEST.json",
-  "notes": "Manifest must be signed with the release private key. Version 0.1.5 adds locked association-indexed second-order SOO and stiffness-feedback closure diagnostics. Accepted code hashes include extracted source-tree and installed-wheel identities. Do not commit private keys.",
+  "notes": "Manifest must be signed with the release private key. Version 0.1.6 adds optional modules, support-seeded two-ledger initialization, charge/gravitation candidate module shells, charge burden/readouts, association-indexed controls, and rebuilt charge same/opposite overlays. Do not commit private keys.",
   "package_name": "enforceable-rank3-modeling",
   "project": "EASScalarFieldsModeling",
   "public_key_relative_path": "releases/current/FRAMEWORK_RELEASE_PUBLIC_KEY.pem",
@@ -57,7 +57,16 @@
     "stiffness_feedback_closure_diagnostic",
     "induced_stiffness_report",
     "stiffness_closure_report",
-    "residual_recipe_candidate_rejection"
+    "residual_recipe_candidate_rejection",
+    "support_seeded_two_ledger_initialization",
+    "optional_experimental_modules",
+    "charge_attraction_repulsion_module",
+    "gravitation_path_module",
+    "linear_support_path_v0_2_permutation",
+    "relation_complete_packet_readout",
+    "common_mode_zero_sum_report",
+    "charge_path_support_burden_rules",
+    "association_indexed_controls"
   ],
   "required_files_in_zip": [
     "enforceable_rank3_modeling/rank3_enforced/soo_functional.py",
@@ -79,8 +88,13 @@
     "enforceable_rank3_modeling/rank3_enforced/stiffness_equivalence.py",
     "enforceable_rank3_modeling/rank3_enforced/stiffness_feedback.py",
     "enforceable_rank3_modeling/overlays/minimal_association_indexed_soo_feedback_overlay.json",
-    "enforceable_rank3_modeling/TDD_association_indexed_SOO_feedback_core.md"
+    "enforceable_rank3_modeling/TDD_association_indexed_SOO_feedback_core.md",
+    "enforceable_rank3_modeling/rank3_enforced/two_ledger_initialization.py",
+    "enforceable_rank3_modeling/rank3_enforced/optional_modules.py",
+    "enforceable_rank3_modeling/overlays/charge_same_opposite_association_indexed/L16_same_association_indexed_soo.json",
+    "enforceable_rank3_modeling/overlays/charge_same_opposite_association_indexed/L32_opposite_association_indexed_soo.json",
+    "enforceable_rank3_modeling/TDD_current_framework_state_v0.1.6.md"
   ],
-  "schema_version": "1.2.0",
+  "schema_version": "1.3.0",
   "signature_relative_path": "releases/current/FRAMEWORK_RELEASE_MANIFEST.sig"
 }
