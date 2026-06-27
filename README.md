@@ -103,3 +103,41 @@ rank3-run-suite charge_same_opposite_association_indexed \
 ```
 
 The run manager now prints overlay-by-overlay progress. Debugging is instrumentation only and does not alter SOO, stiffness, associations, or verdicts.
+
+## Targeted SOO debug pair workflow (0.1.10)
+
+Use this workflow when the goal is to inspect association-indexed SOO processing around a declared path, not to run the full 34-case suite.
+
+```bash
+rank3-run-soo-debug-pair \
+  --path-length 31 \
+  --output-root runs/soo_debug_L31 \
+  --signing-key ~/.rank3/private_key.pem \
+  --debug-depth 1 \
+  --debug-max-points 256
+```
+
+This runs exactly two overlays from the built-in `charge_same_opposite_association_indexed` suite:
+
+- `L31_same_association_indexed_soo`
+- `L31_opposite_association_indexed_soo`
+
+Debugging remains opt-in. The debug module is staged into temporary overlays and does not alter SOO, stiffness, associations, or readout verdicts. The command writes `SOO_DEBUG_PAIR_ANALYSIS/` with CSV rows for path-neighborhood SOO transitions and a JSON report that separates initialization cycles from measurement SOO cycles.
+
+You can also filter ordinary suite runs:
+
+```bash
+rank3-run-suite charge_same_opposite_association_indexed \
+  --case L31_same_association_indexed_soo \
+  --case L31_opposite_association_indexed_soo \
+  --debug \
+  --output-root runs/soo_debug_L31_manual \
+  --signing-key ~/.rank3/private_key.pem
+```
+
+## Initialization settling gate
+
+Version 0.1.11 adds `INITIALIZATION_SETTLING_REPORT.json`. For charge/path candidate runs, support seeding is not treated as a steady state. The framework runs whole-field association-indexed SOO through initialization cycles, then evaluates fixed or recurrent settling on support-influenced exterior witness records. For two or more supports, the witness is the relational path outside support-owned points. For one support, the witness is the dressing/exterior influenced record.
+
+If initialization does not settle, candidate diagnostic packages may still be written, but BASE verdict-independence and leakage/manipulation checks fail. Admission/certification is blocked.
+
