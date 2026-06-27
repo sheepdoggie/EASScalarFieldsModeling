@@ -1,6 +1,6 @@
 # Enforceable Rank-3 Scalar Field Modeling Framework
 
-Current release: `0.1.8-run-debugging-path-neighborhood`.
+Current release: `0.1.7-installed-run-manager`.
 
 This package is designed to be installed and then run from code-free workspaces. Do not execute candidate/admission runs from inside an extracted framework source tree containing `./rank3_enforced/`, because Python will import that local tree instead of the signed installed package.
 
@@ -15,26 +15,35 @@ The release guard must report `"passed": true` before candidate/admission work.
 
 ## Normal run workflow
 
+Create a workspace:
+
 ```bash
 cd ~/Projects/EAS_runs
 rank3-init-workspace charge_assoc_workspace
 cd charge_assoc_workspace
+```
+
+List built-in suites:
+
+```bash
 rank3-list-suites
+```
+
+Run the rebuilt charge same/opposite suite:
+
+```bash
 rank3-run-suite charge_same_opposite_association_indexed \
   --output-root runs/charge_same_opposite_assoc_soo \
   --signing-key ~/.rank3/private_key.pem
 ```
 
-## Run-debugging instrumentation
-
-The built-in charge suite now declares the optional `run_debugging` module. It emits:
+The suite runner loads overlays from the installed package, performs the release guard once, writes signed evidence packages under `runs/`, and writes:
 
 ```text
-PATH_FACING_ASSOCIATION_REPORT.json
-RUN_DEBUG_REPORT.json
+SUITE_RUN_REPORT.json
+SHA256SUMS.csv
+release_guard.json
 ```
-
-These reports retain path-neighborhood scalar values, association rows, association-indexed ordered differences, and SOO transition changes to the requested association depth. They are diagnostic only. They do not seed path carriers, do not alter SOO, and do not make path points a special scalar-update domain.
 
 ## Run one overlay
 
@@ -42,10 +51,55 @@ These reports retain path-neighborhood scalar values, association rows, associat
 rank3-run-overlay path/to/overlay.json runs/case_id --signing-key ~/.rank3/private_key.pem
 ```
 
-## Architectural rule
+## Built-in overlay suites
+
+The framework currently packages this built-in suite as package data:
 
 ```text
-SOO acts whole-field.
-Path-facing is association-slot role metadata only.
-Debug instrumentation observes path neighborhoods but never participates in SOO.
+charge_same_opposite_association_indexed
 ```
+
+It contains the 34 rebuilt charge overlays for L16-L32 same/opposite tests using:
+
+```text
+support_seeded_two_ledger initialization
+association_indexed_soo_v1
+linear_support_path_v0_2
+charge path/support burden placeholders
+relation-complete packet readout
+common-mode / zero-sum readout
+```
+
+## Key architectural rule
+
+Framework source, overlays, and run workspaces are now separated:
+
+```text
+installed package:     rank3_enforced code and built-in overlay suites
+run workspace:         code-free results/logs/manifests only
+external overlays:     optional JSON-only overlays supplied with --overlays-dir
+```
+
+This prevents source-tree import shadowing and removes the need to copy scripts manually for each run.
+
+
+## v0.1.9 run-manager update
+
+Debug instrumentation is off by default. Use normal suite execution for ordinary candidate runs:
+
+```bash
+rank3-run-suite charge_same_opposite_association_indexed \
+  --output-root runs/charge_same_opposite_assoc_soo \
+  --signing-key ~/.rank3/private_key.pem
+```
+
+Enable path-neighborhood SOO debugging only when explicitly requested:
+
+```bash
+rank3-run-suite charge_same_opposite_association_indexed \
+  --output-root runs/charge_same_opposite_assoc_soo_debug \
+  --signing-key ~/.rank3/private_key.pem \
+  --debug --debug-depth 1 --debug-max-points 256
+```
+
+The run manager now prints overlay-by-overlay progress. Debugging is instrumentation only and does not alter SOO, stiffness, associations, or verdicts.
