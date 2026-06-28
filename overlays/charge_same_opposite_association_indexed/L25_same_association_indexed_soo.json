@@ -1,0 +1,159 @@
+{
+  "constraints": {
+    "forbid_projected_graph_evidence": true,
+    "non_overlap_required": true,
+    "require_three_phase_coherence": true
+  },
+  "controls": [],
+  "execution": {
+    "graph_mode": "directed",
+    "n_layers": 100,
+    "pair_weight_rule": "inverse_path_length",
+    "path_scope": "completed",
+    "phase_rule": "cyclic_phase",
+    "triplet_lift_rule": "product_triplet_lift"
+  },
+  "external_admission_verdict": "Ambiguous",
+  "initial_geometry": {
+    "allow_self_association": false,
+    "generation_rule": "cyclic_offsets",
+    "n_points": 48,
+    "seed": 1025
+  },
+  "initial_phi": {
+    "kind": "zeros"
+  },
+  "initialization": {
+    "amplitude": 1.0,
+    "initialization_cycles": 0,
+    "measurement_starts_after_initialization": true,
+    "mode": "support_seeded_two_ledger",
+    "require_nonzero_support_activation": true,
+    "require_vacuum_zero_elsewhere": true,
+    "settling": {
+      "consecutive_stable_cycles_required": 1,
+      "enabled": true,
+      "fail_if_not_steady": true,
+      "max_cycles": 3,
+      "min_cycles": 2,
+      "recurrence_period_max": 3,
+      "recurrence_period_min": 1,
+      "tol_max": 1e-07,
+      "tol_q95": 1e-08,
+      "tol_rms": 1e-08,
+      "tol_sign": 0.0,
+      "witness_neighborhood_depth": 0,
+      "witness_scope": "auto_influenced_exterior",
+      "zero_epsilon": 1e-12
+    },
+    "source_rule": "balanced_boundary_dressing_two_ledger_lift_v0_1",
+    "start_sites": "boundary_and_dressing_points"
+  },
+  "model_name": "charge_same_L25_association_indexed_soo",
+  "model_type": "charge_attraction_repulsion_candidate",
+  "model_version": "0.1.11",
+  "notes": "Uses default K_theta=I while stiffness feedback is placeholder; charge readout and stiffness closure verdict are separate. Run-debugging instrumentation is OFF by default and is only added by the run manager when --debug is explicitly supplied.\nInitialization now runs whole-field association-indexed SOO to a support-influenced exterior witness steady/recurrent state before measurement.",
+  "optional_modules": [
+    {
+      "module_id": "soo_stiffness_feedback",
+      "params": {
+        "default_stiffness": "identity"
+      },
+      "status": "placeholder"
+    },
+    {
+      "module_id": "charge_attraction_repulsion",
+      "params": {
+        "orientation": "same",
+        "path_length": 25
+      },
+      "status": "experimental"
+    }
+  ],
+  "path_construction": {
+    "allow_support_overlap": false,
+    "left_support": "support_A",
+    "orientation": "same",
+    "path_length": 25,
+    "path_slot": 0,
+    "reverse_slot": 1,
+    "right_support": "support_B",
+    "rule": "linear_support_path_v0_2"
+  },
+  "purpose": "Charge attraction/repulsion candidate using support-seeded two-ledger initialization and association-indexed SOO. Not admitted evidence.",
+  "readouts": [],
+  "requested_certification": false,
+  "rules": {
+    "association_remap_params": {},
+    "association_remap_rule": "candidate_identity_remap_v0_1",
+    "scalar_update_params": {
+      "epsilon": 0.1,
+      "feedback_closure": {
+        "equivalence_policy": "weak_projector_spectrum",
+        "mode": "closure_diagnostic",
+        "response_burden_rule": "path_support_packet_burden_v0_1",
+        "second_variation_estimator": "soo_residual_identity_hessian_v0"
+      },
+      "solve_policy": "orthogonal_required"
+    },
+    "scalar_update_rule": "association_indexed_soo_v1"
+  },
+  "run_kind": "candidate",
+  "schema_version": "1.0",
+  "supports": [
+    {
+      "active_phase_map": {
+        "0": 3,
+        "1": 4,
+        "2": 5
+      },
+      "boundary_points": [
+        0,
+        1,
+        2
+      ],
+      "dressing_points": [
+        3,
+        4,
+        5
+      ],
+      "handedness": "right",
+      "name": "support_A",
+      "support_points": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "active_phase_map": {
+        "0": 9,
+        "1": 10,
+        "2": 11
+      },
+      "boundary_points": [
+        6,
+        7,
+        8
+      ],
+      "dressing_points": [
+        9,
+        10,
+        11
+      ],
+      "handedness": "right",
+      "name": "support_B",
+      "support_points": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    }
+  ]
+}

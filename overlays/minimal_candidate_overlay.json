@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "model_type": "minimal_control",
+  "model_name": "minimal_candidate_overlay",
+  "model_version": "0.1.0",
+  "purpose": "Execute a data-only candidate overlay through locked candidate registry entries.",
+  "run_kind": "candidate",
+  "external_admission_verdict": "Ambiguous",
+  "requested_certification": false,
+  "initial_geometry": {
+    "n_points": 8,
+    "seed": 321,
+    "generation_rule": "random_distinct_no_self",
+    "allow_self_association": false
+  },
+  "initial_phi": {
+    "kind": "explicit",
+    "values": [1.0, -1.0, 0.5, -0.5, 0.25, -0.25, 0.0, 0.0]
+  },
+  "execution": {
+    "n_layers": 4,
+    "graph_mode": "undirected",
+    "path_scope": "completed",
+    "phase_rule": "cyclic_phase",
+    "pair_weight_rule": "inverse_path_length",
+    "triplet_lift_rule": "product_triplet_lift"
+  },
+  "rules": {
+    "scalar_update_rule": "candidate_contrast_tensor_update_v0_1",
+    "scalar_update_params": {"stiffness": 0.05},
+    "association_remap_rule": "candidate_identity_remap_v0_1"
+  },
+  "readouts": ["path_length_summary"],
+  "controls": []
+}

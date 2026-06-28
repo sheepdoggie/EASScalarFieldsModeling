@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+*.pem
+!releases/current/FRAMEWORK_RELEASE_PUBLIC_KEY.pem
+runs/
+*.log
+.DS_Store

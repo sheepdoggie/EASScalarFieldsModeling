@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "model_type": "minimal_control",
+  "model_name": "minimal_candidate_soo_overlay",
+  "model_version": "0.1.0",
+  "purpose": "Execute declarative SOO recipe through locked SOO operator registry without Python overlay code.",
+  "run_kind": "candidate",
+  "external_admission_verdict": "Ambiguous",
+  "requested_certification": false,
+  "initial_geometry": {
+    "n_points": 8,
+    "seed": 4321,
+    "generation_rule": "random_distinct_no_self",
+    "allow_self_association": false
+  },
+  "initial_phi": {
+    "kind": "explicit",
+    "values": [1.0, -1.0, 0.5, -0.5, 0.25, -0.25, 0.0, 0.0]
+  },
+  "execution": {
+    "n_layers": 4,
+    "graph_mode": "undirected",
+    "path_scope": "completed",
+    "phase_rule": "cyclic_phase",
+    "pair_weight_rule": "inverse_path_length",
+    "triplet_lift_rule": "product_triplet_lift"
+  },
+  "rules": {
+    "scalar_update_rule": "soo_declarative_v0_1",
+    "scalar_update_params": {
+      "recipe": {
+        "recipe_id": "minimal_signed_rank3_soo_recipe_v0_1",
+        "residual_terms": [
+          {
+            "id": "active_contrast",
+            "operator_id": "active_association_contrast",
+            "weight": 0.5,
+            "scope": "all_points"
+          },
+          {
+            "id": "completed_balance",
+            "operator_id": "completed_rank3_balance",
+            "weight": 0.5,
+            "scope": "all_points"
+          }
+        ],
+        "closure": {
+          "id": "linear_response",
+          "response_scale": 0.05,
+          "max_iterations": 1,
+          "tolerance": 1e-12,
+          "preserve_signed_values": true,
+          "allow_zero_crossing": true,
+          "forbid_clamping": true
+        },
+        "invariant_profile": "strict_candidate"
+      }
+    },
+    "association_remap_rule": "candidate_identity_remap_v0_1"
+  },
+  "readouts": ["path_length_summary"],
+  "controls": []
+}

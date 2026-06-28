@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "model_type": "association_indexed_soo_feedback_candidate",
+  "model_name": "minimal_association_indexed_soo_feedback",
+  "model_version": "0.1.5",
+  "purpose": "Minimal locked association-indexed second-order SOO run with stiffness-feedback closure diagnostic.",
+  "run_kind": "candidate",
+  "external_admission_verdict": "Ambiguous",
+  "initial_geometry": {
+    "n_points": 6,
+    "generation_rule": "cyclic_offsets",
+    "seed": 7
+  },
+  "initial_phi": {
+    "kind": "explicit",
+    "values": [1.0, -1.0, 0.5, -0.5, 0.25, -0.25]
+  },
+  "initialization": {
+    "mode": "explicit_phi",
+    "initialization_cycles": 0
+  },
+  "execution": {
+    "n_layers": 4,
+    "graph_mode": "directed",
+    "path_scope": "completed",
+    "phase_rule": "cyclic_phase",
+    "pair_weight_rule": "inverse_path_length",
+    "triplet_lift_rule": "product_triplet_lift"
+  },
+  "rules": {
+    "scalar_update_rule": "association_indexed_soo_v1",
+    "association_remap_rule": "candidate_identity_remap_v0_1",
+    "scalar_update_params": {
+      "epsilon": 0.1,
+      "solve_policy": "orthogonal_required",
+      "stiffness": {
+        "source_kind": "explicit_matrix_control",
+        "K": 0.5,
+        "normalization_policy": "declared_scale",
+        "equivalence_policy": "weak_projector_spectrum"
+      },
+      "feedback_closure": {
+        "mode": "closure_diagnostic",
+        "response_burden_rule": "soo_residual_burden_v0",
+        "second_variation_estimator": "soo_residual_identity_hessian_v0",
+        "equivalence_policy": "weak_projector_spectrum"
+      }
+    },
+    "association_remap_params": {}
+  },
+  "constraints": {
+    "forbid_projected_graph_evidence": true
+  },
+  "notes": "This overlay is a minimal candidate harness for the new primitive SOO law. It is not charge evidence."
+}
