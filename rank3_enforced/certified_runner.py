@@ -80,6 +80,7 @@ class EnforcedRunResult:
     stiffness_closure_report: object | None = None
     stiffness_feedback_report: object | None = None
     path_facing_association_report: object | None = None
+    role_path_remap_report: object | None = None
     run_debugging_report: object | None = None
     initialization_settling_report: InitializationSettlingReport | None = None
 
@@ -355,6 +356,8 @@ def run_model_package(package: ModelPackage) -> EnforcedRunResult:
     soo_traces = _collect_rule_traces_if_available(package.config.scalar_update_rule)
     _finalize_rule_feedback_if_available(package.config.scalar_update_rule)
     soo_execution_report = _get_rule_report_if_available(package.config.scalar_update_rule, "get_soo_execution_report")
+    if soo_execution_report is None:
+        soo_execution_report = _get_rule_report_if_available(package.config.scalar_update_rule, "get_bounded_context_execution_report")
     cyclic_return_report = _get_rule_report_if_available(package.config.scalar_update_rule, "get_cyclic_return_report")
     stiffness_input_report = _get_rule_report_if_available(package.config.scalar_update_rule, "get_stiffness_input_report")
     response_burden_report = _get_rule_report_if_available(package.config.scalar_update_rule, "get_response_burden_report")
@@ -364,6 +367,10 @@ def run_model_package(package: ModelPackage) -> EnforcedRunResult:
     path_facing_association_report = build_path_facing_association_report(
         path_report=package.path_construction_report,
         initial_state=primary_result.states[0] if primary_result.states else None,
+    )
+    role_path_remap_report = _get_rule_report_if_available(
+        package.config.association_remap_rule,
+        "get_role_path_remap_reports",
     )
     run_debugging_report = build_run_debugging_report(
         spec=package.run_debugging_spec,
@@ -449,6 +456,7 @@ def run_model_package(package: ModelPackage) -> EnforcedRunResult:
         stiffness_closure_report=stiffness_closure_report,
         stiffness_feedback_report=stiffness_feedback_report,
         path_facing_association_report=path_facing_association_report,
+        role_path_remap_report=role_path_remap_report,
         run_debugging_report=run_debugging_report,
         initialization_settling_report=package.initialization_settling_report,
     )

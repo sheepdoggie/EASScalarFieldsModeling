@@ -245,6 +245,7 @@ def write_enforced_run_package(
     write_json(output / "OPTIONAL_MODULE_REPORT.json", getattr(result, "optional_module_report", None))
     write_json(output / "PATH_CONSTRUCTION_REPORT.json", getattr(result, "path_construction_report", None))
     write_json(output / "PATH_FACING_ASSOCIATION_REPORT.json", getattr(result, "path_facing_association_report", None))
+    write_json(output / "ROLE_PATH_REMAP_REPORT.json", getattr(result, "role_path_remap_report", None))
     write_json(output / "RUN_DEBUG_REPORT.json", getattr(result, "run_debugging_report", None))
     write_json(
         output / "raw_result_package.json",

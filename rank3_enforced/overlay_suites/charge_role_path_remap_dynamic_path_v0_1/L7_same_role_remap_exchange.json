@@ -1,0 +1,250 @@
+{
+  "constraints": {
+    "forbid_projected_graph_evidence": true,
+    "non_overlap_required": true,
+    "require_three_phase_coherence": true
+  },
+  "controls": [],
+  "execution": {
+    "graph_mode": "directed",
+    "n_layers": 121,
+    "pair_weight_rule": "inverse_path_length",
+    "path_scope": "completed",
+    "phase_rule": "cyclic_phase",
+    "triplet_lift_rule": "product_triplet_lift"
+  },
+  "external_admission_verdict": "Ambiguous",
+  "initial_geometry": {
+    "allow_self_association": false,
+    "generation_rule": "cyclic_offsets",
+    "n_points": 31,
+    "seed": 2207
+  },
+  "initial_phi": {
+    "kind": "explicit",
+    "values": [
+      1.0,
+      -0.5,
+      -0.5,
+      -0.3333333333333333,
+      0.16666666666666666,
+      0.16666666666666666,
+      1.0,
+      -0.5,
+      -0.5,
+      -0.3333333333333333,
+      0.16666666666666666,
+      0.16666666666666666,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "initialization": {
+    "initialization_cycles": 0,
+    "measurement_starts_after_initialization": true,
+    "mode": "explicit_phi",
+    "require_nonzero_support_activation": false,
+    "require_vacuum_zero_elsewhere": false,
+    "settling": {
+      "enabled": false
+    },
+    "start_sites": "none"
+  },
+  "model_name": "charge_role_path_same_L7_role_remap_exchange",
+  "model_type": "charge_role_path_remap_dynamic_path_candidate",
+  "model_version": "0.1.22",
+  "notes": "This overlay is theorem-capable as a diagnostic but path mutation is disabled. Delta L must remain 0 unless a separate scalar-record admission gate is enabled.",
+  "optional_modules": [
+    {
+      "module_id": "charge_role_path_remap_dynamic_path",
+      "params": {
+        "orientation": "same",
+        "path_length": 7,
+        "path_length_mutation_enabled": false,
+        "remap_policy": "role_remap_exchange",
+        "uniform_K": 1.0
+      },
+      "status": "candidate_suite"
+    }
+  ],
+  "path_construction": {
+    "allow_support_overlap": false,
+    "left_support": "support_A",
+    "orientation": "same",
+    "path_length": 7,
+    "path_points": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "path_slot": 1,
+    "reverse_slot": 0,
+    "right_support": "support_B",
+    "rule": "role_path_two_support_v0_1"
+  },
+  "purpose": "v0.1.22 role/path remap candidate suite. Tests scalar midpoint diagnostics and remap/path infrastructure; does not certify Delta L.",
+  "readouts": [],
+  "requested_certification": false,
+  "rules": {
+    "association_remap_params": {
+      "cadence": 10,
+      "dressing_roles": [
+        {
+          "allow_path_vacuum_exchange": true,
+          "boundary_slot": 0,
+          "endpoint_side": "left",
+          "path_id": "lane0",
+          "path_slot": 1,
+          "point": 3,
+          "vacuum_slot": 2
+        },
+        {
+          "allow_path_vacuum_exchange": true,
+          "boundary_slot": 0,
+          "endpoint_side": "right",
+          "path_id": "lane0",
+          "path_slot": 1,
+          "point": 9,
+          "vacuum_slot": 2
+        }
+      ],
+      "path_records": [
+        {
+          "lane_id": "0",
+          "left_endpoint": 3,
+          "left_support_id": "support_A",
+          "ordered_nodes": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "path_id": "lane0",
+          "phase_role": 0,
+          "right_endpoint": 9,
+          "right_support_id": "support_B"
+        }
+      ]
+    },
+    "association_remap_rule": "path_continuation_role_remap_v1",
+    "scalar_update_params": {
+      "epsilon": 0.1,
+      "stiffness_values": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "scalar_update_rule": "bounded_context_soo_v1"
+  },
+  "run_kind": "candidate",
+  "schema_version": "1.0",
+  "supports": [
+    {
+      "active_phase_map": {
+        "0": 3,
+        "1": 4,
+        "2": 5
+      },
+      "boundary_points": [
+        0,
+        1,
+        2
+      ],
+      "dressing_points": [
+        3,
+        4,
+        5
+      ],
+      "handedness": "right",
+      "name": "support_A",
+      "support_points": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "active_phase_map": {
+        "0": 9,
+        "1": 10,
+        "2": 11
+      },
+      "boundary_points": [
+        6,
+        7,
+        8
+      ],
+      "dressing_points": [
+        9,
+        10,
+        11
+      ],
+      "handedness": "right",
+      "name": "support_B",
+      "support_points": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    }
+  ]
+}

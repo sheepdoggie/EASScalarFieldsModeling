@@ -366,6 +366,96 @@ class DeltaLClassificationReadout:
 
 
 @dataclass(frozen=True)
+class RolePathMidpointArrivalReadout:
+    """Locked sign-resolved midpoint arrival diagnostic for declared role/path records.
+
+    This readout is theorem-capable as a diagnostic: it reports same/opposite
+    scalar arrival structure without mutating declared path length and without
+    using orientation labels to produce the data. It is not, by itself, an
+    admission gate for L -> L +/- 1.
+    """
+
+    path_report: object
+    tolerance: float = 1e-9
+    name: str = "role_path_midpoint_arrival_readout"
+    metadata: RuleMetadata = RuleMetadata(
+        name="role_path_midpoint_arrival_readout",
+        version="0.1.22",
+        status=RuleStatus.CANDIDATE,
+        source_hash="declared_readout_role_path_midpoint_arrival_v0_1_22",
+        notes="Sign-resolved midpoint arrival diagnostic over declared path points; readout only.",
+    )
+
+    def __call__(self, result: ImmutableScalarFieldGeometryResult) -> ReadoutReport:
+        path_points = tuple(int(x) for x in getattr(self.path_report, "path_points"))
+        L = len(path_points)
+        if not L:
+            raise ValueError("role_path_midpoint_arrival_readout requires a nonempty path.")
+        left_anchor = int(getattr(self.path_report, "left_anchor"))
+        right_anchor = int(getattr(self.path_report, "right_anchor"))
+        if L % 2 == 1:
+            center_index = L // 2
+            center_points = (path_points[center_index],)
+            left_arrival_point = left_anchor if center_index == 0 else path_points[center_index - 1]
+            right_arrival_point = right_anchor if center_index == L - 1 else path_points[center_index + 1]
+            center_kind = "single_center"
+        else:
+            center_index = L // 2
+            center_points = (path_points[center_index - 1], path_points[center_index])
+            left_arrival_point = path_points[center_index - 1]
+            right_arrival_point = path_points[center_index]
+            center_kind = "center_pair"
+
+        layers: list[dict[str, Any]] = []
+        for ell in range(result.phi.shape[0]):
+            left = float(result.phi[ell, left_arrival_point])
+            right = float(result.phi[ell, right_arrival_point])
+            center_values = [float(result.phi[ell, p]) for p in center_points]
+            signed_sum = left + right
+            signed_contrast = left - right
+            pair_abs = abs(left) + abs(right)
+            layers.append({
+                "ell": int(ell),
+                "center_kind": center_kind,
+                "center_points": center_points,
+                "center_values": center_values,
+                "left_arrival_point": int(left_arrival_point),
+                "right_arrival_point": int(right_arrival_point),
+                "left_arrival": left,
+                "right_arrival": right,
+                "signed_sum_left_plus_right": signed_sum,
+                "signed_contrast_left_minus_right": signed_contrast,
+                "arrival_pair_abs": pair_abs,
+                "reinforcement_ratio_abs_sum_over_pair_abs": float(abs(signed_sum) / (pair_abs + 1e-15)),
+                "cancellation_ratio_abs_contrast_over_pair_abs": float(abs(signed_contrast) / (pair_abs + 1e-15)),
+                "arrival_cancellation_within_tolerance": bool(abs(signed_sum) <= self.tolerance),
+                "center_vacuum_equivalent_within_tolerance": bool(all(abs(v) <= self.tolerance for v in center_values)),
+            })
+
+        late_window = min(120, len(layers))
+        late = layers[-late_window:]
+        payload = {
+            "status": "diagnostic_only",
+            "path_report_hash": self.path_report.fingerprint(),
+            "declared_path_length": int(getattr(self.path_report, "path_length")),
+            "orientation_label_reported_but_not_used_for_update": str(getattr(self.path_report, "orientation")),
+            "center_kind": center_kind,
+            "center_points": center_points,
+            "tolerance": float(self.tolerance),
+            "late_window_layers": int(late_window),
+            "late_abs_sum_mean": float(np.mean([abs(x["signed_sum_left_plus_right"]) for x in late])) if late else float("nan"),
+            "late_abs_contrast_mean": float(np.mean([abs(x["signed_contrast_left_minus_right"]) for x in late])) if late else float("nan"),
+            "late_reinforcement_ratio_mean": float(np.mean([x["reinforcement_ratio_abs_sum_over_pair_abs"] for x in late])) if late else float("nan"),
+            "late_cancellation_ratio_mean": float(np.mean([x["cancellation_ratio_abs_contrast_over_pair_abs"] for x in late])) if late else float("nan"),
+            "late_arrival_cancellation_fraction": float(np.mean([x["arrival_cancellation_within_tolerance"] for x in late])) if late else float("nan"),
+            "late_center_vacuum_equivalent_fraction": float(np.mean([x["center_vacuum_equivalent_within_tolerance"] for x in late])) if late else float("nan"),
+            "layers": layers,
+            "admission_note": "Scalar midpoint diagnostic only; path-length mutation requires a separate admission gate.",
+        }
+        return ReadoutReport(self.name, payload, stable_json_hash(payload))
+
+
+@dataclass(frozen=True)
 class RelationCompletePacketReadout:
     """Relation-complete support packet readout for declared boundary/dressing records."""
 

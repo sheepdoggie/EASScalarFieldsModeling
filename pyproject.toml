@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "enforceable-rank3-modeling"
-version = "0.1.21"
+version = "0.1.22"
 description = "Enforceable Rank-3 Scalar Field Modeling Framework"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,7 +19,7 @@ py-modules = ["scalar_field_geometry"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-rank3_enforced = ["overlay_suites/charge_same_opposite_association_indexed/*.json"]
+rank3_enforced = ["overlay_suites/charge_same_opposite_association_indexed/*.json", "overlay_suites/charge_role_path_remap_dynamic_path_v0_1/*.json"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

@@ -29,7 +29,10 @@ class BuiltinSuite:
 BUILTIN_SUITES: dict[str, BuiltinSuite] = {
     "charge_same_opposite_association_indexed": BuiltinSuite(
         suite_id="charge_same_opposite_association_indexed",
-        description="L16-L32 same/opposite charge support path overlays using association-indexed SOO and two-ledger initialization.",
+        description=(
+            "Legacy L16-L32 same/opposite charge support path overlays using association-indexed SOO, "
+            "two-ledger initialization, and identity remap. Diagnostic only; not theorem-capable for Delta L."
+        ),
         required_artifacts=(
             "CERTIFICATE.json",
             "EVIDENCE_ENVELOPE.json",
@@ -47,7 +50,25 @@ BUILTIN_SUITES: dict[str, BuiltinSuite] = {
             "PATH_CONSTRUCTION_REPORT.json",
             "PATH_FACING_ASSOCIATION_REPORT.json",
         ),
-    )
+    ),
+    "charge_role_path_remap_dynamic_path_v0_1": BuiltinSuite(
+        suite_id="charge_role_path_remap_dynamic_path_v0_1",
+        description=(
+            "v0.1.22 theorem-capable candidate suite using role/path-preserving remap, "
+            "declared relational path records, sign-resolved midpoint readouts, and dynamic path infrastructure. "
+            "Path mutation remains gated and disabled unless an admission gate is declared."
+        ),
+        required_artifacts=(
+            "CERTIFICATE.json",
+            "EVIDENCE_ENVELOPE.json",
+            "OPTIONAL_MODULE_REPORT.json",
+            "SOO_EXECUTION_REPORT.json",
+            "SOO_FUNCTIONAL_REPORT.json",
+            "PATH_CONSTRUCTION_REPORT.json",
+            "PATH_FACING_ASSOCIATION_REPORT.json",
+            "ROLE_PATH_REMAP_REPORT.json",
+        ),
+    ),
 }
 
 
@@ -325,7 +346,7 @@ def write_workspace(path: str | Path) -> Path:
         "```bash\n"
         "rank3-check-release-guard --force-refresh\n"
         "rank3-list-suites\n"
-        "rank3-run-suite charge_same_opposite_association_indexed --output-root runs/charge_assoc --signing-key ~/.rank3/private_key.pem\n"
+        "rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 --output-root runs/charge_role_path --signing-key ~/.rank3/private_key.pem\n"
         "```\n\n"
         "The run manager loads built-in overlays from the installed package and writes signed evidence packages under `runs/`.\n",
         encoding="utf-8",

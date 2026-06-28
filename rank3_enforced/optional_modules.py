@@ -24,6 +24,10 @@ SUPPORTED_OPTIONAL_MODULES = {
         "status": "experimental_instrumentation",
         "purpose": "Optional run instrumentation retaining path-neighborhood SOO changes without altering SOO execution.",
     },
+    "charge_role_path_remap_dynamic_path": {
+        "status": "candidate_suite",
+        "purpose": "Theorem-capable candidate overlays using role/path remap and gated dynamic path infrastructure; not admission by itself.",
+    },
 }
 
 

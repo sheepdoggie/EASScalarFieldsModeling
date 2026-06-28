@@ -70,6 +70,8 @@ class RelationalPathRecord:
 
     def neighbor_toward_right(self, point: int) -> int:
         point = int(point)
+        if point == self.right_endpoint:
+            return self.right_endpoint
         if point == self.left_endpoint:
             return self.ordered_nodes[0]
         if point in self.ordered_nodes:
@@ -79,6 +81,8 @@ class RelationalPathRecord:
 
     def neighbor_toward_left(self, point: int) -> int:
         point = int(point)
+        if point == self.left_endpoint:
+            return self.left_endpoint
         if point == self.right_endpoint:
             return self.ordered_nodes[-1]
         if point in self.ordered_nodes:
@@ -265,11 +269,15 @@ def validate_role_paths(*, assoc: np.ndarray, paths: Sequence[RelationalPathReco
                 f"but path declares endpoint {expected_endpoint}."
             )
         current_path_target = int(assoc[role.point, role.path_slot])
-        expected_target = path.node_after_left_endpoint() if role.endpoint_side == "left" else path.node_before_right_endpoint()
-        if current_path_target != expected_target:
+        allowed_targets = set(path.ordered_nodes)
+        if role.endpoint_side == "left":
+            allowed_targets.add(path.right_endpoint)
+        else:
+            allowed_targets.add(path.left_endpoint)
+        if current_path_target not in allowed_targets:
             raise ManifestError(
                 f"Role point {role.point} path slot {role.path_slot} targets {current_path_target}, "
-                f"expected path-continuation target {expected_target}."
+                f"which is not on the declared continuation domain for path {role.path_id!r}."
             )
 
 

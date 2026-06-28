@@ -50,7 +50,7 @@ def registry_hashes() -> dict[str, str]:
     return {
         "rule_registry_hash": stable_json_hash(rule_registry_payload),
         "readout_registry_hash": stable_json_hash(sorted(set(READOUT_RULES.keys()) | PATH_READOUT_NAMES | SUPPORT_READOUT_NAMES)),
-        "model_type_registry_hash": stable_json_hash(["minimal_control", "two_support_path_adjustment", "two_support_explicit_path_adjustment", "association_indexed_soo_feedback_candidate", "charge_attraction_repulsion_candidate", "gravitation_path_candidate"]),
+        "model_type_registry_hash": stable_json_hash(["minimal_control", "two_support_path_adjustment", "two_support_explicit_path_adjustment", "association_indexed_soo_feedback_candidate", "charge_attraction_repulsion_candidate", "gravitation_path_candidate", "charge_role_path_remap_dynamic_path_candidate"]),
     }
 
 

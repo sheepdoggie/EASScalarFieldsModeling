@@ -1,6 +1,6 @@
 # EASScalarFieldsModeling
 
-Current framework release: `0.1.21` / `0.1.21-role-path-remap-dynamic-path-infrastructure`.
+Current framework release: `0.1.22` / `0.1.22-charge-role-path-suite`.
 
 This repository is GitHub-installable and also carries a versioned release ZIP under `releases/current/`.
 
@@ -15,13 +15,13 @@ pytest -q
 ## Install from GitHub after publish
 
 ```bash
-python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.21#egg=enforceable-rank3-modeling"
+python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.22#egg=enforceable-rank3-modeling"
 ```
 
 ## Install from the versioned release archive
 
 ```bash
-python -m pip install --force-reinstall releases/current/enforceable_rank3_modeling_v0.1.21_role_path_remap_dynamic_path.zip
+python -m pip install --force-reinstall releases/current/enforceable_rank3_modeling_v0.1.22_charge_role_path_suite.zip
 rank3-check-release-guard --force-refresh
 ```
 
@@ -65,3 +65,14 @@ releases/current/FRAMEWORK_RELEASE_PUBLIC_KEY.pem
 ```
 
 Unsigned packages are suitable for source review and local testing, not publication-grade external admission.
+
+
+## Built-in theorem-capable candidate suite
+
+The v0.1.22 suite is:
+
+```bash
+rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 --output-root runs/charge_role_path --continue-on-failure
+```
+
+The legacy `charge_same_opposite_association_indexed` suite remains available as a diagnostic identity-remap control, but it is not theorem-capable for `Delta L = +/- 1`.

@@ -194,6 +194,49 @@ def compile_model_type(overlay: DeclarativeOverlay) -> CompiledModelPlan:
             ),
         )
 
+
+
+    if overlay.model_type == "charge_role_path_remap_dynamic_path_candidate":
+        if overlay.path_construction.rule != "role_path_two_support_v0_1":
+            raise ManifestError("charge_role_path_remap_dynamic_path_candidate requires path_construction.rule='role_path_two_support_v0_1'.")
+        if overlay.rules.scalar_update_rule not in ("bounded_context_soo_v1", "association_indexed_soo_v1"):
+            raise ManifestError("charge_role_path_remap_dynamic_path_candidate requires bounded_context_soo_v1 or association_indexed_soo_v1.")
+        if overlay.rules.association_remap_rule not in (
+            "candidate_identity_remap_v0_1",
+            "identity_no_remap",
+            "path_continuation_role_remap_v1",
+        ):
+            raise ManifestError("charge_role_path_remap_dynamic_path_candidate requires identity or path_continuation_role_remap_v1 remap.")
+        if len(overlay.supports) != 2:
+            raise ManifestError("charge_role_path_remap_dynamic_path_candidate requires exactly two supports.")
+        if not overlay.constraints.non_overlap_required:
+            raise ManifestError("charge_role_path_remap_dynamic_path_candidate requires non_overlap_required=true.")
+        for support in overlay.supports:
+            if set(support.active_phase_map.keys()) != {0, 1, 2}:
+                raise ManifestError(f"Support {support.name!r} lacks complete active_phase_map for phases 0,1,2.")
+            if support.handedness not in ("right", "left"):
+                raise ManifestError(f"Charge role/path support {support.name!r} must declare handedness 'right' or 'left'.")
+        return CompiledModelPlan(
+            required_readouts=_dedupe(BASE_READOUTS + ("path_length_summary",) + EXPLICIT_PATH_READOUTS + ("role_path_midpoint_arrival_readout",) + CHARGE_PATH_READOUTS + overlay.requested_readouts),
+            required_controls=_dedupe(BASE_CONTROLS + (
+                "completed_path_scope",
+                "active_phase_path_scope",
+                "directed_graph_mode",
+                "undirected_graph_mode",
+            ) + overlay.requested_controls),
+            required_path_scopes=("completed", "active_phase"),
+            required_graph_modes=("directed", "undirected"),
+            required_phases=(0, 1, 2),
+            forbidden_interpretations=BASE_FORBIDDEN + (
+                "legacy_identity_remap_suite_as_theorem_capable",
+                "support_selection_after_run",
+                "path_construction_after_run",
+                "role_path_midpoint_readout_as_path_mutation",
+                "same_opposite_label_as_path_change_trigger",
+                "center_locus_as_update_input",
+            ),
+        )
+
     if overlay.model_type == "gravitation_path_candidate":
         if overlay.rules.scalar_update_rule != "association_indexed_soo_v1":
             raise ManifestError("gravitation_path_candidate requires scalar_update_rule='association_indexed_soo_v1'.")

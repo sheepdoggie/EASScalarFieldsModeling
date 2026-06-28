@@ -19,6 +19,7 @@ from .readouts import (
     ResultShapeReadout,
     StateVerificationReadout,
     StructuralSilenceReadout,
+    RolePathMidpointArrivalReadout,
     RelationCompletePacketReadout,
     CommonModeZeroSumReadout,
 )
@@ -223,6 +224,7 @@ PATH_READOUT_NAMES = {
     "center_locus_readout",
     "structural_silence_readout",
     "delta_l_classification",
+    "role_path_midpoint_arrival_readout",
 }
 
 SUPPORT_READOUT_NAMES = {
@@ -239,6 +241,8 @@ def _build_path_readout(name: str, *, path_construction_report: object | None) -
         return StructuralSilenceReadout(path_construction_report)
     if name == "delta_l_classification":
         return DeltaLClassificationReadout(path_construction_report)
+    if name == "role_path_midpoint_arrival_readout":
+        return RolePathMidpointArrivalReadout(path_construction_report)
     raise ManifestError(f"Unknown locked path readout rule: {name}")
 
 

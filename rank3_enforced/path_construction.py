@@ -180,6 +180,80 @@ def _permutation_path_assoc_v0_2(
     sfg.validate_association_array(assoc, allow_self_association=False)
     return assoc
 
+
+def _role_path_two_support_assoc_v0_1(
+    *,
+    n_points: int,
+    left_support: object,
+    right_support: object,
+    left_anchor: int,
+    right_anchor: int,
+    path_points: Sequence[int],
+    allow_self_association: bool,
+) -> np.ndarray:
+    """Construct a role/path-preserving two-support path geometry.
+
+    This construction exists so role/path remap tests do not have to misuse the
+    older permutation path constructor. Dressing endpoint slot 0 remains
+    boundary-facing, slot 1 is path-facing, and slot 2 is vacuum-facing. Path
+    nodes use slot 0 toward the left endpoint, slot 1 toward the right endpoint,
+    and slot 2 as a non-path/vacuum-facing completion.
+    """
+    assoc = _base_cyclic_assoc(n_points)
+    left_boundaries = tuple(int(x) for x in getattr(left_support, "boundary_points", ()))
+    right_boundaries = tuple(int(x) for x in getattr(right_support, "boundary_points", ()))
+    left_dressings = tuple(int(x) for x in getattr(left_support, "dressing_points", ()))
+    right_dressings = tuple(int(x) for x in getattr(right_support, "dressing_points", ()))
+    if not left_boundaries or not right_boundaries:
+        raise ManifestError("role_path_two_support_v0_1 requires boundary_points on both supports.")
+    if left_anchor not in left_dressings or right_anchor not in right_dressings:
+        raise ManifestError("role_path_two_support_v0_1 anchors must be dressing points.")
+
+    support_and_path = set(_all_support_indices((left_support, right_support))) | set(int(x) for x in path_points)
+    vacuum_candidates = [p for p in range(n_points) if p not in support_and_path]
+    if len(vacuum_candidates) < 3:
+        raise ManifestError("role_path_two_support_v0_1 requires at least three non-support/non-path vacuum completion points.")
+
+    def vac(index: int) -> int:
+        return int(vacuum_candidates[index % len(vacuum_candidates)])
+
+    # Boundary rows remain bounded/support-facing; deterministic completion only.
+    for support in (left_support, right_support):
+        boundaries = tuple(int(x) for x in getattr(support, "boundary_points", ()))
+        dressings = tuple(int(x) for x in getattr(support, "dressing_points", ()))
+        for i, b in enumerate(boundaries[:3]):
+            preferred = (boundaries[(i + 1) % len(boundaries)], boundaries[(i - 1) % len(boundaries)], dressings[i % len(dressings)])
+            assoc[b, :] = np.asarray(_complete_row(source=b, preferred=preferred, n_points=n_points, allow_self_association=allow_self_association), dtype=np.int64)
+        for i, d in enumerate(dressings[:3]):
+            # All dressing points have a fixed boundary-facing slot 0. Only the
+            # phase-0 anchors get the explicit inter-support path in slot 1.
+            boundary = boundaries[i % len(boundaries)]
+            path_target = path_points[0] if d == left_anchor else (path_points[-1] if d == right_anchor else vac(i + 5))
+            preferred = (boundary, path_target, vac(i))
+            row = [int(preferred[0]), int(preferred[1]), int(preferred[2])]
+            if len(set(row)) != 3 or (not allow_self_association and d in row):
+                row = list(_complete_row(source=d, preferred=preferred, n_points=n_points, allow_self_association=allow_self_association))
+                row[0] = int(boundary)
+                row[1] = int(path_target)
+                if len(set(row)) != 3 or (not allow_self_association and d in row):
+                    row = list(_complete_row(source=d, preferred=(boundary, path_target, vac(i)), n_points=n_points, allow_self_association=allow_self_association))
+            assoc[d, :] = np.asarray(row, dtype=np.int64)
+
+    # Ordered relational path: slot 0 toward left, slot 1 toward right, slot 2 vacuum.
+    for index, point in enumerate(path_points):
+        leftward = left_anchor if index == 0 else path_points[index - 1]
+        rightward = right_anchor if index == len(path_points) - 1 else path_points[index + 1]
+        row = [int(leftward), int(rightward), vac(index + 17)]
+        if len(set(row)) != 3 or (not allow_self_association and int(point) in row):
+            row = list(_complete_row(source=int(point), preferred=(leftward, rightward, vac(index + 17)), n_points=n_points, allow_self_association=allow_self_association))
+            row[0] = int(leftward)
+            row[1] = int(rightward)
+            if len(set(row)) != 3 or (not allow_self_association and int(point) in row):
+                raise ManifestError("role_path_two_support_v0_1 could not complete a path row with distinct targets.")
+        assoc[int(point), :] = np.asarray(row, dtype=np.int64)
+
+    return assoc
+
 def build_explicit_path_association_state(
     *,
     n_points: int,
@@ -195,7 +269,7 @@ def build_explicit_path_association_state(
     """
 
     rule = str(getattr(path_spec, "rule", "none"))
-    if rule not in ("linear_support_path_v0_1", "linear_support_path_v0_2"):
+    if rule not in ("linear_support_path_v0_1", "linear_support_path_v0_2", "role_path_two_support_v0_1"):
         raise ManifestError(f"Unsupported explicit path construction rule: {rule}")
     if len(supports) < 2:
         raise ManifestError("linear_support_path_v0_1 requires at least two supports.")
@@ -243,6 +317,16 @@ def build_explicit_path_association_state(
             path_points=path_points,
             path_slot=path_slot,
             reverse_slot=reverse_slot,
+        )
+    elif rule == "role_path_two_support_v0_1":
+        assoc = _role_path_two_support_assoc_v0_1(
+            n_points=n_points,
+            left_support=left_support,
+            right_support=right_support,
+            left_anchor=left_anchor,
+            right_anchor=right_anchor,
+            path_points=path_points,
+            allow_self_association=allow_self_association,
         )
     else:
         assoc = _base_cyclic_assoc(n_points)

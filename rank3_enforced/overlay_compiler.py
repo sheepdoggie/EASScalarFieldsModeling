@@ -162,7 +162,7 @@ def compile_overlay_to_model_package(
     )
 
     path_construction_report = None
-    if overlay.path_construction.rule in ("linear_support_path_v0_1", "linear_support_path_v0_2"):
+    if overlay.path_construction.rule in ("linear_support_path_v0_1", "linear_support_path_v0_2", "role_path_two_support_v0_1"):
         initial_state, path_construction_report = build_explicit_path_association_state(
             n_points=overlay.initial_geometry.n_points,
             path_spec=overlay.path_construction,

@@ -61,12 +61,12 @@ class PathContinuationRoleRemapRule:
     name: str = RULE_ID
     metadata: RuleMetadata = RuleMetadata(
         name=RULE_ID,
-        version="0.1.21",
+        version="0.1.22",
         status=RuleStatus.CANDIDATE,
         source_hash="locked_candidate_path_continuation_role_remap_v1",
         allowed_for_certified_runs=False,
         notes=(
-            "Candidate role/path-preserving remap. Boundary-facing dressing slot is fixed; "
+            "Candidate role/path-preserving remap with continuation-domain validation. Boundary-facing dressing slot is fixed; "
             "path-facing and vacuum-facing roles are declarative and may exchange only if enabled. "
             "No scalar values are moved. Not admitted as EAS law."
         ),

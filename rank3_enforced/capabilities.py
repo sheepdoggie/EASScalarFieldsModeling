@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.21"
-FRAMEWORK_RELEASE_LABEL = "0.1.21-role-path-remap-dynamic-path-infrastructure"
+FRAMEWORK_VERSION = "0.1.22"
+FRAMEWORK_RELEASE_LABEL = "0.1.22-role-path-remap-dynamic-path-infrastructure"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -98,6 +98,13 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "github_installable_source_tree",
         "versioned_release_archive",
         "release_manifest_capability_check",
+        "charge_role_path_remap_dynamic_path_suite_v0_1",
+        "role_path_two_support_path_construction_v0_1",
+        "role_path_midpoint_arrival_readout",
+        "role_path_remap_report_artifact",
+        "legacy_charge_identity_remap_suite_marked_not_theorem_capable",
+        "path_change_admission_gate_policy_v0_1",
+        "initialization_steady_state_gate_policy_v0_1",
     }
 )
 

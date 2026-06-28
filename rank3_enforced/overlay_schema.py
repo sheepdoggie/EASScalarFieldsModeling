@@ -342,11 +342,11 @@ def parse_declarative_overlay(payload: dict[str, Any]) -> DeclarativeOverlay:
     if overlay.initialization.mode in ("support_seeded", "support_seeded_two_ledger") and not overlay.supports:
         raise ManifestError(f"{overlay.initialization.mode} initialization requires supports.")
 
-    if overlay.path_construction.rule not in ("none", "linear_support_path_v0_1", "linear_support_path_v0_2"):
+    if overlay.path_construction.rule not in ("none", "linear_support_path_v0_1", "linear_support_path_v0_2", "role_path_two_support_v0_1"):
         raise ManifestError(f"Unsupported path_construction.rule: {overlay.path_construction.rule}")
     if overlay.path_construction.rule == "none" and overlay.path_construction.path_length:
         raise ManifestError("path_construction.path_length requires a non-none path_construction.rule.")
-    if overlay.path_construction.rule in ("linear_support_path_v0_1", "linear_support_path_v0_2"):
+    if overlay.path_construction.rule in ("linear_support_path_v0_1", "linear_support_path_v0_2", "role_path_two_support_v0_1"):
         if overlay.path_construction.path_length < 1:
             raise ManifestError("linear_support_path_v0_1 requires path_length >= 1.")
         if overlay.path_construction.orientation not in ("same", "opposite", "unspecified"):
