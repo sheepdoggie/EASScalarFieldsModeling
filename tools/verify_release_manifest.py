@@ -39,6 +39,8 @@ def main() -> int:
     print("Manifest signature: valid")
     print("Latest version:", manifest.get("latest_framework_version"))
     print("Latest hash:   ", manifest.get("latest_framework_sha256"))
+    print("Latest code:   ", manifest.get("latest_framework_code_sha256"))
+    print("Accepted code:", manifest.get("accepted_framework_code_sha256"))
     if len(sys.argv) == 5:
         fw_path = pathlib.Path(sys.argv[4])
         actual = sha256_file(fw_path)

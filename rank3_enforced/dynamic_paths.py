@@ -8,7 +8,7 @@ import numpy as np
 from .exceptions import ManifestError
 from .fingerprints import array_hash, stable_json_hash
 
-PathChangeKind = Literal["none", "shorten", "lengthen"]
+PathChangeKind = Literal["none", "shorten", "lengthen"]  # deprecated for intrinsic rules; v0.1.23 uses external monitor requests.
 
 
 @dataclass(frozen=True)
@@ -152,11 +152,12 @@ class GeometryTransactionReport:
 
 @dataclass(frozen=True)
 class PathChangeAdmission:
-    """Declarative gate result for path length mutation.
+    """Deprecated internal gate record retained for archive compatibility.
 
-    This is a gate record, not a physics verdict. It is intentionally explicit
-    so that L -> L +/- 1 cannot be triggered by labels such as 'same' or
-    'opposite'.
+    v0.1.23 no longer treats path length changes as framework-intrinsic EAS
+    rules. New exploratory path edits should use external_path_monitor.py, where
+    an external monitor explicitly requests add/remove operations and the
+    framework only validates/logs the transaction.
     """
 
     admitted: bool
@@ -286,13 +287,12 @@ def shorten_path_record(
     assoc: np.ndarray,
     path: RelationalPathRecord,
     admission: PathChangeAdmission,
-    operation_id: str = "path_shortening_v1",
+    operation_id: str = "path_shortening_v1_deprecated",
 ) -> PathMutationResult:
-    """Return a path-shortening transaction result without scalar movement.
+    """Deprecated archive-compatibility helper.
 
-    Odd path: remove the single center node from the active ordered path record.
-    Even path: rejected here; center-pair handling requires a separate admitted
-    pair-collapse rule.
+    Do not use as an intrinsic framework rule. v0.1.23 path edits should be
+    requested by external monitors through external_path_monitor.py.
     """
     admission.require_admitted(operation_id)
     if path.path_length % 2 == 0:
@@ -342,13 +342,12 @@ def lengthen_path_record(
     path: RelationalPathRecord,
     new_node: int,
     admission: PathChangeAdmission,
-    operation_id: str = "path_lengthening_v1",
+    operation_id: str = "path_lengthening_v1_deprecated",
 ) -> PathMutationResult:
-    """Return a path-lengthening transaction result without scalar movement.
+    """Deprecated archive-compatibility helper.
 
-    Inserts an already-existing spare point into the active ordered path record
-    at the center. This does not create a new scalar point; it makes an existing
-    vacuum/spare point path-carrier eligible by association transaction.
+    Do not use as an intrinsic framework rule. v0.1.23 path edits should be
+    requested by external monitors through external_path_monitor.py.
     """
     admission.require_admitted(operation_id)
     assoc_in = np.asarray(assoc, dtype=np.int64)

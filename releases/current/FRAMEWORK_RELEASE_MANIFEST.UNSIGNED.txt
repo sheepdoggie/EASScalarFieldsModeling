@@ -1,1 +1,1 @@
-Unsigned release manifest. Sign before publication-grade external admission.
+UNSIGNED: Sign FRAMEWORK_RELEASE_MANIFEST.json before publication-grade external admission.

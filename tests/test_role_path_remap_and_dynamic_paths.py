@@ -3,10 +3,13 @@ import pytest
 import scalar_field_geometry as sfg
 from rank3_enforced.dynamic_paths import (
     DressingRoleMap,
-    PathChangeAdmission,
     RelationalPathRecord,
-    lengthen_path_record,
-    shorten_path_record,
+)
+from rank3_enforced.external_path_monitor import (
+    ExternalPathEditRequest,
+    apply_external_path_edit_request,
+    call_external_path_monitor,
+    make_path_monitor_snapshot,
 )
 from rank3_enforced.exceptions import ManifestError
 from rank3_enforced.locked_registries import build_association_remap_rule
@@ -133,7 +136,7 @@ def test_registry_builds_path_continuation_role_remap_rule():
     assert rule.name == "path_continuation_role_remap_v1"
 
 
-def test_path_shortening_and_lengthening_require_admission_gate():
+def test_external_path_monitor_applies_requested_remove_and_insert_without_ontology_rule():
     assoc = np.array([
         [1, 5, 6],
         [0, 2, 6],
@@ -144,19 +147,37 @@ def test_path_shortening_and_lengthening_require_admission_gate():
         [0, 1, 2],
     ], dtype=np.int64)
     path = RelationalPathRecord(path_id="lane0", left_endpoint=0, right_endpoint=4, ordered_nodes=(1, 2, 3))
-    rejected = PathChangeAdmission(admitted=False, reason="control failed")
+    snapshot = make_path_monitor_snapshot(assoc=assoc, path=path, cycle=12, phase=0)
+    assert snapshot.path_length == 3
     with pytest.raises(ManifestError):
-        shorten_path_record(assoc=assoc, path=path, admission=rejected)
-    admitted = PathChangeAdmission(
-        admitted=True,
-        reason="test gate",
-        phase_complete=True,
-        negative_controls_passed=True,
-        label_independence_checked=True,
+        call_external_path_monitor(snapshot, lambda _s: ExternalPathEditRequest(operation="none"))
+
+    remove_request = ExternalPathEditRequest(
+        operation="remove_node",
+        path_id="lane0",
+        target_node=2,
+        reason="exploratory midpoint monitor",
+        monitor_fingerprint=snapshot.fingerprint(),
     )
-    shrunk = shorten_path_record(assoc=assoc, path=path, admission=admitted)
-    assert shrunk.path_after.ordered_nodes == (1, 3)
-    assert shrunk.transaction_report.validation["delta_L"] == -1
-    grown = lengthen_path_record(assoc=assoc, path=path, new_node=6, admission=admitted)
-    assert grown.path_after.path_length == path.path_length + 1
-    assert grown.transaction_report.validation["delta_L"] == 1
+    removed = apply_external_path_edit_request(assoc=assoc, path=path, request=remove_request)
+    assert removed.path_after.ordered_nodes == (1, 3)
+    assert removed.transaction_report.validation["delta_L"] == -1
+    assert removed.transaction_report.validation["ontology_rule"] is False
+    assert removed.transaction_report.scalar_values_moved is False
+
+    insert_request = ExternalPathEditRequest(
+        operation="insert_existing_node",
+        path_id="lane0",
+        new_node=6,
+        insert_after_index=1,
+        reason="exploratory reinforcement monitor",
+        monitor_fingerprint=snapshot.fingerprint(),
+    )
+    inserted = apply_external_path_edit_request(assoc=assoc, path=path, request=insert_request)
+    assert inserted.path_after.ordered_nodes == (1, 2, 6, 3)
+    assert inserted.transaction_report.validation["delta_L"] == 1
+    assert inserted.transaction_report.validation["external_monitor_request_required"] is True
+
+    bad_request = ExternalPathEditRequest(operation="remove_node", path_id="lane0", target_node=2, ontology_rule=True)
+    with pytest.raises(ManifestError):
+        apply_external_path_edit_request(assoc=assoc, path=path, request=bad_request)

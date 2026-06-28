@@ -110,3 +110,8 @@ All geometry transactions report:
 ## Certification status
 
 These rules are candidate infrastructure. They are not admitted EAS laws. Publication-certified scientific runs must still include blind generation/projection separation, controls, label-independence checks, and signed evidence packages.
+
+
+## v0.1.23 supersession note
+
+This earlier document is retained for archive provenance. v0.1.23 supersedes intrinsic/gated path-length change wording: path add/remove is not EAS ontology and is not an intrinsic framework rule. Exploratory path length edits must use the external path-monitor API (`external_path_monitor.py`), where an external monitor explicitly requests an edit and the framework only validates/logs the transaction without moving scalar values.

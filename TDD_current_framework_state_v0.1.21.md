@@ -38,3 +38,8 @@ The package was validated with:
 python -m compileall: pass
 pytest: 45 passed
 ```
+
+
+## v0.1.23 supersession note
+
+This earlier document is retained for archive provenance. v0.1.23 supersedes intrinsic/gated path-length change wording: path add/remove is not EAS ontology and is not an intrinsic framework rule. Exploratory path length edits must use the external path-monitor API (`external_path_monitor.py`), where an external monitor explicitly requests an edit and the framework only validates/logs the transaction without moving scalar values.

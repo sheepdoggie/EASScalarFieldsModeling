@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.22"
-FRAMEWORK_RELEASE_LABEL = "0.1.22-role-path-remap-dynamic-path-infrastructure"
+FRAMEWORK_VERSION = "0.1.23"
+FRAMEWORK_RELEASE_LABEL = "0.1.23-external-path-monitor-workspace-layout"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -90,10 +90,13 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "role_based_dressing_association_map",
         "orientation_aware_path_continuation",
         "geometry_transaction_reports",
-        "gated_path_shortening_v1",
-        "gated_path_lengthening_v1",
         "relational_path_record_registry",
-        "dynamic_path_length_infrastructure",
+        "path_length_change_external_monitor_only",
+        "external_path_monitor_api_v0_1",
+        "path_edit_transaction_validator_v0_1",
+        "path_edit_not_intrinsic_framework_rule",
+        "active_path_record_external_edit_support",
+        "separate_install_and_run_subtrees",
         "publication_certified_run_mode",
         "github_installable_source_tree",
         "versioned_release_archive",
@@ -104,6 +107,9 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "role_path_remap_report_artifact",
         "legacy_charge_identity_remap_suite_marked_not_theorem_capable",
         "path_change_admission_gate_policy_v0_1",
+        "path_change_external_monitor_policy_v0_1",
+        "latest_framework_code_sha256_manifest_field",
+        "accepted_framework_code_sha256_manifest_field",
         "initialization_steady_state_gate_policy_v0_1",
     }
 )

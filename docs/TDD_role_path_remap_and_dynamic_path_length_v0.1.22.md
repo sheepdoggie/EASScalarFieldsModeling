@@ -29,3 +29,8 @@ Path mutation remains gated infrastructure. No built-in charge suite forces `Del
 ## Required next step
 
 Use v0.1.22 to run the role/path suite, audit the scalar midpoint readouts, and then design scalar-record-only admission gates for path shortening/lengthening.
+
+
+## v0.1.23 supersession note
+
+This earlier document is retained for archive provenance. v0.1.23 supersedes intrinsic/gated path-length change wording: path add/remove is not EAS ontology and is not an intrinsic framework rule. Exploratory path length edits must use the external path-monitor API (`external_path_monitor.py`), where an external monitor explicitly requests an edit and the framework only validates/logs the transaction without moving scalar values.

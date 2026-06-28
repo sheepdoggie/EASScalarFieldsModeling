@@ -1,10 +1,11 @@
-__version__ = "0.1.22"
+__version__ = "0.1.23"
 
 from .certified_runner import ModelPackage, run_declarative_overlay, run_model_package
 from .controls import CertifiedIdentityRemapRule, ZeroScalarUpdateRule
 from .exceptions import CertificationBlocked, ManifestError
 from .manifest import DiagnosticManifest, ModelManifest
-from .dynamic_paths import RelationalPathRecord, DressingRoleMap, PathChangeAdmission, GeometryTransactionReport
+from .dynamic_paths import RelationalPathRecord, DressingRoleMap, GeometryTransactionReport
+from .external_path_monitor import PathMonitorSnapshot, ExternalPathEditRequest, ExternalPathEditResult
 from .rule_metadata import AdmissionVerdict, RuleMetadata, RuleStatus
 
 __all__ = [
@@ -18,8 +19,10 @@ __all__ = [
     "ModelPackage",
     "RelationalPathRecord",
     "DressingRoleMap",
-    "PathChangeAdmission",
     "GeometryTransactionReport",
+    "PathMonitorSnapshot",
+    "ExternalPathEditRequest",
+    "ExternalPathEditResult",
     "RuleMetadata",
     "RuleStatus",
     "ZeroScalarUpdateRule",

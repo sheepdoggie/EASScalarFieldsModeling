@@ -1,78 +1,39 @@
 # EASScalarFieldsModeling
 
-Current framework release: `0.1.22` / `0.1.22-charge-role-path-suite`.
+Current framework release: `0.1.23` / `0.1.23-external-path-monitor-workspace-layout`.
 
-This repository is GitHub-installable and also carries a versioned release ZIP under `releases/current/`.
+This package is a GitHub-installable rank-3 scalar-field modeling framework with locked registries, publication-certified run infrastructure, role/path remap support, and separated install/run workspace helpers.
 
-## Install from source checkout
+## v0.1.23 highlights
+
+- Path-length changes are **external exploratory monitor requests**, not intrinsic EAS ontology.
+- Added `external_path_monitor.py` with validated add/remove path-edit transactions.
+- External Python callbacks are disabled unless explicitly allowed for exploratory non-certified work.
+- Added separated workspace layout helper:
 
 ```bash
-python -m pip install --upgrade pip
-python -m pip install -e .
-pytest -q
+rank3-init-workspace --separate-subtrees --project-root ~/Projects
 ```
 
-## Install from GitHub after publish
+- Release manifest now includes:
+  - `latest_framework_code_sha256`
+  - `accepted_framework_code_sha256`
+
+## Install from GitHub tag
 
 ```bash
-python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.22#egg=enforceable-rank3-modeling"
+python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.23#egg=enforceable-rank3-modeling"
 ```
 
-## Install from the versioned release archive
+## Run a suite
 
 ```bash
-python -m pip install --force-reinstall releases/current/enforceable_rank3_modeling_v0.1.22_charge_role_path_suite.zip
-rank3-check-release-guard --force-refresh
-```
-
-## Publication-certified run mode
-
-Generate keys:
-
-```bash
-rank3-generate-signing-key --private-key ~/.rank3/private_key.pem --public-key ~/.rank3/public_key.pem
-rank3-generate-encryption-key --private-key ~/.rank3/recipient_private_key.pem --public-key ~/.rank3/recipient_public_key.pem
-```
-
-Run a publication-certified overlay:
-
-```bash
-rank3-run-publication-certified overlays/minimal_candidate_overlay.json runs/example_pubcert \
+rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 \
+  --output-root ~/Projects/EAS_runs/results/charge_role_path_v0123 \
   --signing-key ~/.rank3/private_key.pem \
-  --recipient-public-key ~/.rank3/recipient_public_key.pem
+  --continue-on-failure
 ```
 
-Verify:
+## Important theorem status
 
-```bash
-rank3-verify-publication-certified runs/example_pubcert
-rank3-verify-publication-certified runs/example_pubcert --recipient-private-key ~/.rank3/recipient_private_key.pem
-```
-
-## Release manifest
-
-The current release manifest is:
-
-```text
-releases/current/FRAMEWORK_RELEASE_MANIFEST.json
-```
-
-This package is unsigned until a maintainer signs `FRAMEWORK_RELEASE_MANIFEST.json` and adds:
-
-```text
-releases/current/FRAMEWORK_RELEASE_MANIFEST.sig
-releases/current/FRAMEWORK_RELEASE_PUBLIC_KEY.pem
-```
-
-Unsigned packages are suitable for source review and local testing, not publication-grade external admission.
-
-
-## Built-in theorem-capable candidate suite
-
-The v0.1.22 suite is:
-
-```bash
-rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 --output-root runs/charge_role_path --continue-on-failure
-```
-
-The legacy `charge_same_opposite_association_indexed` suite remains available as a diagnostic identity-remap control, but it is not theorem-capable for `Delta L = +/- 1`.
+The framework does not certify `same -> Delta L = +1` or `opposite -> Delta L = -1`.  v0.1.23 specifically prevents path add/remove from being treated as an intrinsic framework rule.

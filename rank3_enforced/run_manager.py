@@ -54,9 +54,9 @@ BUILTIN_SUITES: dict[str, BuiltinSuite] = {
     "charge_role_path_remap_dynamic_path_v0_1": BuiltinSuite(
         suite_id="charge_role_path_remap_dynamic_path_v0_1",
         description=(
-            "v0.1.22 theorem-capable candidate suite using role/path-preserving remap, "
-            "declared relational path records, sign-resolved midpoint readouts, and dynamic path infrastructure. "
-            "Path mutation remains gated and disabled unless an admission gate is declared."
+            "v0.1.23 candidate suite using role/path-preserving remap, "
+            "declared relational path records, and sign-resolved midpoint readouts. "
+            "Path add/remove is external-monitor-only, not intrinsic framework ontology."
         ),
         required_artifacts=(
             "CERTIFICATE.json",
