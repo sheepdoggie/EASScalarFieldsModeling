@@ -1,12 +1,14 @@
-# Never commit private keys
-*.private.pem
-*private_key*.pem
-release_private_key.pem
-.rank3/
-
-# Python/cache
 __pycache__/
-*.pyc
+*.py[cod]
 .pytest_cache/
+.mypy_cache/
 .venv/
 venv/
+build/
+dist/
+*.egg-info/
+*.pem
+!releases/current/FRAMEWORK_RELEASE_PUBLIC_KEY.pem
+runs/
+*.log
+.DS_Store

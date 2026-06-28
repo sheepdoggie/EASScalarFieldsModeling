@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "model_type": "minimal_control",
+  "model_name": "minimal_control_overlay",
+  "model_version": "0.1.0",
+  "purpose": "Execute a data-only control overlay through the locked registry path.",
+  "run_kind": "control",
+  "external_admission_verdict": "Control",
+  "requested_certification": false,
+  "initial_geometry": {
+    "n_points": 8,
+    "seed": 123,
+    "generation_rule": "random_distinct_no_self",
+    "allow_self_association": false
+  },
+  "initial_phi": {
+    "kind": "zeros"
+  },
+  "execution": {
+    "n_layers": 4,
+    "graph_mode": "undirected",
+    "path_scope": "completed",
+    "phase_rule": "cyclic_phase",
+    "pair_weight_rule": "inverse_path_length",
+    "triplet_lift_rule": "product_triplet_lift"
+  },
+  "rules": {
+    "scalar_update_rule": "zero_scalar_update",
+    "association_remap_rule": "identity_no_remap"
+  },
+  "readouts": [],
+  "controls": []
+}

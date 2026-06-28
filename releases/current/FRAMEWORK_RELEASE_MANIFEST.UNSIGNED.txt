@@ -1,1 +1,1 @@
-This manifest is intentionally unsigned in this bundle. Generate your own release key, sign FRAMEWORK_RELEASE_MANIFEST.json, and commit only the public key and .sig file. Never commit the private key.
+Unsigned generated release manifest. Sign with tools/sign_release_manifest.py before publication-grade use.

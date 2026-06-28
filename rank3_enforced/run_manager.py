@@ -1,0 +1,529 @@
+from __future__ import annotations
+
+import fnmatch
+import json
+import traceback
+import time
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from importlib import resources
+from pathlib import Path
+from typing import Iterable, Sequence
+
+from .certified_runner import run_declarative_overlay
+from .fingerprints import file_hash, stable_json_hash
+from .package_manifest import default_environment_record, package_and_sign_enforced_result
+from .signing import verify_certificate
+from .version_guard import enforce_latest_release_guard
+
+BUILTIN_SUITE_ROOT = "overlay_suites"
+
+
+@dataclass(frozen=True)
+class BuiltinSuite:
+    suite_id: str
+    description: str
+    required_artifacts: tuple[str, ...]
+
+
+BUILTIN_SUITES: dict[str, BuiltinSuite] = {
+    "charge_same_opposite_association_indexed": BuiltinSuite(
+        suite_id="charge_same_opposite_association_indexed",
+        description="L16-L32 same/opposite charge support path overlays using association-indexed SOO and two-ledger initialization.",
+        required_artifacts=(
+            "CERTIFICATE.json",
+            "EVIDENCE_ENVELOPE.json",
+            "INITIAL_TWO_LEDGER_REPORT.json",
+            "INITIALIZATION_SETTLING_REPORT.json",
+            "OPTIONAL_MODULE_REPORT.json",
+            "SOO_EXECUTION_REPORT.json",
+            "CYCLIC_RETURN_REPORT.json",
+            "STIFFNESS_INPUT_REPORT.json",
+            "RESPONSE_BURDEN_REPORT.json",
+            "INDUCED_STIFFNESS_REPORT.json",
+            "STIFFNESS_CLOSURE_REPORT.json",
+            "STIFFNESS_FEEDBACK_REPORT.json",
+            "SOO_FUNCTIONAL_REPORT.json",
+            "PATH_CONSTRUCTION_REPORT.json",
+            "PATH_FACING_ASSOCIATION_REPORT.json",
+        ),
+    )
+}
+
+
+@dataclass(frozen=True)
+class OverlayRunRecord:
+    case_id: str
+    overlay_path: str
+    output_dir: str
+    status: str
+    certificate_valid: bool | None
+    base_gate_passed: bool | None
+    external_verdict: str | None
+    missing_required_artifacts: tuple[str, ...]
+    error: str | None = None
+
+
+@dataclass(frozen=True)
+class SuiteRunReport:
+    suite_id: str
+    started_utc: str
+    finished_utc: str
+    output_root: str
+    overlay_count: int
+    passed_count: int
+    failed_count: int
+    release_guard_passed: bool
+    release_guard_cache: str | None
+    records: tuple[OverlayRunRecord, ...]
+    report_hash: str
+
+    def to_dict(self) -> dict[str, object]:
+        d = asdict(self)
+        return d
+
+
+def _now_utc() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def default_signing_key() -> Path:
+    return Path.home() / ".rank3" / "private_key.pem"
+
+
+def suite_resource_files(suite_id: str) -> list[Path]:
+    if suite_id not in BUILTIN_SUITES:
+        raise ValueError(f"Unknown built-in suite: {suite_id}")
+    suite_res = resources.files("rank3_enforced").joinpath(BUILTIN_SUITE_ROOT, suite_id)
+    paths: list[Path] = []
+    with resources.as_file(suite_res) as suite_path:
+        if not suite_path.exists():
+            raise FileNotFoundError(f"Built-in suite resources not found: {suite_id}")
+        paths = sorted(Path(suite_path).glob("*.json"))
+    return paths
+
+
+def overlay_files_from_source(*, suite_id: str | None = None, overlays_dir: str | Path | None = None) -> list[Path]:
+    if suite_id and overlays_dir:
+        raise ValueError("Use either suite_id or overlays_dir, not both.")
+    if suite_id:
+        return suite_resource_files(suite_id)
+    if overlays_dir is None:
+        raise ValueError("Either suite_id or overlays_dir is required.")
+    root = Path(overlays_dir)
+    files = sorted(root.glob("*.json"))
+    if not files:
+        raise FileNotFoundError(f"No JSON overlays found in {root}")
+    return files
+
+
+def filter_overlay_files(
+    files: Sequence[Path],
+    *,
+    case_ids: Sequence[str] = (),
+    case_globs: Sequence[str] = (),
+) -> list[Path]:
+    """Filter overlay files by case stem without depending on cwd.
+
+    case_ids are exact overlay stems without .json. case_globs are fnmatch
+    patterns applied to the same stem. The original sorted file order is
+    preserved. Missing exact case IDs are rejected fail-closed.
+    """
+    ids = tuple(str(x) for x in case_ids if str(x).strip())
+    globs = tuple(str(x) for x in case_globs if str(x).strip())
+    if not ids and not globs:
+        return list(files)
+    by_stem = {p.stem: p for p in files}
+    missing = tuple(x for x in ids if x not in by_stem)
+    if missing:
+        raise FileNotFoundError(
+            "Requested overlay case(s) not found: "
+            + ", ".join(missing)
+            + ". Available cases include: "
+            + ", ".join(sorted(by_stem)[:10])
+        )
+    selected: list[Path] = []
+    selected_stems: set[str] = set()
+    for p in files:
+        stem = p.stem
+        matched = stem in ids or any(fnmatch.fnmatchcase(stem, pattern) for pattern in globs)
+        if matched and stem not in selected_stems:
+            selected.append(p)
+            selected_stems.add(stem)
+    if not selected:
+        raise FileNotFoundError(
+            "No overlay cases matched filters: exact="
+            + repr(ids)
+            + " globs="
+            + repr(globs)
+        )
+    return selected
+
+
+
+def _debug_module_params(*, depth: int, max_points: int) -> dict[str, object]:
+    return {
+        "module_id": "run_debugging",
+        "status": "experimental_instrumentation",
+        "params": {
+            "enabled": True,
+            "path_neighborhood_depth": int(depth),
+            "include_phi_history": True,
+            "include_ordered_differences": True,
+            "include_association_rows": True,
+            "include_soo_step_report_links": True,
+            "max_points": int(max_points),
+        },
+    }
+
+
+def stage_overlay_with_debug(
+    *,
+    overlay_path: str | Path,
+    staging_dir: str | Path,
+    depth: int = 1,
+    max_points: int = 256,
+) -> Path:
+    """Return a staged overlay with run_debugging explicitly enabled.
+
+    The source overlay is not modified. This keeps built-in suites debug-free by
+    default while allowing the run manager to create a fully auditable overlay
+    when the operator explicitly requests instrumentation.
+    """
+    source = Path(overlay_path)
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    modules = [m for m in payload.get("optional_modules", payload.get("modules", [])) if m.get("module_id") != "run_debugging"]
+    modules.append(_debug_module_params(depth=depth, max_points=max_points))
+    payload["optional_modules"] = modules
+    notes = str(payload.get("notes", ""))
+    payload["notes"] = (notes + "\nRun-debugging instrumentation was explicitly enabled by the run manager.").strip()
+    staging = Path(staging_dir)
+    staging.mkdir(parents=True, exist_ok=True)
+    target = staging / source.name
+    target.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return target
+
+
+
+def stage_overlay_with_run_overrides(
+    *,
+    overlay_path: str | Path,
+    staging_dir: str | Path,
+    settling_overrides: dict[str, object] | None = None,
+    execution_overrides: dict[str, object] | None = None,
+    debug: bool = False,
+    debug_depth: int = 1,
+    debug_max_points: int = 256,
+) -> Path:
+    """Stage an overlay with operator-requested run-time overrides.
+
+    Overrides are written into a temporary overlay, keeping built-in suites
+    immutable. This is used for initialization-only and long-settling debug
+    runs. The staged overlay is still data-only and its hash is captured in the
+    evidence envelope.
+    """
+    source = Path(overlay_path)
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    notes = str(payload.get("notes", ""))
+    changed: list[str] = []
+
+    if settling_overrides:
+        init = dict(payload.get("initialization", {}))
+        settling = dict(init.get("settling", {}))
+        for key, value in settling_overrides.items():
+            if value is not None:
+                settling[str(key)] = value
+        init["settling"] = settling
+        payload["initialization"] = init
+        changed.append("initialization.settling")
+
+    if execution_overrides:
+        execution = dict(payload.get("execution", {}))
+        for key, value in execution_overrides.items():
+            if value is not None:
+                execution[str(key)] = value
+        payload["execution"] = execution
+        changed.append("execution")
+
+    modules = [m for m in payload.get("optional_modules", payload.get("modules", [])) if m.get("module_id") != "run_debugging"]
+    if debug:
+        modules.append(_debug_module_params(depth=debug_depth, max_points=debug_max_points))
+        changed.append("run_debugging")
+    payload["optional_modules"] = modules
+
+    if changed:
+        payload["notes"] = (notes + "\nRun-manager staged overrides: " + ", ".join(changed) + ".").strip()
+
+    staging = Path(staging_dir)
+    staging.mkdir(parents=True, exist_ok=True)
+    suffix = "staged" + ("_debug" if debug else "")
+    target = staging / f"{source.stem}__{suffix}.json"
+    target.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return target
+
+
+def build_settling_overrides(
+    *,
+    init_min_cycles: int | None = None,
+    init_max_cycles: int | None = None,
+    init_recurrence_period_max: int | None = None,
+    init_recurrence_period_min: int | None = None,
+    init_consecutive_stable_cycles: int | None = None,
+    init_tol_rms: float | None = None,
+    init_tol_q95: float | None = None,
+    init_tol_max: float | None = None,
+    init_tol_sign: float | None = None,
+    init_progress_interval: int | None = None,
+) -> dict[str, object]:
+    mapping = {
+        "min_cycles": init_min_cycles,
+        "max_cycles": init_max_cycles,
+        "recurrence_period_min": init_recurrence_period_min,
+        "recurrence_period_max": init_recurrence_period_max,
+        "consecutive_stable_cycles_required": init_consecutive_stable_cycles,
+        "tol_rms": init_tol_rms,
+        "tol_q95": init_tol_q95,
+        "tol_max": init_tol_max,
+        "tol_sign": init_tol_sign,
+        "progress_interval_cycles": init_progress_interval,
+    }
+    return {k: v for k, v in mapping.items() if v is not None}
+
+def _progress(enabled: bool, message: str) -> None:
+    if enabled:
+        print(message, flush=True)
+
+def list_builtin_suites() -> list[dict[str, object]]:
+    rows = []
+    for suite_id, suite in sorted(BUILTIN_SUITES.items()):
+        count = 0
+        try:
+            count = len(suite_resource_files(suite_id))
+        except Exception:
+            count = -1
+        rows.append(
+            {
+                "suite_id": suite_id,
+                "description": suite.description,
+                "overlay_count": count,
+                "required_artifacts": list(suite.required_artifacts),
+            }
+        )
+    return rows
+
+
+def write_workspace(path: str | Path) -> Path:
+    root = Path(path).resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "runs").mkdir(exist_ok=True)
+    (root / "logs").mkdir(exist_ok=True)
+    (root / "SUITES.json").write_text(json.dumps(list_builtin_suites(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (root / "README.md").write_text(
+        "# Rank-3 Run Workspace\n\n"
+        "This workspace is intentionally code-free. Do not copy `rank3_enforced/` here.\n\n"
+        "Use installed console commands, for example:\n\n"
+        "```bash\n"
+        "rank3-check-release-guard --force-refresh\n"
+        "rank3-list-suites\n"
+        "rank3-run-suite charge_same_opposite_association_indexed --output-root runs/charge_assoc --signing-key ~/.rank3/private_key.pem\n"
+        "```\n\n"
+        "The run manager loads built-in overlays from the installed package and writes signed evidence packages under `runs/`.\n",
+        encoding="utf-8",
+    )
+    return root
+
+
+def run_signed_overlay_case(
+    *,
+    overlay_path: str | Path,
+    output_dir: str | Path,
+    private_key_path: str | Path | None = None,
+    release_guard_cache_dir: str | Path | None = None,
+    command: str = "rank3-run-overlay",
+    required_artifacts: Sequence[str] = (),
+) -> OverlayRunRecord:
+    overlay = Path(overlay_path)
+    output = Path(output_dir)
+    key = Path(private_key_path) if private_key_path is not None else default_signing_key()
+    cache_dir = Path(release_guard_cache_dir) if release_guard_cache_dir is not None else output.parent
+    case_id = output.name
+    try:
+        guard_report = enforce_latest_release_guard(run_kind="candidate", cache_dir=cache_dir)
+        result = run_declarative_overlay(overlay)
+        environment = default_environment_record()
+        environment["release_guard"] = guard_report.to_dict()
+        environment["overlay_file_sha256"] = file_hash(overlay)
+        package_and_sign_enforced_result(
+            result=result,
+            output_dir=output,
+            private_key_path=key,
+            overlay_path=overlay,
+            command=command,
+            environment=environment,
+        )
+        verification = verify_certificate(output)
+        missing = tuple(name for name in required_artifacts if not (output / name).is_file())
+        status = "passed" if verification.valid and not missing else "failed"
+        return OverlayRunRecord(
+            case_id=case_id,
+            overlay_path=str(overlay),
+            output_dir=str(output),
+            status=status,
+            certificate_valid=verification.valid,
+            base_gate_passed=bool(result.gate.passed),
+            external_verdict=str(result.gate.external_admission_verdict.value),
+            missing_required_artifacts=missing,
+            error=None if status == "passed" else "Missing required artifacts or invalid certificate.",
+        )
+    except Exception as exc:
+        output.mkdir(parents=True, exist_ok=True)
+        error_text = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+        (output / "RUN_ERROR.txt").write_text(error_text, encoding="utf-8")
+        return OverlayRunRecord(
+            case_id=case_id,
+            overlay_path=str(overlay),
+            output_dir=str(output),
+            status="failed",
+            certificate_valid=None,
+            base_gate_passed=None,
+            external_verdict=None,
+            missing_required_artifacts=tuple(required_artifacts),
+            error=error_text,
+        )
+
+
+def run_overlay_suite(
+    *,
+    suite_id: str | None = None,
+    overlays_dir: str | Path | None = None,
+    output_root: str | Path,
+    private_key_path: str | Path | None = None,
+    fail_fast: bool = True,
+    required_artifacts: Sequence[str] | None = None,
+    progress: bool = True,
+    debug: bool = False,
+    debug_depth: int = 1,
+    debug_max_points: int = 256,
+    case_ids: Sequence[str] = (),
+    case_globs: Sequence[str] = (),
+    settling_overrides: dict[str, object] | None = None,
+    execution_overrides: dict[str, object] | None = None,
+    initialization_progress: bool = False,
+) -> SuiteRunReport:
+    started = _now_utc()
+    overlays_all = overlay_files_from_source(suite_id=suite_id, overlays_dir=overlays_dir)
+    overlays = filter_overlay_files(overlays_all, case_ids=case_ids, case_globs=case_globs)
+    output_root_path = Path(output_root).resolve()
+    output_root_path.mkdir(parents=True, exist_ok=True)
+
+    suite_label = suite_id or f"external:{Path(overlays_dir).resolve()}"
+    _progress(progress, f"[suite] {suite_label}")
+    _progress(progress, f"[suite] overlays={len(overlays)} selected_from={len(overlays_all)} output={output_root_path}")
+    _progress(progress, "[release-guard] checking latest signed framework manifest")
+    guard = enforce_latest_release_guard(run_kind="candidate", cache_dir=output_root_path)
+    (output_root_path / "release_guard.json").write_text(json.dumps(guard.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    _progress(progress, f"[release-guard] passed={guard.passed} cache={guard.cache_path}")
+
+    if required_artifacts is None:
+        if suite_id and suite_id in BUILTIN_SUITES:
+            required_artifacts = BUILTIN_SUITES[suite_id].required_artifacts
+        else:
+            required_artifacts = ("CERTIFICATE.json", "EVIDENCE_ENVELOPE.json")
+    if debug and "RUN_DEBUG_REPORT.json" not in required_artifacts:
+        required_artifacts = tuple(required_artifacts) + ("RUN_DEBUG_REPORT.json",)
+
+    if debug:
+        _progress(progress, f"[debug] enabled depth={debug_depth} max_points={debug_max_points}")
+    else:
+        _progress(progress, "[debug] off")
+    if settling_overrides:
+        _progress(progress, f"[init-settling-overrides] {json.dumps(settling_overrides, sort_keys=True)}")
+    if execution_overrides:
+        _progress(progress, f"[execution-overrides] {json.dumps(execution_overrides, sort_keys=True)}")
+
+    old_progress_env = None
+    import os
+    if initialization_progress:
+        old_progress_env = os.environ.get("RANK3_INIT_PROGRESS")
+        os.environ["RANK3_INIT_PROGRESS"] = "1"
+
+    records: list[OverlayRunRecord] = []
+    staging_dir = output_root_path / ".rank3_staged_overlays"
+    for index, overlay in enumerate(overlays, start=1):
+        case_id = overlay.stem
+        if debug or settling_overrides or execution_overrides:
+            overlay_for_run = stage_overlay_with_run_overrides(
+                overlay_path=overlay,
+                staging_dir=staging_dir,
+                settling_overrides=settling_overrides,
+                execution_overrides=execution_overrides,
+                debug=debug,
+                debug_depth=debug_depth,
+                debug_max_points=debug_max_points,
+            )
+        else:
+            overlay_for_run = overlay
+        _progress(progress, f"[{index}/{len(overlays)}] START {case_id}")
+        t0 = time.perf_counter()
+        record = run_signed_overlay_case(
+            overlay_path=overlay_for_run,
+            output_dir=output_root_path / "runs" / case_id,
+            private_key_path=private_key_path,
+            release_guard_cache_dir=output_root_path,
+            command=f"rank3-run-suite {suite_label}" + (" --debug" if debug else ""),
+            required_artifacts=required_artifacts,
+        )
+        elapsed = time.perf_counter() - t0
+        records.append(record)
+        if record.status == "passed":
+            _progress(progress, f"[{index}/{len(overlays)}] PASS  {case_id} elapsed={elapsed:.2f}s")
+        else:
+            _progress(progress, f"[{index}/{len(overlays)}] FAIL  {case_id} elapsed={elapsed:.2f}s")
+            if record.error:
+                _progress(progress, "[error] " + record.error.splitlines()[-1])
+        if record.status != "passed" and fail_fast:
+            _progress(progress, "[suite] stopping on first failure; use --continue-on-failure to continue")
+            break
+
+    if initialization_progress:
+        if old_progress_env is None:
+            os.environ.pop("RANK3_INIT_PROGRESS", None)
+        else:
+            os.environ["RANK3_INIT_PROGRESS"] = old_progress_env
+
+    passed_count = sum(1 for r in records if r.status == "passed")
+    failed_count = sum(1 for r in records if r.status != "passed")
+    finished = _now_utc()
+    payload_for_hash = {
+        "suite_id": suite_label,
+        "started_utc": started,
+        "finished_utc": finished,
+        "output_root": str(output_root_path),
+        "records": [asdict(r) for r in records],
+    }
+    report = SuiteRunReport(
+        suite_id=suite_label,
+        started_utc=started,
+        finished_utc=finished,
+        output_root=str(output_root_path),
+        overlay_count=len(overlays),
+        passed_count=passed_count,
+        failed_count=failed_count,
+        release_guard_passed=guard.passed,
+        release_guard_cache=str(guard.cache_path) if guard.cache_path else None,
+        records=tuple(records),
+        report_hash=stable_json_hash(payload_for_hash),
+    )
+    (output_root_path / "SUITE_RUN_REPORT.json").write_text(json.dumps(report.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    # Write package-level SHA256 sums for easy transfer verification.
+    sums: list[str] = []
+    for path in sorted(p for p in output_root_path.rglob("*") if p.is_file()):
+        rel = path.relative_to(output_root_path)
+        if rel.as_posix() == "SHA256SUMS.csv":
+            continue
+        sums.append(f"{file_hash(path)}  {rel.as_posix()}")
+    (output_root_path / "SHA256SUMS.csv").write_text("\n".join(sums) + "\n", encoding="utf-8")
+    _progress(progress, f"[suite] finished passed={passed_count} failed={failed_count} total={len(overlays)}")
+    _progress(progress, f"[suite] report={output_root_path / 'SUITE_RUN_REPORT.json'}")
+    return report

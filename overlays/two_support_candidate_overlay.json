@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0",
+  "model_type": "two_support_path_adjustment",
+  "model_name": "two_support_candidate_overlay",
+  "model_version": "0.1.0",
+  "purpose": "Data-only two-support candidate overlay with locked support-seeded initialization epoch.",
+  "run_kind": "candidate",
+  "external_admission_verdict": "Ambiguous",
+  "requested_certification": false,
+  "initial_geometry": {
+    "n_points": 32,
+    "seed_set": [
+      1001,
+      1002,
+      1003
+    ],
+    "generation_rule": "random_distinct_no_self",
+    "allow_self_association": false
+  },
+  "initial_phi": {
+    "kind": "zeros"
+  },
+  "execution": {
+    "n_layers": 6,
+    "graph_mode": "undirected",
+    "path_scope": "completed",
+    "phase_rule": "cyclic_phase",
+    "pair_weight_rule": "inverse_path_length",
+    "triplet_lift_rule": "product_triplet_lift"
+  },
+  "rules": {
+    "scalar_update_rule": "soo_declarative_v0_1",
+    "scalar_update_params": {
+      "recipe": {
+        "recipe_id": "support_seeded_two_support_soo_v0_1",
+        "residual_terms": [
+          {
+            "id": "support_seed",
+            "operator_id": "support_initialization_source",
+            "weight": 1.0,
+            "scope": "declared_support_sites"
+          },
+          {
+            "id": "active_contrast",
+            "operator_id": "active_association_contrast",
+            "weight": 0.5,
+            "scope": "all_points"
+          },
+          {
+            "id": "completed_balance",
+            "operator_id": "completed_rank3_balance",
+            "weight": 0.5,
+            "scope": "all_points"
+          }
+        ],
+        "closure": {
+          "id": "linear_response",
+          "response_scale": 0.05,
+          "max_iterations": 1,
+          "tolerance": 1e-12,
+          "preserve_signed_values": true,
+          "allow_zero_crossing": true,
+          "forbid_clamping": true
+        },
+        "invariant_profile": "strict_candidate"
+      }
+    },
+    "association_remap_rule": "candidate_identity_remap_v0_1"
+  },
+  "supports": [
+    {
+      "name": "support_A",
+      "support_points": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "boundary_points": [
+        1,
+        2,
+        3
+      ],
+      "dressing_points": [
+        4,
+        5,
+        6
+      ],
+      "handedness": "right",
+      "active_phase_map": {
+        "0": 4,
+        "1": 5,
+        "2": 6
+      }
+    },
+    {
+      "name": "support_B",
+      "support_points": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ],
+      "boundary_points": [
+        21,
+        22,
+        23
+      ],
+      "dressing_points": [
+        24,
+        25,
+        26
+      ],
+      "handedness": "left",
+      "active_phase_map": {
+        "0": 24,
+        "1": 25,
+        "2": 26
+      }
+    }
+  ],
+  "constraints": {
+    "non_overlap_required": true,
+    "require_three_phase_coherence": true,
+    "forbid_projected_graph_evidence": true
+  },
+  "readouts": [],
+  "controls": [],
+  "initialization": {
+    "mode": "support_seeded",
+    "start_sites": "boundary_and_dressing_points",
+    "source_rule": "balanced_boundary_dressing_lift_v0_1",
+    "initialization_cycles": 2,
+    "amplitude": 1.0,
+    "require_nonzero_support_activation": true,
+    "require_vacuum_zero_elsewhere": true,
+    "measurement_starts_after_initialization": true
+  }
+}
