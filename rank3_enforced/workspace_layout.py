@@ -18,6 +18,7 @@ class SeparatedWorkspaceLayout:
     run_root: str
     run_overlays: str
     run_results: str
+    run_plans: str
     run_logs: str
     run_workspaces: str
 
@@ -38,9 +39,10 @@ def create_separated_workspace_layout(
     package_archive_root = install_root / "packages"
     run_overlays = run_root / "overlays"
     run_results = run_root / "results"
+    run_plans = run_root / "plans"
     run_logs = run_root / "logs"
     run_workspaces = run_root / "workspaces"
-    for path in (install_root, publish_repo, package_archive_root, run_root, run_overlays, run_results, run_logs, run_workspaces):
+    for path in (install_root, publish_repo, package_archive_root, run_root, run_overlays, run_results, run_plans, run_logs, run_workspaces):
         path.mkdir(parents=True, exist_ok=True)
     layout = SeparatedWorkspaceLayout(
         schema="rank3_separated_workspace_layout_v0_1",
@@ -51,6 +53,7 @@ def create_separated_workspace_layout(
         run_root=str(run_root),
         run_overlays=str(run_overlays),
         run_results=str(run_results),
+        run_plans=str(run_plans),
         run_logs=str(run_logs),
         run_workspaces=str(run_workspaces),
     )

@@ -15,6 +15,7 @@ from .fingerprints import file_hash, stable_json_hash
 from .package_manifest import default_environment_record, package_and_sign_enforced_result
 from .signing import verify_certificate
 from .modeling_intent import default_exploratory_contract, contract_from_file, validate_contract_for_overlay
+from .modeling_plan import load_modeling_plan, validate_modeling_plan
 from .version_guard import enforce_latest_release_guard
 
 BUILTIN_SUITE_ROOT = "overlay_suites"
@@ -93,6 +94,7 @@ class OverlayRunRecord:
     compliance_passed: bool | None = None
     certification_eligible: bool | None = None
     warning_mode_non_certifying: bool = False
+    approved_plan_hash: str | None = None
 
 
 @dataclass(frozen=True)
@@ -112,6 +114,9 @@ class SuiteRunReport:
     certification_requested: bool
     warning_mode_non_certifying: bool
     records: tuple[OverlayRunRecord, ...]
+    approved_plan_hash: str | None
+    modeling_plan_path: str | None
+    plan_validation_passed: bool | None
     report_hash: str
 
     def to_dict(self) -> dict[str, object]:
@@ -348,6 +353,8 @@ def write_contract_rejection_case(
     modeling_mode: str,
     command: str,
     release_guard_report: object | None = None,
+    modeling_plan: object | None = None,
+    plan_validation_report: object | None = None,
     reason: str = "modeling_intent contract did not pass pre-run compliance",
 ) -> OverlayRunRecord:
     """Write a non-modeling failure package for certification fail-closed cases.
@@ -370,6 +377,11 @@ def write_contract_rejection_case(
     report_dict = compliance_report.to_dict() if hasattr(compliance_report, "to_dict") else compliance_report
     _write_json_file(output / "MODELING_INTENT_CONTRACT.json", contract_dict)
     _write_json_file(output / "MODELING_INTENT_COMPLIANCE_REPORT.json", report_dict)
+    if modeling_plan is not None:
+        _write_json_file(output / "MODELING_PLAN.json", modeling_plan.to_dict() if hasattr(modeling_plan, "to_dict") else modeling_plan)
+        _write_json_file(output / "MODELING_PLAN.sha256", (modeling_plan.fingerprint() if hasattr(modeling_plan, "fingerprint") else None))
+    if plan_validation_report is not None:
+        _write_json_file(output / "MODELING_PLAN_VALIDATION_REPORT.json", plan_validation_report.to_dict() if hasattr(plan_validation_report, "to_dict") else plan_validation_report)
     _write_json_file(output / "CONTRACT_PROPAGATION_REPORT.json", {
         "schema": "rank3_contract_propagation_report_v0_1",
         "modeling_mode": modeling_mode,
@@ -381,6 +393,8 @@ def write_contract_rejection_case(
         "pre_run_enforced": True,
         "model_executed": False,
         "reason": reason,
+        "approved_plan_hash": (modeling_plan.fingerprint() if hasattr(modeling_plan, "fingerprint") else None),
+        "plan_validation_passed": bool(getattr(plan_validation_report, "passed", False)) if plan_validation_report is not None else None,
     })
     _write_json_file(output / "RUN_CLASSIFICATION.json", {
         "schema": "rank3_run_classification_v0_1",
@@ -389,6 +403,8 @@ def write_contract_rejection_case(
         "model_executed": False,
         "warning_mode_non_certifying": False,
         "command": command,
+        "approved_plan_hash": (modeling_plan.fingerprint() if hasattr(modeling_plan, "fingerprint") else None),
+        "plan_validation_passed": bool(getattr(plan_validation_report, "passed", False)) if plan_validation_report is not None else None,
         "overlay_hash": file_hash(overlay) if overlay.exists() else None,
         "overlay_run_kind": overlay_payload.get("run_kind"),
         "overlay_requested_certification": overlay_payload.get("requested_certification"),
@@ -411,6 +427,7 @@ def write_contract_rejection_case(
         compliance_passed=bool(getattr(compliance_report, "passed", False)),
         certification_eligible=bool(getattr(compliance_report, "certification_eligible", False)),
         warning_mode_non_certifying=False,
+        approved_plan_hash=(modeling_plan.fingerprint() if hasattr(modeling_plan, "fingerprint") else None),
     )
 
 def list_builtin_suites() -> list[dict[str, object]]:
@@ -467,6 +484,8 @@ def run_signed_overlay_case(
     release_signature_url: str | None = None,
     release_public_key_url: str | None = None,
     framework_zip_path: str | Path | None = None,
+    modeling_plan: object | None = None,
+    plan_validation_report: object | None = None,
 ) -> OverlayRunRecord:
     overlay = Path(overlay_path)
     output = Path(output_dir)
@@ -489,6 +508,11 @@ def run_signed_overlay_case(
         environment["modeling_mode"] = modeling_mode
         environment["suite_contract_hash"] = contract_hash
         environment["warning_mode_non_certifying"] = bool(not guard_report.passed or guard_report.mode in {"warn", "warning", "off"})
+        if modeling_plan is not None:
+            environment["modeling_plan_hash"] = modeling_plan.fingerprint() if hasattr(modeling_plan, "fingerprint") else None
+            environment["modeling_plan_payload"] = modeling_plan.to_dict() if hasattr(modeling_plan, "to_dict") else modeling_plan
+        if plan_validation_report is not None:
+            environment["modeling_plan_validation_report"] = plan_validation_report.to_dict() if hasattr(plan_validation_report, "to_dict") else plan_validation_report
         package_and_sign_enforced_result(
             result=result,
             output_dir=output,
@@ -515,6 +539,7 @@ def run_signed_overlay_case(
             compliance_passed=bool(getattr(result.modeling_intent_compliance_report, "passed", False)) if result.modeling_intent_compliance_report else None,
             certification_eligible=bool(getattr(result.modeling_intent_compliance_report, "certification_eligible", False)) if result.modeling_intent_compliance_report else None,
             warning_mode_non_certifying=bool(not guard_report.passed or guard_report.mode in {"warn", "warning", "off"}),
+            approved_plan_hash=(modeling_plan.fingerprint() if hasattr(modeling_plan, "fingerprint") else None),
         )
     except Exception as exc:
         output.mkdir(parents=True, exist_ok=True)
@@ -535,6 +560,7 @@ def run_signed_overlay_case(
             compliance_passed=None,
             certification_eligible=None,
             warning_mode_non_certifying=False,
+            approved_plan_hash=(modeling_plan.fingerprint() if hasattr(modeling_plan, "fingerprint") else None),
         )
 
 
@@ -561,6 +587,7 @@ def run_overlay_suite(
     release_signature_url: str | None = None,
     release_public_key_url: str | None = None,
     framework_zip_path: str | Path | None = None,
+    approved_plan_path: str | Path | None = None,
 ) -> SuiteRunReport:
     started = _now_utc()
     overlays_all = overlay_files_from_source(suite_id=suite_id, overlays_dir=overlays_dir)
@@ -582,6 +609,26 @@ def run_overlay_suite(
         raise ValueError("internal error: exploratory default contract should be exploratory")
     modeling_intent_payload = modeling_contract.to_dict()
 
+    modeling_plan = None
+    plan_validation_report = None
+    if modeling_mode == "certification":
+        if approved_plan_path is None:
+            raise ValueError("certification mode requires --approved-plan generated before execution")
+        modeling_plan = load_modeling_plan(approved_plan_path)
+        plan_validation_report = validate_modeling_plan(
+            contract=modeling_contract,
+            plan=modeling_plan,
+            overlay_files=overlays,
+            require_approved=True,
+        )
+        if not plan_validation_report.passed:
+            output_root_path.mkdir(parents=True, exist_ok=True)
+            (output_root_path / "MODELING_PLAN.json").write_text(json.dumps(modeling_plan.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            (output_root_path / "MODELING_PLAN_VALIDATION_REPORT.json").write_text(json.dumps(plan_validation_report.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            raise ValueError("certification mode requires a valid approved modeling plan: " + "; ".join(plan_validation_report.violations))
+        if debug or settling_overrides or execution_overrides:
+            raise ValueError("certification execution cannot add run-time overrides outside the approved modeling plan")
+    plan_cases_by_id = {case.case_id: case for case in getattr(modeling_plan, "cases", ())} if modeling_plan is not None else {}
 
     suite_label = suite_id or f"external:{Path(overlays_dir).resolve()}"
     _progress(progress, f"[suite] {suite_label}")
@@ -598,6 +645,11 @@ def run_overlay_suite(
     (output_root_path / "release_guard.json").write_text(json.dumps(guard.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (output_root_path / "MODELING_INTENT_CONTRACT.json").write_text(json.dumps(modeling_contract.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (output_root_path / "MODELING_INTENT_CONTRACT.sha256").write_text(modeling_contract.fingerprint() + "\n", encoding="utf-8")
+    if modeling_plan is not None:
+        (output_root_path / "MODELING_PLAN.json").write_text(json.dumps(modeling_plan.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        (output_root_path / "MODELING_PLAN.sha256").write_text(modeling_plan.fingerprint() + "\n", encoding="utf-8")
+    if plan_validation_report is not None:
+        (output_root_path / "MODELING_PLAN_VALIDATION_REPORT.json").write_text(json.dumps(plan_validation_report.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
     _progress(progress, f"[release-guard] passed={guard.passed} cache={guard.cache_path}")
 
     if required_artifacts is None:
@@ -627,7 +679,12 @@ def run_overlay_suite(
     staging_dir = output_root_path / ".rank3_staged_overlays"
     for index, overlay in enumerate(overlays, start=1):
         case_id = overlay.stem
-        if debug or settling_overrides or execution_overrides or modeling_intent_payload is not None:
+        if modeling_mode == "certification" and modeling_plan is not None:
+            plan_case = plan_cases_by_id.get(case_id)
+            if plan_case is None:
+                raise ValueError(f"approved modeling plan does not contain selected case: {case_id}")
+            overlay_for_run = Path(plan_case.planned_overlay_path)
+        elif debug or settling_overrides or execution_overrides or modeling_intent_payload is not None:
             overlay_for_run = stage_overlay_with_run_overrides(
                 overlay_path=overlay,
                 staging_dir=staging_dir,
@@ -658,6 +715,8 @@ def run_overlay_suite(
                 modeling_mode=modeling_mode,
                 command=f"rank3-run-suite {suite_label}",
                 release_guard_report=guard,
+                modeling_plan=modeling_plan,
+                plan_validation_report=plan_validation_report,
                 reason="Certification blocked before model execution: modeling_intent contract compliance failed.",
             )
             records.append(record)
@@ -681,6 +740,8 @@ def run_overlay_suite(
             release_signature_url=release_signature_url,
             release_public_key_url=release_public_key_url,
             framework_zip_path=framework_zip_path,
+            modeling_plan=modeling_plan,
+            plan_validation_report=plan_validation_report,
         )
         elapsed = time.perf_counter() - t0
         records.append(record)
@@ -710,6 +771,8 @@ def run_overlay_suite(
         "output_root": str(output_root_path),
         "modeling_mode": modeling_mode,
         "contract_hash": modeling_contract.fingerprint(),
+        "approved_plan_hash": modeling_plan.fingerprint() if modeling_plan is not None else None,
+        "plan_validation_passed": bool(plan_validation_report.passed) if plan_validation_report is not None else None,
         "records": [asdict(r) for r in records],
     }
     report = SuiteRunReport(
@@ -728,6 +791,9 @@ def run_overlay_suite(
         certification_requested=(modeling_mode == "certification"),
         warning_mode_non_certifying=bool(not guard.passed or guard.mode in {"warn", "warning", "off"}),
         records=tuple(records),
+        approved_plan_hash=modeling_plan.fingerprint() if modeling_plan is not None else None,
+        modeling_plan_path=str(approved_plan_path) if approved_plan_path is not None else None,
+        plan_validation_passed=bool(plan_validation_report.passed) if plan_validation_report is not None else None,
         report_hash=stable_json_hash(payload_for_hash),
     )
     (output_root_path / "SUITE_RUN_REPORT.json").write_text(json.dumps(report.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")

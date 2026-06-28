@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.25"
-FRAMEWORK_RELEASE_LABEL = "0.1.25-contract-propagation-offline-guard"
+FRAMEWORK_VERSION = "0.1.26"
+FRAMEWORK_RELEASE_LABEL = "0.1.26-modeling-plan-approval"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -120,6 +120,11 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "certification_requires_predeclared_contract",
         "exploratory_default_without_contract",
         "contract_bound_run_manager_staging",
+        "modeling_plan_generation_v0_1",
+        "modeling_plan_user_approval_gate_v0_1",
+        "certification_requires_approved_plan_v0_1",
+        "approved_plan_hash_binding_v0_1",
+        "pre_run_plan_validation_report_v0_1",
 
         "contract_propagation_enforced_v0_1",
         "suite_contract_hash_consistency_v0_1",

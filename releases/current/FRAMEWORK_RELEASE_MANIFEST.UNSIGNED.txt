@@ -1,1 +1,1 @@
-This generated package does not include a maintainer signature. Sign FRAMEWORK_RELEASE_MANIFEST.json before publication-grade external admission.
+Unsigned v0.1.26 manifest. Sign FRAMEWORK_RELEASE_MANIFEST.json before publication-grade certification runs.

@@ -15,6 +15,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-root", required=True, help="Output root for suite results")
     parser.add_argument("--mode", choices=["exploratory", "certification"], default="exploratory", help="Framework-use mode. Default: exploratory. Certification requires --modeling-intent-contract.")
     parser.add_argument("--modeling-intent-contract", help="Path to a pre-run modeling_intent contract JSON. Required for --mode certification.")
+    parser.add_argument("--approved-plan", help="Approved modeling plan JSON. Required for --mode certification.")
     parser.add_argument("--release-manifest", help="Local path or URL to FRAMEWORK_RELEASE_MANIFEST.json for offline/controlled release guard.")
     parser.add_argument("--release-signature", help="Local path or URL to FRAMEWORK_RELEASE_MANIFEST.sig for offline/controlled release guard.")
     parser.add_argument("--release-public-key", help="Local path or URL to FRAMEWORK_RELEASE_PUBLIC_KEY.pem for offline/controlled release guard.")
@@ -71,6 +72,7 @@ def main(argv: list[str] | None = None) -> int:
         release_signature_url=args.release_signature,
         release_public_key_url=args.release_public_key,
         framework_zip_path=Path(args.framework_zip) if args.framework_zip else None,
+        approved_plan_path=Path(args.approved_plan) if args.approved_plan else None,
     )
     print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
     return 0 if report.failed_count == 0 and report.passed_count == report.overlay_count else 1

@@ -230,6 +230,12 @@ def write_enforced_run_package(
     compliance = getattr(result, "modeling_intent_compliance_report", None)
     write_json(output / "MODELING_INTENT_CONTRACT.json", contract)
     write_json(output / "MODELING_INTENT_COMPLIANCE_REPORT.json", compliance)
+    env_payload = environment or {}
+    if isinstance(env_payload, dict) and env_payload.get("modeling_plan_payload") is not None:
+        write_json(output / "MODELING_PLAN.json", env_payload.get("modeling_plan_payload"))
+        write_json(output / "MODELING_PLAN.sha256", env_payload.get("modeling_plan_hash"))
+    if isinstance(env_payload, dict) and env_payload.get("modeling_plan_validation_report") is not None:
+        write_json(output / "MODELING_PLAN_VALIDATION_REPORT.json", env_payload.get("modeling_plan_validation_report"))
     contract_hash = contract.fingerprint() if contract is not None else None
     compliance_contract_hash = getattr(compliance, "contract_hash", None) if compliance is not None else None
     write_json(output / "CONTRACT_PROPAGATION_REPORT.json", {
@@ -241,12 +247,16 @@ def write_enforced_run_package(
         "exploratory_default_substituted": bool(getattr(compliance, "exploratory_default", False)) if compliance is not None else None,
         "pre_run_enforced": bool(getattr(compliance, "enforced_before_execution", False)) if compliance is not None else None,
         "model_executed": True,
+        "approved_plan_hash": env_payload.get("modeling_plan_hash") if isinstance(env_payload, dict) else None,
+        "plan_validation_passed": bool((env_payload.get("modeling_plan_validation_report") or {}).get("passed")) if isinstance(env_payload, dict) and isinstance(env_payload.get("modeling_plan_validation_report"), dict) else None,
     })
     write_json(output / "RUN_CLASSIFICATION.json", {
         "schema": "rank3_run_classification_v0_1",
         "classification": "certification_candidate_record" if getattr(compliance, "mode", None) == "certification" else "exploratory_record",
         "evidential_status": "certification_eligible" if bool(getattr(compliance, "certification_eligible", False)) else "non_certifying",
         "model_executed": True,
+        "approved_plan_hash": env_payload.get("modeling_plan_hash") if isinstance(env_payload, dict) else None,
+        "plan_validation_passed": bool((env_payload.get("modeling_plan_validation_report") or {}).get("passed")) if isinstance(env_payload, dict) and isinstance(env_payload.get("modeling_plan_validation_report"), dict) else None,
         "base_gate_passed": bool(result.gate.passed),
         "external_verdict": result.gate.external_admission_verdict.value,
     })

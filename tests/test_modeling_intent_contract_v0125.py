@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from rank3_enforced.modeling_intent import charge_path_adjustment_certification_template
+from rank3_enforced.modeling_plan import approve_modeling_plan, build_modeling_plan, write_modeling_plan
 from rank3_enforced.run_manager import run_overlay_suite, stage_overlay_with_run_overrides
 
 
@@ -26,6 +27,18 @@ def test_certification_suite_blocks_before_modeling_and_preserves_contract(tmp_p
     contract = charge_path_adjustment_certification_template()
     contract_path = tmp_path / "contract.json"
     contract_path.write_text(json.dumps(contract.to_dict(), indent=2, sort_keys=True), encoding="utf-8")
+    source_overlay = Path("rank3_enforced/overlay_suites/charge_role_path_remap_dynamic_path_v0_1/L7_same_no_remap.json")
+    draft = build_modeling_plan(
+        contract=contract,
+        overlay_files=[source_overlay],
+        suite_id="charge_role_path_remap_dynamic_path_v0_1",
+        output_overlays_dir=tmp_path / "planned_overlays",
+        modeling_mode="certification",
+    )
+    draft_path = tmp_path / "draft_plan.json"
+    write_modeling_plan(draft_path, draft)
+    approved_path = tmp_path / "approved_plan.json"
+    approve_modeling_plan(plan_path=draft_path, output_path=approved_path, approved_by="test-user")
     report = run_overlay_suite(
         suite_id="charge_role_path_remap_dynamic_path_v0_1",
         output_root=tmp_path / "suite",
@@ -35,6 +48,7 @@ def test_certification_suite_blocks_before_modeling_and_preserves_contract(tmp_p
         case_ids=("L7_same_no_remap",),
         modeling_mode="certification",
         modeling_intent_contract_path=contract_path,
+        approved_plan_path=approved_path,
     )
     assert report.failed_count == 1
     case_dir = tmp_path / "suite" / "runs" / "L7_same_no_remap"
