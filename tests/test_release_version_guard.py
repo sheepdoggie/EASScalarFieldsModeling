@@ -77,3 +77,24 @@ def test_release_guard_rejects_wrong_code_hash(tmp_path: Path):
     )
     assert not report.passed
     assert any("code hash mismatch" in e for e in report.errors)
+
+
+def test_release_guard_accepts_rank3_release_dir(tmp_path: Path, monkeypatch):
+    private_key = tmp_path / "release_private.pem"
+    public_key = tmp_path / "FRAMEWORK_RELEASE_PUBLIC_KEY.pem"
+    create_signing_keypair(private_key_path=private_key, public_key_path=public_key)
+    manifest = {
+        "project": "EASScalarFieldsModeling",
+        "latest_framework_version": FRAMEWORK_VERSION,
+        "latest_framework_release_label": FRAMEWORK_RELEASE_LABEL,
+        "latest_framework_code_sha256": compute_framework_code_sha256(),
+        "required_capabilities": sorted(FRAMEWORK_CAPABILITIES),
+    }
+    manifest_path = tmp_path / "FRAMEWORK_RELEASE_MANIFEST.json"
+    manifest_path.write_text(json.dumps(manifest, sort_keys=True) + "\n", encoding="utf-8")
+    sig_path = tmp_path / "FRAMEWORK_RELEASE_MANIFEST.sig"
+    sig_path.write_bytes(sign_bytes(load_private_key(private_key), manifest_path.read_bytes()))
+    monkeypatch.setenv("RANK3_RELEASE_DIR", str(tmp_path))
+    report = enforce_latest_release_guard(cache_path=tmp_path / "cache_dir_env.json", force_refresh=True)
+    assert report.passed
+    assert report.manifest_url.endswith("FRAMEWORK_RELEASE_MANIFEST.json")

@@ -1,1 +1,1 @@
-UNSIGNED: Sign FRAMEWORK_RELEASE_MANIFEST.json before publication-grade external admission.
+This generated package does not include a maintainer signature. Sign FRAMEWORK_RELEASE_MANIFEST.json before publication-grade external admission.

@@ -188,6 +188,14 @@ def enforce_latest_release_guard(
             errors=("release guard disabled by environment/mode",),
         )
 
+    release_dir = os.environ.get("RANK3_RELEASE_DIR")
+    if release_dir and manifest_url is None and not os.environ.get("RANK3_RELEASE_MANIFEST_URL"):
+        manifest_url = str(Path(release_dir).expanduser() / "FRAMEWORK_RELEASE_MANIFEST.json")
+    if release_dir and signature_url is None and not os.environ.get("RANK3_RELEASE_SIGNATURE_URL"):
+        signature_url = str(Path(release_dir).expanduser() / "FRAMEWORK_RELEASE_MANIFEST.sig")
+    if release_dir and public_key_url is None and not os.environ.get("RANK3_RELEASE_PUBLIC_KEY_URL"):
+        public_key_url = str(Path(release_dir).expanduser() / "FRAMEWORK_RELEASE_PUBLIC_KEY.pem")
+
     manifest_url = manifest_url or os.environ.get("RANK3_RELEASE_MANIFEST_URL") or DEFAULT_RELEASE_MANIFEST_URL
     signature_url = signature_url or os.environ.get("RANK3_RELEASE_SIGNATURE_URL") or DEFAULT_RELEASE_SIGNATURE_URL
     public_key_url = public_key_url or os.environ.get("RANK3_RELEASE_PUBLIC_KEY_URL") or DEFAULT_RELEASE_PUBLIC_KEY_URL

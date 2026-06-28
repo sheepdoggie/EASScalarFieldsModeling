@@ -15,6 +15,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-root", required=True, help="Output root for suite results")
     parser.add_argument("--mode", choices=["exploratory", "certification"], default="exploratory", help="Framework-use mode. Default: exploratory. Certification requires --modeling-intent-contract.")
     parser.add_argument("--modeling-intent-contract", help="Path to a pre-run modeling_intent contract JSON. Required for --mode certification.")
+    parser.add_argument("--release-manifest", help="Local path or URL to FRAMEWORK_RELEASE_MANIFEST.json for offline/controlled release guard.")
+    parser.add_argument("--release-signature", help="Local path or URL to FRAMEWORK_RELEASE_MANIFEST.sig for offline/controlled release guard.")
+    parser.add_argument("--release-public-key", help="Local path or URL to FRAMEWORK_RELEASE_PUBLIC_KEY.pem for offline/controlled release guard.")
+    parser.add_argument("--framework-zip", help="Local framework release ZIP used for hash identity when manifest ZIP hash is required.")
     parser.add_argument("--signing-key", default=str(default_signing_key()), help="Private signing key path. Default: ~/.rank3/private_key.pem")
     parser.add_argument("--continue-on-failure", action="store_true", help="Continue running later overlays after a failure")
     parser.add_argument("--debug", action="store_true", help="Explicitly enable run-debugging instrumentation for each overlay in the suite")
@@ -63,6 +67,10 @@ def main(argv: list[str] | None = None) -> int:
         initialization_progress=args.init_progress,
         modeling_mode=args.mode,
         modeling_intent_contract_path=Path(args.modeling_intent_contract) if args.modeling_intent_contract else None,
+        release_manifest_url=args.release_manifest,
+        release_signature_url=args.release_signature,
+        release_public_key_url=args.release_public_key,
+        framework_zip_path=Path(args.framework_zip) if args.framework_zip else None,
     )
     print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
     return 0 if report.failed_count == 0 and report.passed_count == report.overlay_count else 1

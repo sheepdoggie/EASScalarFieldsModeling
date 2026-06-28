@@ -226,8 +226,30 @@ def write_enforced_run_package(
     write_json(output / "compiled_manifest.json", result.manifest)
     write_json(output / "evidence_package.json", result.evidence)
     write_json(output / "BASE_GATE_REPORT.json", result.gate)
-    write_json(output / "MODELING_INTENT_CONTRACT.json", getattr(result, "modeling_intent_contract", None))
-    write_json(output / "MODELING_INTENT_COMPLIANCE_REPORT.json", getattr(result, "modeling_intent_compliance_report", None))
+    contract = getattr(result, "modeling_intent_contract", None)
+    compliance = getattr(result, "modeling_intent_compliance_report", None)
+    write_json(output / "MODELING_INTENT_CONTRACT.json", contract)
+    write_json(output / "MODELING_INTENT_COMPLIANCE_REPORT.json", compliance)
+    contract_hash = contract.fingerprint() if contract is not None else None
+    compliance_contract_hash = getattr(compliance, "contract_hash", None) if compliance is not None else None
+    write_json(output / "CONTRACT_PROPAGATION_REPORT.json", {
+        "schema": "rank3_contract_propagation_report_v0_1",
+        "contract_hash": contract_hash,
+        "compliance_contract_hash": compliance_contract_hash,
+        "contract_hash_matches_compliance": contract_hash == compliance_contract_hash,
+        "supplied_contract_used": contract is not None,
+        "exploratory_default_substituted": bool(getattr(compliance, "exploratory_default", False)) if compliance is not None else None,
+        "pre_run_enforced": bool(getattr(compliance, "enforced_before_execution", False)) if compliance is not None else None,
+        "model_executed": True,
+    })
+    write_json(output / "RUN_CLASSIFICATION.json", {
+        "schema": "rank3_run_classification_v0_1",
+        "classification": "certification_candidate_record" if getattr(compliance, "mode", None) == "certification" else "exploratory_record",
+        "evidential_status": "certification_eligible" if bool(getattr(compliance, "certification_eligible", False)) else "non_certifying",
+        "model_executed": True,
+        "base_gate_passed": bool(result.gate.passed),
+        "external_verdict": result.gate.external_admission_verdict.value,
+    })
     write_json(output / "control_results.json", result.controls)
     write_json(output / "source_audits.json", result.source_audits)
     write_json(output / "readout_results.json", result.readouts)

@@ -14,7 +14,7 @@ from .certified_runner import run_declarative_overlay
 from .fingerprints import file_hash, stable_json_hash
 from .package_manifest import default_environment_record, package_and_sign_enforced_result
 from .signing import verify_certificate
-from .modeling_intent import default_exploratory_contract, contract_from_file
+from .modeling_intent import default_exploratory_contract, contract_from_file, validate_contract_for_overlay
 from .version_guard import enforce_latest_release_guard
 
 BUILTIN_SUITE_ROOT = "overlay_suites"
@@ -88,6 +88,11 @@ class OverlayRunRecord:
     external_verdict: str | None
     missing_required_artifacts: tuple[str, ...]
     error: str | None = None
+    modeling_mode: str = "exploratory"
+    contract_hash: str | None = None
+    compliance_passed: bool | None = None
+    certification_eligible: bool | None = None
+    warning_mode_non_certifying: bool = False
 
 
 @dataclass(frozen=True)
@@ -101,6 +106,11 @@ class SuiteRunReport:
     failed_count: int
     release_guard_passed: bool
     release_guard_cache: str | None
+    modeling_mode: str
+    contract_hash: str | None
+    contract_path: str | None
+    certification_requested: bool
+    warning_mode_non_certifying: bool
     records: tuple[OverlayRunRecord, ...]
     report_hash: str
 
@@ -324,6 +334,85 @@ def _progress(enabled: bool, message: str) -> None:
     if enabled:
         print(message, flush=True)
 
+def _write_json_file(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def write_contract_rejection_case(
+    *,
+    overlay_path: str | Path,
+    output_dir: str | Path,
+    contract: object,
+    compliance_report: object,
+    modeling_mode: str,
+    command: str,
+    release_guard_report: object | None = None,
+    reason: str = "modeling_intent contract did not pass pre-run compliance",
+) -> OverlayRunRecord:
+    """Write a non-modeling failure package for certification fail-closed cases.
+
+    This function intentionally does not run SOO. It records the supplied
+    contract and compliance report so independent auditors can verify that the
+    requested certification contract, not the exploratory default, governed the
+    decision to stop.
+    """
+    overlay = Path(overlay_path)
+    output = Path(output_dir)
+    output.mkdir(parents=True, exist_ok=True)
+    try:
+        overlay_payload = json.loads(overlay.read_text(encoding="utf-8"))
+    except Exception:
+        overlay_payload = {"overlay_read_error": True}
+    if overlay.exists():
+        (output / "overlay.json").write_text(overlay.read_text(encoding="utf-8"), encoding="utf-8")
+    contract_dict = contract.to_dict() if hasattr(contract, "to_dict") else contract
+    report_dict = compliance_report.to_dict() if hasattr(compliance_report, "to_dict") else compliance_report
+    _write_json_file(output / "MODELING_INTENT_CONTRACT.json", contract_dict)
+    _write_json_file(output / "MODELING_INTENT_COMPLIANCE_REPORT.json", report_dict)
+    _write_json_file(output / "CONTRACT_PROPAGATION_REPORT.json", {
+        "schema": "rank3_contract_propagation_report_v0_1",
+        "modeling_mode": modeling_mode,
+        "contract_hash": getattr(contract, "fingerprint", lambda: None)(),
+        "compliance_contract_hash": getattr(compliance_report, "contract_hash", None),
+        "contract_hash_matches_compliance": getattr(contract, "fingerprint", lambda: None)() == getattr(compliance_report, "contract_hash", None),
+        "supplied_contract_used": True,
+        "exploratory_default_substituted": False,
+        "pre_run_enforced": True,
+        "model_executed": False,
+        "reason": reason,
+    })
+    _write_json_file(output / "RUN_CLASSIFICATION.json", {
+        "schema": "rank3_run_classification_v0_1",
+        "classification": "certification_blocked_pre_run" if modeling_mode == "certification" else "exploratory_contract_rejected_pre_run",
+        "evidential_status": "non_certifying",
+        "model_executed": False,
+        "warning_mode_non_certifying": False,
+        "command": command,
+        "overlay_hash": file_hash(overlay) if overlay.exists() else None,
+        "overlay_run_kind": overlay_payload.get("run_kind"),
+        "overlay_requested_certification": overlay_payload.get("requested_certification"),
+    })
+    if release_guard_report is not None:
+        _write_json_file(output / "release_guard.json", release_guard_report.to_dict() if hasattr(release_guard_report, "to_dict") else release_guard_report)
+    (output / "RUN_ERROR.txt").write_text(reason + "\n", encoding="utf-8")
+    return OverlayRunRecord(
+        case_id=output.name,
+        overlay_path=str(overlay),
+        output_dir=str(output),
+        status="failed",
+        certificate_valid=None,
+        base_gate_passed=None,
+        external_verdict=None,
+        missing_required_artifacts=(),
+        error=reason,
+        modeling_mode=modeling_mode,
+        contract_hash=getattr(contract, "fingerprint", lambda: None)(),
+        compliance_passed=bool(getattr(compliance_report, "passed", False)),
+        certification_eligible=bool(getattr(compliance_report, "certification_eligible", False)),
+        warning_mode_non_certifying=False,
+    )
+
 def list_builtin_suites() -> list[dict[str, object]]:
     rows = []
     for suite_id, suite in sorted(BUILTIN_SUITES.items()):
@@ -372,6 +461,12 @@ def run_signed_overlay_case(
     release_guard_cache_dir: str | Path | None = None,
     command: str = "rank3-run-overlay",
     required_artifacts: Sequence[str] = (),
+    modeling_mode: str = "exploratory",
+    contract_hash: str | None = None,
+    release_manifest_url: str | None = None,
+    release_signature_url: str | None = None,
+    release_public_key_url: str | None = None,
+    framework_zip_path: str | Path | None = None,
 ) -> OverlayRunRecord:
     overlay = Path(overlay_path)
     output = Path(output_dir)
@@ -379,11 +474,21 @@ def run_signed_overlay_case(
     cache_dir = Path(release_guard_cache_dir) if release_guard_cache_dir is not None else output.parent
     case_id = output.name
     try:
-        guard_report = enforce_latest_release_guard(run_kind="candidate", cache_dir=cache_dir)
+        guard_report = enforce_latest_release_guard(
+            run_kind="candidate",
+            cache_dir=cache_dir,
+            manifest_url=release_manifest_url,
+            signature_url=release_signature_url,
+            public_key_url=release_public_key_url,
+            framework_zip_path=framework_zip_path,
+        )
         result = run_declarative_overlay(overlay)
         environment = default_environment_record()
         environment["release_guard"] = guard_report.to_dict()
         environment["overlay_file_sha256"] = file_hash(overlay)
+        environment["modeling_mode"] = modeling_mode
+        environment["suite_contract_hash"] = contract_hash
+        environment["warning_mode_non_certifying"] = bool(not guard_report.passed or guard_report.mode in {"warn", "warning", "off"})
         package_and_sign_enforced_result(
             result=result,
             output_dir=output,
@@ -405,6 +510,11 @@ def run_signed_overlay_case(
             external_verdict=str(result.gate.external_admission_verdict.value),
             missing_required_artifacts=missing,
             error=None if status == "passed" else "Missing required artifacts or invalid certificate.",
+            modeling_mode=modeling_mode,
+            contract_hash=contract_hash,
+            compliance_passed=bool(getattr(result.modeling_intent_compliance_report, "passed", False)) if result.modeling_intent_compliance_report else None,
+            certification_eligible=bool(getattr(result.modeling_intent_compliance_report, "certification_eligible", False)) if result.modeling_intent_compliance_report else None,
+            warning_mode_non_certifying=bool(not guard_report.passed or guard_report.mode in {"warn", "warning", "off"}),
         )
     except Exception as exc:
         output.mkdir(parents=True, exist_ok=True)
@@ -420,6 +530,11 @@ def run_signed_overlay_case(
             external_verdict=None,
             missing_required_artifacts=tuple(required_artifacts),
             error=error_text,
+            modeling_mode=modeling_mode,
+            contract_hash=contract_hash,
+            compliance_passed=None,
+            certification_eligible=None,
+            warning_mode_non_certifying=False,
         )
 
 
@@ -442,6 +557,10 @@ def run_overlay_suite(
     initialization_progress: bool = False,
     modeling_mode: str = "exploratory",
     modeling_intent_contract_path: str | Path | None = None,
+    release_manifest_url: str | None = None,
+    release_signature_url: str | None = None,
+    release_public_key_url: str | None = None,
+    framework_zip_path: str | Path | None = None,
 ) -> SuiteRunReport:
     started = _now_utc()
     overlays_all = overlay_files_from_source(suite_id=suite_id, overlays_dir=overlays_dir)
@@ -468,8 +587,17 @@ def run_overlay_suite(
     _progress(progress, f"[suite] {suite_label}")
     _progress(progress, f"[suite] overlays={len(overlays)} selected_from={len(overlays_all)} output={output_root_path}")
     _progress(progress, "[release-guard] checking latest signed framework manifest")
-    guard = enforce_latest_release_guard(run_kind="candidate", cache_dir=output_root_path)
+    guard = enforce_latest_release_guard(
+        run_kind="candidate",
+        cache_dir=output_root_path,
+        manifest_url=release_manifest_url,
+        signature_url=release_signature_url,
+        public_key_url=release_public_key_url,
+        framework_zip_path=framework_zip_path,
+    )
     (output_root_path / "release_guard.json").write_text(json.dumps(guard.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (output_root_path / "MODELING_INTENT_CONTRACT.json").write_text(json.dumps(modeling_contract.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (output_root_path / "MODELING_INTENT_CONTRACT.sha256").write_text(modeling_contract.fingerprint() + "\n", encoding="utf-8")
     _progress(progress, f"[release-guard] passed={guard.passed} cache={guard.cache_path}")
 
     if required_artifacts is None:
@@ -508,9 +636,36 @@ def run_overlay_suite(
                 debug=debug,
                 debug_depth=debug_depth,
                 debug_max_points=debug_max_points,
+                modeling_intent_payload=modeling_intent_payload,
             )
         else:
             overlay_for_run = overlay
+        # Pre-run contract validation is fail-closed for certification mode.
+        overlay_payload_for_contract = json.loads(Path(overlay_for_run).read_text(encoding="utf-8"))
+        overlay_hash_for_contract = file_hash(overlay_for_run)
+        compliance_report = validate_contract_for_overlay(
+            contract=modeling_contract,
+            overlay_payload=overlay_payload_for_contract,
+            overlay_hash=overlay_hash_for_contract,
+        )
+        if modeling_mode == "certification" and not compliance_report.passed:
+            _progress(progress, f"[{index}/{len(overlays)}] BLOCK {case_id} contract compliance failed")
+            record = write_contract_rejection_case(
+                overlay_path=overlay_for_run,
+                output_dir=output_root_path / "runs" / case_id,
+                contract=modeling_contract,
+                compliance_report=compliance_report,
+                modeling_mode=modeling_mode,
+                command=f"rank3-run-suite {suite_label}",
+                release_guard_report=guard,
+                reason="Certification blocked before model execution: modeling_intent contract compliance failed.",
+            )
+            records.append(record)
+            if fail_fast:
+                _progress(progress, "[suite] stopping on first contract failure; use --continue-on-failure to continue")
+                break
+            continue
+
         _progress(progress, f"[{index}/{len(overlays)}] START {case_id}")
         t0 = time.perf_counter()
         record = run_signed_overlay_case(
@@ -520,6 +675,12 @@ def run_overlay_suite(
             release_guard_cache_dir=output_root_path,
             command=f"rank3-run-suite {suite_label}" + (" --debug" if debug else ""),
             required_artifacts=required_artifacts,
+            modeling_mode=modeling_mode,
+            contract_hash=modeling_contract.fingerprint(),
+            release_manifest_url=release_manifest_url,
+            release_signature_url=release_signature_url,
+            release_public_key_url=release_public_key_url,
+            framework_zip_path=framework_zip_path,
         )
         elapsed = time.perf_counter() - t0
         records.append(record)
@@ -547,6 +708,8 @@ def run_overlay_suite(
         "started_utc": started,
         "finished_utc": finished,
         "output_root": str(output_root_path),
+        "modeling_mode": modeling_mode,
+        "contract_hash": modeling_contract.fingerprint(),
         "records": [asdict(r) for r in records],
     }
     report = SuiteRunReport(
@@ -559,6 +722,11 @@ def run_overlay_suite(
         failed_count=failed_count,
         release_guard_passed=guard.passed,
         release_guard_cache=str(guard.cache_path) if guard.cache_path else None,
+        modeling_mode=modeling_mode,
+        contract_hash=modeling_contract.fingerprint(),
+        contract_path=str(modeling_intent_contract_path) if modeling_intent_contract_path is not None else None,
+        certification_requested=(modeling_mode == "certification"),
+        warning_mode_non_certifying=bool(not guard.passed or guard.mode in {"warn", "warning", "off"}),
         records=tuple(records),
         report_hash=stable_json_hash(payload_for_hash),
     )
