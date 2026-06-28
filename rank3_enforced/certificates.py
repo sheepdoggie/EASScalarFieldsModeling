@@ -226,6 +226,8 @@ def write_enforced_run_package(
     write_json(output / "compiled_manifest.json", result.manifest)
     write_json(output / "evidence_package.json", result.evidence)
     write_json(output / "BASE_GATE_REPORT.json", result.gate)
+    write_json(output / "MODELING_INTENT_CONTRACT.json", getattr(result, "modeling_intent_contract", None))
+    write_json(output / "MODELING_INTENT_COMPLIANCE_REPORT.json", getattr(result, "modeling_intent_compliance_report", None))
     write_json(output / "control_results.json", result.controls)
     write_json(output / "source_audits.json", result.source_audits)
     write_json(output / "readout_results.json", result.readouts)

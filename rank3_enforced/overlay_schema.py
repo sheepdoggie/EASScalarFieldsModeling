@@ -144,6 +144,7 @@ class DeclarativeOverlay:
     requested_controls: tuple[str, ...] = ()
     requested_certification: bool = False
     expected_core_hash: str | None = None
+    modeling_intent: dict[str, Any] = field(default_factory=dict)
     notes: str = ""
 
 
@@ -313,6 +314,7 @@ def parse_declarative_overlay(payload: dict[str, Any]) -> DeclarativeOverlay:
         requested_controls=tuple(str(x) for x in payload.get("controls", [])),
         requested_certification=bool(payload.get("requested_certification", False)),
         expected_core_hash=payload.get("expected_core_hash"),
+        modeling_intent=dict(payload.get("modeling_intent", {})),
         notes=str(payload.get("notes", "")),
     )
 

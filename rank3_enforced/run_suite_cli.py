@@ -13,6 +13,8 @@ def main(argv: list[str] | None = None) -> int:
     source.add_argument("suite_id", nargs="?", choices=sorted(BUILTIN_SUITES.keys()), help="Built-in suite ID")
     source.add_argument("--overlays-dir", help="Directory containing external overlay JSON files")
     parser.add_argument("--output-root", required=True, help="Output root for suite results")
+    parser.add_argument("--mode", choices=["exploratory", "certification"], default="exploratory", help="Framework-use mode. Default: exploratory. Certification requires --modeling-intent-contract.")
+    parser.add_argument("--modeling-intent-contract", help="Path to a pre-run modeling_intent contract JSON. Required for --mode certification.")
     parser.add_argument("--signing-key", default=str(default_signing_key()), help="Private signing key path. Default: ~/.rank3/private_key.pem")
     parser.add_argument("--continue-on-failure", action="store_true", help="Continue running later overlays after a failure")
     parser.add_argument("--debug", action="store_true", help="Explicitly enable run-debugging instrumentation for each overlay in the suite")
@@ -59,6 +61,8 @@ def main(argv: list[str] | None = None) -> int:
         case_globs=tuple(args.case_glob),
         settling_overrides=settling_overrides or None,
         initialization_progress=args.init_progress,
+        modeling_mode=args.mode,
+        modeling_intent_contract_path=Path(args.modeling_intent_contract) if args.modeling_intent_contract else None,
     )
     print(json.dumps(report.to_dict(), indent=2, sort_keys=True))
     return 0 if report.failed_count == 0 and report.passed_count == report.overlay_count else 1

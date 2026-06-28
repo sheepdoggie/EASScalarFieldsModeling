@@ -1,39 +1,38 @@
 # EASScalarFieldsModeling
 
-Current framework release: `0.1.23` / `0.1.23-external-path-monitor-workspace-layout`.
+Current framework release: `0.1.24` / `0.1.24-modeling-intent-contract-layer`.
 
-This package is a GitHub-installable rank-3 scalar-field modeling framework with locked registries, publication-certified run infrastructure, role/path remap support, and separated install/run workspace helpers.
+v0.1.24 adds a modeling-intent contract layer. Runs now have two distinct evidential modes:
 
-## v0.1.23 highlights
+1. exploratory modeling mode
+2. certification/admission modeling mode
 
-- Path-length changes are **external exploratory monitor requests**, not intrinsic EAS ontology.
-- Added `external_path_monitor.py` with validated add/remove path-edit transactions.
-- External Python callbacks are disabled unless explicitly allowed for exploratory non-certified work.
-- Added separated workspace layout helper:
+Absent a contract, a run is exploratory by default. Certification/admission requires a pre-run `modeling_intent` contract and emits a `MODELING_INTENT_COMPLIANCE_REPORT.json` in every result package.
 
-```bash
-rank3-init-workspace --separate-subtrees --project-root ~/Projects
-```
-
-- Release manifest now includes:
-  - `latest_framework_code_sha256`
-  - `accepted_framework_code_sha256`
-
-## Install from GitHub tag
+Install after publishing:
 
 ```bash
-python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.23#egg=enforceable-rank3-modeling"
+python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.24#egg=enforceable-rank3-modeling"
 ```
 
-## Run a suite
+Create a contract template:
 
 ```bash
-rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 \
-  --output-root ~/Projects/EAS_runs/results/charge_role_path_v0123 \
-  --signing-key ~/.rank3/private_key.pem \
-  --continue-on-failure
+rank3-write-modeling-intent-template --output ~/Projects/EAS_runs/overlays/charge_path_adjustment_contract_v0124.json
 ```
 
-## Important theorem status
+Run exploratory mode:
 
-The framework does not certify `same -> Delta L = +1` or `opposite -> Delta L = -1`.  v0.1.23 specifically prevents path add/remove from being treated as an intrinsic framework rule.
+```bash
+cd ~/Projects/EAS_runs
+rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 --mode exploratory --output-root results/charge_role_path_v0124_exploratory --signing-key ~/.rank3/private_key.pem --continue-on-failure
+```
+
+Run certification mode:
+
+```bash
+cd ~/Projects/EAS_runs
+rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 --mode certification --modeling-intent-contract overlays/charge_path_adjustment_contract_v0124.json --output-root results/charge_path_certification_v0124 --signing-key ~/.rank3/private_key.pem --continue-on-failure
+```
+
+Path add/remove remains external-monitor-requested and is not an EAS ontology rule or intrinsic framework rule.

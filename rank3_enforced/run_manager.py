@@ -14,6 +14,7 @@ from .certified_runner import run_declarative_overlay
 from .fingerprints import file_hash, stable_json_hash
 from .package_manifest import default_environment_record, package_and_sign_enforced_result
 from .signing import verify_certificate
+from .modeling_intent import default_exploratory_contract, contract_from_file
 from .version_guard import enforce_latest_release_guard
 
 BUILTIN_SUITE_ROOT = "overlay_suites"
@@ -36,6 +37,8 @@ BUILTIN_SUITES: dict[str, BuiltinSuite] = {
         required_artifacts=(
             "CERTIFICATE.json",
             "EVIDENCE_ENVELOPE.json",
+            "MODELING_INTENT_CONTRACT.json",
+            "MODELING_INTENT_COMPLIANCE_REPORT.json",
             "INITIAL_TWO_LEDGER_REPORT.json",
             "INITIALIZATION_SETTLING_REPORT.json",
             "OPTIONAL_MODULE_REPORT.json",
@@ -61,6 +64,8 @@ BUILTIN_SUITES: dict[str, BuiltinSuite] = {
         required_artifacts=(
             "CERTIFICATE.json",
             "EVIDENCE_ENVELOPE.json",
+            "MODELING_INTENT_CONTRACT.json",
+            "MODELING_INTENT_COMPLIANCE_REPORT.json",
             "OPTIONAL_MODULE_REPORT.json",
             "SOO_EXECUTION_REPORT.json",
             "SOO_FUNCTIONAL_REPORT.json",
@@ -232,6 +237,7 @@ def stage_overlay_with_run_overrides(
     staging_dir: str | Path,
     settling_overrides: dict[str, object] | None = None,
     execution_overrides: dict[str, object] | None = None,
+    modeling_intent_payload: dict[str, object] | None = None,
     debug: bool = False,
     debug_depth: int = 1,
     debug_max_points: int = 256,
@@ -265,6 +271,10 @@ def stage_overlay_with_run_overrides(
                 execution[str(key)] = value
         payload["execution"] = execution
         changed.append("execution")
+
+    if modeling_intent_payload is not None:
+        payload["modeling_intent"] = modeling_intent_payload
+        changed.append("modeling_intent")
 
     modules = [m for m in payload.get("optional_modules", payload.get("modules", [])) if m.get("module_id") != "run_debugging"]
     if debug:
@@ -430,12 +440,29 @@ def run_overlay_suite(
     settling_overrides: dict[str, object] | None = None,
     execution_overrides: dict[str, object] | None = None,
     initialization_progress: bool = False,
+    modeling_mode: str = "exploratory",
+    modeling_intent_contract_path: str | Path | None = None,
 ) -> SuiteRunReport:
     started = _now_utc()
     overlays_all = overlay_files_from_source(suite_id=suite_id, overlays_dir=overlays_dir)
     overlays = filter_overlay_files(overlays_all, case_ids=case_ids, case_globs=case_globs)
     output_root_path = Path(output_root).resolve()
     output_root_path.mkdir(parents=True, exist_ok=True)
+    if modeling_mode not in ("exploratory", "certification"):
+        raise ValueError("modeling_mode must be exploratory or certification")
+    if modeling_mode == "certification" and modeling_intent_contract_path is None:
+        raise ValueError("certification mode requires --modeling-intent-contract")
+    modeling_contract = (
+        contract_from_file(modeling_intent_contract_path)
+        if modeling_intent_contract_path is not None
+        else default_exploratory_contract()
+    )
+    if modeling_mode == "certification" and modeling_contract.mode != "certification":
+        raise ValueError("--mode certification requires a certification modeling_intent contract")
+    if modeling_mode == "exploratory" and modeling_contract.mode != "exploratory" and modeling_intent_contract_path is None:
+        raise ValueError("internal error: exploratory default contract should be exploratory")
+    modeling_intent_payload = modeling_contract.to_dict()
+
 
     suite_label = suite_id or f"external:{Path(overlays_dir).resolve()}"
     _progress(progress, f"[suite] {suite_label}")
@@ -472,7 +499,7 @@ def run_overlay_suite(
     staging_dir = output_root_path / ".rank3_staged_overlays"
     for index, overlay in enumerate(overlays, start=1):
         case_id = overlay.stem
-        if debug or settling_overrides or execution_overrides:
+        if debug or settling_overrides or execution_overrides or modeling_intent_payload is not None:
             overlay_for_run = stage_overlay_with_run_overrides(
                 overlay_path=overlay,
                 staging_dir=staging_dir,

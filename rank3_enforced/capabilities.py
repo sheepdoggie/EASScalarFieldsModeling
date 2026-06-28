@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.23"
-FRAMEWORK_RELEASE_LABEL = "0.1.23-external-path-monitor-workspace-layout"
+FRAMEWORK_VERSION = "0.1.24"
+FRAMEWORK_RELEASE_LABEL = "0.1.24-modeling-intent-contract-layer"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -111,6 +111,15 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "latest_framework_code_sha256_manifest_field",
         "accepted_framework_code_sha256_manifest_field",
         "initialization_steady_state_gate_policy_v0_1",
+
+        "modeling_intent_contract_layer_v0_1",
+        "exploratory_modeling_mode",
+        "certification_admission_modeling_mode",
+        "modeling_intent_compliance_report",
+        "modeling_intent_contract_cli",
+        "certification_requires_predeclared_contract",
+        "exploratory_default_without_contract",
+        "contract_bound_run_manager_staging",
     }
 )
 

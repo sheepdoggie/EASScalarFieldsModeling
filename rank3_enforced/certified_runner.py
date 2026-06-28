@@ -14,6 +14,7 @@ from .immutable_result import ImmutableScalarFieldGeometryResult
 from .initialization_trace import InitializationEpochReport
 from .initialization_settling import InitializationSettlingReport
 from .manifest import ModelManifest
+from .modeling_intent import ModelingIntentContract, ModelingIntentComplianceReport
 from .path_debugging import (
     RunDebuggingSpec,
     build_path_facing_association_report,
@@ -52,6 +53,8 @@ class ModelPackage:
     path_construction_report: object | None = None
     run_debugging_spec: RunDebuggingSpec | None = None
     initialization_settling_report: InitializationSettlingReport | None = None
+    modeling_intent_contract: ModelingIntentContract | None = None
+    modeling_intent_compliance_report: ModelingIntentComplianceReport | None = None
 
 
 @dataclass(frozen=True)
@@ -83,6 +86,8 @@ class EnforcedRunResult:
     role_path_remap_report: object | None = None
     run_debugging_report: object | None = None
     initialization_settling_report: InitializationSettlingReport | None = None
+    modeling_intent_contract: ModelingIntentContract | None = None
+    modeling_intent_compliance_report: ModelingIntentComplianceReport | None = None
 
     @property
     def certified(self) -> bool:
@@ -107,6 +112,14 @@ def verify_core_integrity(
 
 def _audit_manifest(package: ModelPackage) -> None:
     manifest = package.manifest
+    compliance = package.modeling_intent_compliance_report
+    if compliance is None:
+        if manifest.run_kind == "admission" or manifest.requested_certification:
+            raise ManifestError("Certification/admission requires a modeling_intent compliance report.")
+    elif compliance.mode == "exploratory" and (manifest.run_kind == "admission" or manifest.requested_certification):
+        raise ManifestError("Exploratory modeling_intent cannot be used for admission/certification runs.")
+    if compliance is not None and compliance.mode == "certification" and not compliance.passed:
+        raise ManifestError("Certification modeling_intent contract did not pass pre-run compliance: " + "; ".join(compliance.violations))
     if manifest.run_kind in ("candidate", "admission") and not package.compiled_overlay_hash:
         raise ManifestError(
             "Candidate/admission runs must be compiled from a data-only declarative overlay. "
@@ -310,6 +323,8 @@ def _build_base_gate(
         "path_construction_report": package.path_construction_report,
         "run_debugging_spec": package.run_debugging_spec,
         "initialization_settling_report": package.initialization_settling_report,
+        "modeling_intent_contract_hash": (package.modeling_intent_contract.fingerprint() if package.modeling_intent_contract else None),
+        "modeling_intent_compliance_report": package.modeling_intent_compliance_report,
         "soo_primitive_operator": getattr(package.config.scalar_update_rule, "primitive_operator_id", None),
         "rule_statuses": {
             "scalar_update": package.scalar_update_metadata.status.value,
@@ -459,6 +474,8 @@ def run_model_package(package: ModelPackage) -> EnforcedRunResult:
         role_path_remap_report=role_path_remap_report,
         run_debugging_report=run_debugging_report,
         initialization_settling_report=package.initialization_settling_report,
+        modeling_intent_contract=package.modeling_intent_contract,
+        modeling_intent_compliance_report=package.modeling_intent_compliance_report,
     )
 
 

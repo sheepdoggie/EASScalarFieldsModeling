@@ -24,6 +24,7 @@ from .locked_registries import (
 )
 from .manifest import DiagnosticManifest, ModelManifest
 from .model_type_registry import compile_model_type
+from .modeling_intent import contract_from_dict, validate_contract_for_overlay
 from .overlay_schema import DeclarativeOverlay
 from .path_construction import build_explicit_path_association_state
 from .optional_modules import validate_optional_modules
@@ -219,6 +220,13 @@ def compile_overlay_to_model_package(
         initial_phi_previous=(None if initialization_result.phi_previous_for_measurement is None else np.asarray(initialization_result.phi_previous_for_measurement, dtype=np.float64)),
     )
 
+    modeling_intent_contract = contract_from_dict(overlay.modeling_intent)
+    modeling_intent_compliance_report = validate_contract_for_overlay(
+        contract=modeling_intent_contract,
+        overlay_payload=asdict(overlay),
+        overlay_hash=overlay_hash,
+    )
+
     diagnostics = DiagnosticManifest(
         required_readouts=plan.required_readouts,
         required_controls=plan.required_controls,
@@ -271,4 +279,6 @@ def compile_overlay_to_model_package(
         path_construction_report=path_construction_report,
         run_debugging_spec=run_debugging_spec,
         initialization_settling_report=initialization_result.settling_report,
+        modeling_intent_contract=modeling_intent_contract,
+        modeling_intent_compliance_report=modeling_intent_compliance_report,
     )

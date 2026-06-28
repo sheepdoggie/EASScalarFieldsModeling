@@ -5,7 +5,7 @@ from rank3_enforced.capabilities import FRAMEWORK_VERSION, FRAMEWORK_CAPABILITIE
 
 
 def test_v0123_capabilities_mark_path_change_external_only():
-    assert FRAMEWORK_VERSION == "0.1.23"
+    assert FRAMEWORK_VERSION == "0.1.24"
     assert "external_path_monitor_api_v0_1" in FRAMEWORK_CAPABILITIES
     assert "path_length_change_external_monitor_only" in FRAMEWORK_CAPABILITIES
     assert "path_edit_not_intrinsic_framework_rule" in FRAMEWORK_CAPABILITIES
