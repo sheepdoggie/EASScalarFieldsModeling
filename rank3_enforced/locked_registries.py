@@ -27,6 +27,8 @@ from .soo_compiler import build_declarative_soo_update_rule
 from .association_indexed_soo import AssociationIndexedSOOUpdateRule
 from .bounded_context_soo import BoundedContextSOOUpdateRule, build_bounded_context_soo_update_rule
 from .path_facing_remap import PathTargetDerivedExternalRemapRule, build_path_target_derived_external_remap_rule
+from .role_path_remap import PathContinuationRoleRemapRule, build_path_continuation_role_remap_rule
+from .dynamic_paths import DressingRoleMap, RelationalPathRecord
 from .soo_schema import parse_soo_recipe
 
 
@@ -137,6 +139,10 @@ def _path_target_derived_external_remap_factory(**params: Any) -> PathTargetDeri
     return build_path_target_derived_external_remap_rule(dict(params))
 
 
+def _path_continuation_role_remap_factory(**params: Any) -> PathContinuationRoleRemapRule:
+    return build_path_continuation_role_remap_rule(dict(params))
+
+
 SCALAR_UPDATE_RULES: dict[str, RegistryItem] = {
     "zero_scalar_update": RegistryItem("zero_scalar_update", _zero_scalar_update_factory, ZeroScalarUpdateRule().metadata),
     "soo_declarative_v0_1": RegistryItem(
@@ -176,6 +182,18 @@ ASSOCIATION_REMAP_RULES: dict[str, RegistryItem] = {
         "path_target_derived_external_remap_v1",
         _path_target_derived_external_remap_factory,
         PathTargetDerivedExternalRemapRule(eligible_points=(0,)).metadata,
+    ),
+    "path_continuation_role_remap_v1": RegistryItem(
+        "path_continuation_role_remap_v1",
+        _path_continuation_role_remap_factory,
+        PathContinuationRoleRemapRule(
+            paths=(RelationalPathRecord(
+                path_id="metadata_path", left_endpoint=0, right_endpoint=2, ordered_nodes=(1,)
+            ),),
+            dressing_roles=(DressingRoleMap(
+                point=0, boundary_slot=0, path_slot=1, vacuum_slot=2, path_id="metadata_path", endpoint_side="left"
+            ),),
+        ).metadata,
     ),
 }
 

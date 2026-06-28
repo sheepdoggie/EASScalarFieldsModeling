@@ -1,6 +1,6 @@
 # EASScalarFieldsModeling
 
-Current framework release: `0.1.20` / `0.1.20-github-installable-publication-certified-run`.
+Current framework release: `0.1.21` / `0.1.21-role-path-remap-dynamic-path-infrastructure`.
 
 This repository is GitHub-installable and also carries a versioned release ZIP under `releases/current/`.
 
@@ -15,13 +15,13 @@ pytest -q
 ## Install from GitHub after publish
 
 ```bash
-python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.20#egg=enforceable-rank3-modeling"
+python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.21#egg=enforceable-rank3-modeling"
 ```
 
 ## Install from the versioned release archive
 
 ```bash
-python -m pip install --force-reinstall releases/current/enforceable_rank3_modeling_v0.1.20_publication_certified_run.zip
+python -m pip install --force-reinstall releases/current/enforceable_rank3_modeling_v0.1.21_role_path_remap_dynamic_path.zip
 rank3-check-release-guard --force-refresh
 ```
 

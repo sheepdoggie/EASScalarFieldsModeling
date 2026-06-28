@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.20"
-FRAMEWORK_RELEASE_LABEL = "0.1.20-github-installable-publication-certified-run"
+FRAMEWORK_VERSION = "0.1.21"
+FRAMEWORK_RELEASE_LABEL = "0.1.21-role-path-remap-dynamic-path-infrastructure"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -85,6 +85,15 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "phase_consistent_two_ledger_diagnostic",
 
         "path_target_derived_external_remap_v1",
+
+        "path_continuation_role_remap_v1",
+        "role_based_dressing_association_map",
+        "orientation_aware_path_continuation",
+        "geometry_transaction_reports",
+        "gated_path_shortening_v1",
+        "gated_path_lengthening_v1",
+        "relational_path_record_registry",
+        "dynamic_path_length_infrastructure",
         "publication_certified_run_mode",
         "github_installable_source_tree",
         "versioned_release_archive",
