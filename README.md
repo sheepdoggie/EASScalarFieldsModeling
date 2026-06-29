@@ -66,3 +66,13 @@ rank3-list-admission-mechanisms
 ```
 
 The non-label path monitor policy may inspect signed scalar/path records only. It may not read same/opposite labels or trigger path edits from orientation labels. Path add/remove remains an external transaction, not EAS ontology.
+
+## v0.1.35 planning release
+
+v0.1.35 adds a gradient-governed vacuum-split path-accommodation planning layer. It freezes A1-A7 admissibility candidates, separates H1-H5 as theorem-facing proof obligations rather than primitive rules, adds generator/readout separation constraints, and packages mandatory controls/audit gates for operator approval. It is not a theorem-certifying release.
+
+To generate the approval-items ZIP:
+
+```bash
+rank3-write-gradient-path-accommodation-packet --output gradient_path_accommodation_approval_items_v0135.zip --print-summary
+```

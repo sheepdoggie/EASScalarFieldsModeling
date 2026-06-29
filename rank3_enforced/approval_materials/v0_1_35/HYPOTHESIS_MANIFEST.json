@@ -1,0 +1,47 @@
+{
+  "certification_rule": "If any hypothesis is implemented as a primitive dispatch from scalar sign, label, or expected Delta L, certification must be blocked.",
+  "framework_version": "0.1.35",
+  "hypotheses": [
+    {
+      "blocked_if_primitive": true,
+      "id": "H1",
+      "name": "opposite_sign_center_no_gradient_hypothesis",
+      "proof_obligation": "Must be derived from generated scalar signs, association records, and path-center gradients without reading a target Delta L.",
+      "statement": "Opposite scalar-sign support pairs produce a center inflection/no-gradient invalidity.",
+      "status": "proof_obligation_not_admissibility"
+    },
+    {
+      "blocked_if_primitive": true,
+      "id": "H2",
+      "name": "same_sign_center_ambiguous_gradient_hypothesis",
+      "proof_obligation": "Must be derived from generated scalar signs, association records, and path-center gradients without reading a target Delta L.",
+      "statement": "Same scalar-sign support pairs produce a center peak/ambiguous-gradient invalidity.",
+      "status": "proof_obligation_not_admissibility"
+    },
+    {
+      "blocked_if_primitive": true,
+      "id": "H3",
+      "name": "no_gradient_removal_accommodation_hypothesis",
+      "proof_obligation": "Must be justified as a topology transaction policy after center invalidity is observed; it must not be a sign-label dispatch rule.",
+      "statement": "A no-gradient invalid relational carrier is accommodated by removal.",
+      "status": "proof_obligation_not_admissibility"
+    },
+    {
+      "blocked_if_primitive": true,
+      "id": "H4",
+      "name": "ambiguous_gradient_vacuum_insertion_hypothesis",
+      "proof_obligation": "Must be justified as a topology transaction policy after center invalidity is observed; it must not be a sign-label dispatch rule.",
+      "statement": "An ambiguous-gradient invalid center is accommodated by insertion of a vacuum point.",
+      "status": "proof_obligation_not_admissibility"
+    },
+    {
+      "blocked_if_primitive": true,
+      "id": "H5",
+      "name": "dangling_vacuum_reassociation_hypothesis",
+      "proof_obligation": "Must be audited as a consequence of an admitted transaction rather than as a preselected path outcome.",
+      "statement": "Removal leaves dangling beside-path associations that reassociate to vacuum; insertion creates new vacuum associations on both sides of the path.",
+      "status": "proof_obligation_not_admissibility"
+    }
+  ],
+  "schema": "gradient_path_hypothesis_manifest_v0_1"
+}

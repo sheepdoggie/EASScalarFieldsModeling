@@ -1,0 +1,52 @@
+{
+  "certification_rule": "Controls are mandatory and must be evaluated before theorem certification can be claimed.",
+  "controls": [
+    {
+      "expected_non_certifying_behavior": "No split, no triangle, no support, no path accommodation.",
+      "id": "all_vacuum_no_seed_control",
+      "purpose": "No first association seed is available."
+    },
+    {
+      "expected_non_certifying_behavior": "No stable same-sign triangle/shell dominance certification.",
+      "id": "association_randomized_control",
+      "purpose": "Association selection is randomized rather than gradient-minimized."
+    },
+    {
+      "expected_non_certifying_behavior": "Quarantined or fails admission because spreading is instantaneous.",
+      "id": "no_latency_control",
+      "purpose": "Association proposals commit without one-cycle latency."
+    },
+    {
+      "expected_non_certifying_behavior": "Fails split-vacuum admissibility; cannot represent six pending branch slots.",
+      "id": "three_slot_only_control",
+      "purpose": "Split site is incorrectly restricted to three total branch slots."
+    },
+    {
+      "expected_non_certifying_behavior": "Forms triangle/duplicate activity, not shell support candidate.",
+      "id": "below_threshold_y_le_x_control",
+      "purpose": "Shell candidate amplitude is below or equal to the lower shell threshold."
+    },
+    {
+      "expected_non_certifying_behavior": "Forms independent high-amplitude triangle, not shell support candidate.",
+      "id": "above_window_y_too_large_control",
+      "purpose": "Shell candidate amplitude is above the accepted shell-admission window."
+    },
+    {
+      "expected_non_certifying_behavior": "Cannot certify packet/support persistence.",
+      "id": "no_soo_control",
+      "purpose": "Association geometry is generated without SOO persistence."
+    },
+    {
+      "expected_non_certifying_behavior": "No Delta L certification from load/null alone.",
+      "id": "no_center_invalidity_rule_control",
+      "purpose": "Center load/null is recorded but carrier invalidity is not admitted."
+    },
+    {
+      "expected_non_certifying_behavior": "Must be rejected before execution or classified as leakage/manipulation failure.",
+      "id": "forced_delta_l_leakage_control",
+      "purpose": "A malicious or contaminated generator is given target Delta L or sign-label dispatch."
+    }
+  ],
+  "framework_version": "0.1.35",
+  "schema": "gradient_path_negative_controls_manifest_v0_1"
+}

@@ -1,0 +1,58 @@
+{
+  "allowed_generator_inputs": [
+    "scalar_signs",
+    "scalar_values",
+    "undefined_vacuum_state",
+    "association_candidates",
+    "frozen_admissibility_rules",
+    "cost_functional_id"
+  ],
+  "fail_closed_rule": "Certification mode must stop or emit DO_NOT_CERTIFY if forbidden inputs are present or required artifacts are absent.",
+  "forbidden_generator_inputs": [
+    "same_label",
+    "opposite_label",
+    "charge_label",
+    "handedness_label",
+    "target_delta_l",
+    "expected_delta_l",
+    "predeclared_support_membership",
+    "predeclared_center_action",
+    "preselected_path_outcome"
+  ],
+  "framework_version": "0.1.35",
+  "readout_only_fields": [
+    "observed_delta_l",
+    "delta_l_classification",
+    "theorem_verdict",
+    "control_separation_verdict"
+  ],
+  "required_output_artifacts": [
+    "SOURCE_PROVENANCE_REPORT.json",
+    "ADMISSIBILITY_STATUS_REPORT.json",
+    "HYPOTHESIS_STATUS_REPORT.json",
+    "GENERATOR_READOUT_SEPARATION_REPORT.json",
+    "NEGATIVE_CONTROL_REPORT.json",
+    "LEAKAGE_MANIPULATION_REPORT.json",
+    "TOPOLOGY_TRANSACTION_AUDIT.json",
+    "CONJUGACY_REPORT.json",
+    "ODD_EVEN_PATH_REPORT.json",
+    "BASE_GATE_REPORT.json",
+    "THEOREM_VERDICT_REPORT.json"
+  ],
+  "runner_causal_chain": [
+    "undefined_vacuum",
+    "first_association",
+    "+/-_split_with_six_branch_slots",
+    "one_cycle_association_proposal_latency",
+    "gradient_minimizing_association_selection",
+    "same_sign_triangle_shell_candidate_formation",
+    "SOO_over_generated_support_candidates",
+    "scalar_sign_support_classification",
+    "two_support_path_sector_SOO",
+    "center_gradient_classification",
+    "topology_transaction_proposal",
+    "transaction_admission_or_rejection",
+    "final_delta_l_readout"
+  ],
+  "schema": "generator_readout_separation_contract_v0_2"
+}

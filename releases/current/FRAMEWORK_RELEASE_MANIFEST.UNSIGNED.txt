@@ -1,1 +1,1 @@
-Manifest was generated locally for this package. Re-sign with the operator trusted private key before authoritative publication.
+Unsigned manifest generated for v0.1.35 planning release. Re-sign locally before authoritative publication.

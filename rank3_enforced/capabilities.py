@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.34"
-FRAMEWORK_RELEASE_LABEL = "0.1.34-failure-diagnostics"
+FRAMEWORK_VERSION = "0.1.35"
+FRAMEWORK_RELEASE_LABEL = "0.1.35-gradient-vacuum-split-planning"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -166,6 +166,19 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "candidate_not_admitted_blocks_certification_v0_1",
         "contract_required_initialization_settling_gate_v0_1",
         "packageable_failed_certification_attempts_v0_1",
+        "gradient_governed_vacuum_split_plan_v0_1",
+        "undefined_vacuum_admissibility_manifest_v0_1",
+        "vacuum_split_six_slot_manifest_v0_1",
+        "association_gradient_minimization_manifest_v0_1",
+        "association_latency_manifest_v0_1",
+        "relational_gradient_center_invalidity_manifest_v0_1",
+        "theorem_hypotheses_not_primitive_rules_v0_1",
+        "gradient_path_approval_items_zip_v0_1",
+        "generator_readout_separation_contract_v0_2",
+        "forced_delta_l_leakage_control_v0_1",
+        "topology_transaction_audit_plan_v0_1",
+        "scalar_sign_only_theorem_scope_v0_1",
+        "ready_for_certification_plan_not_theorem_certification_v0_1",
     }
 )
 

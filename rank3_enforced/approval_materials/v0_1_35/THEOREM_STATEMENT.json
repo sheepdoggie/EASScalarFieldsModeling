@@ -1,0 +1,30 @@
+{
+  "given": [
+    "vacuum points are undefined until first association",
+    "first association resolves a vacuum point into equal/opposite scalar branches",
+    "each branch carries three association slots",
+    "new associations minimize scalar-gradient burden",
+    "new association proposals commit after one cycle",
+    "relational path points require determinate scalar gradient",
+    "sign-coherent triangle/shell supports are generated without imposed support labels"
+  ],
+  "interface_language_not_certified": [
+    "electric charge",
+    "Coulomb behavior",
+    "charge magnitude",
+    "QED correspondence",
+    "empirical attraction/repulsion",
+    "lepton hierarchy"
+  ],
+  "name": "Gradient-Governed Scalar-Sign Path-Accommodation Theorem",
+  "not_certified_by_this_release": true,
+  "ready_for_certification_plan": true,
+  "ready_for_theorem_certification": false,
+  "schema": "gradient_path_accommodation_plan_v0_1",
+  "scope": "scalar_field_path_sector_only",
+  "then_under_proof_obligation": [
+    "opposite scalar-sign support pairs produce center no-gradient invalidity and, if an admitted topology policy applies, removal with Delta L = -1",
+    "same scalar-sign support pairs produce center ambiguous-gradient invalidity and, if an admitted topology policy applies, vacuum insertion with Delta L = +1"
+  ],
+  "theorem_id": "gradient_governed_scalar_sign_path_accommodation_v0_1"
+}

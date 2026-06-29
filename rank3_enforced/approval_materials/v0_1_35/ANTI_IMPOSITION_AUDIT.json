@@ -1,0 +1,28 @@
+{
+  "checks": {
+    "a8_a10_not_admissibilities": true,
+    "charge_labels_forbidden_to_generator": true,
+    "handedness_labels_forbidden_to_generator": true,
+    "release_does_not_certify_theorem": true,
+    "same_opposite_labels_forbidden_to_generator": true,
+    "target_delta_l_forbidden_to_generator": true,
+    "topology_transaction_requires_center_gradient_admissibility_and_policy": true
+  },
+  "forbidden_generator_inputs": [
+    "same_label",
+    "opposite_label",
+    "charge_label",
+    "handedness_label",
+    "target_delta_l",
+    "expected_delta_l",
+    "predeclared_support_membership",
+    "predeclared_center_action",
+    "preselected_path_outcome"
+  ],
+  "framework_version": "0.1.35",
+  "hypotheses_may_name_theorem_outcomes_but_are_not_primitives": true,
+  "passed": true,
+  "primitive_admissibility_result_terms_found": [],
+  "schema": "gradient_path_anti_imposition_audit_v0_1",
+  "verdict": "audit_passed_no_result_imposition_in_v0_1_35_planning_materials"
+}

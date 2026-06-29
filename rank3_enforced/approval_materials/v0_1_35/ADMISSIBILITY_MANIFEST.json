@@ -1,0 +1,63 @@
+{
+  "admissibilities": [
+    {
+      "anti_imposition_note": "Does not encode support class, center action, or Delta L.",
+      "certification_role": "ontology_input",
+      "id": "A1",
+      "name": "vacuum_undefined_association_admissibility",
+      "statement": "An undefined vacuum point has no active rank-3 association record until first association reaches it.",
+      "status": "frozen_for_operator_review"
+    },
+    {
+      "anti_imposition_note": "Creates scalar-sign conjugate branches but does not prescribe path shortening or lengthening.",
+      "certification_role": "ontology_input",
+      "id": "A2",
+      "name": "vacuum_split_admissibility",
+      "statement": "First association to an undefined vacuum point resolves it into two scalar branches with equal and opposite scalar values.",
+      "status": "frozen_for_operator_review"
+    },
+    {
+      "anti_imposition_note": "Specifies branch-slot accounting only; it does not choose a topology transaction.",
+      "certification_role": "ontology_input",
+      "id": "A3",
+      "name": "six_slot_split_admissibility",
+      "statement": "Each resolved branch carries three association slots, so one split vacuum site contributes six pending branch association slots.",
+      "status": "frozen_for_operator_review"
+    },
+    {
+      "anti_imposition_note": "Selection is based on scalar-gradient burden, not same/opposite labels or target outcomes.",
+      "certification_role": "generator_rule",
+      "id": "A4",
+      "name": "association_gradient_admissibility",
+      "statement": "Among available association candidates, the admitted new association is the one minimizing scalar-gradient burden.",
+      "status": "frozen_for_operator_review"
+    },
+    {
+      "anti_imposition_note": "Latency prevents instantaneous spreading from serving as an uninspected path edit.",
+      "certification_role": "generator_rule",
+      "id": "A5",
+      "name": "one_cycle_association_latency",
+      "statement": "New association formation is not instantaneous; proposals made in one cycle become usable associations in the next cycle.",
+      "status": "frozen_for_operator_review"
+    },
+    {
+      "anti_imposition_note": "This admits or rejects path-carrier status from gradient determinacy, not from theorem labels.",
+      "certification_role": "readout_admission_rule",
+      "id": "A6",
+      "name": "relational_gradient_admissibility",
+      "statement": "A relational path point carries relationship only when it participates in a determinate scalar gradient.",
+      "status": "frozen_for_operator_review"
+    },
+    {
+      "anti_imposition_note": "Invalidity is a carrier-status condition; it does not by itself specify insertion or removal.",
+      "certification_role": "readout_admission_rule",
+      "id": "A7",
+      "name": "center_invalidity_admissibility",
+      "statement": "No-gradient centers and ambiguous-gradient centers cannot persist as relational path carriers.",
+      "status": "frozen_for_operator_review"
+    }
+  ],
+  "certification_rule": "Only A1-A7 are admissibility candidates in this package. Accommodation items H1-H5 are proof obligations, not primitive rules.",
+  "framework_version": "0.1.35",
+  "schema": "gradient_path_admissibility_manifest_v0_1"
+}

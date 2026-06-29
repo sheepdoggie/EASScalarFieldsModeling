@@ -1,0 +1,52 @@
+{
+  "audit_gates": [
+    {
+      "blocks_certification_if_false": true,
+      "id": "source_provenance",
+      "question": "Are all admissibilities, hypotheses, and cost functionals source-identified and frozen before execution?"
+    },
+    {
+      "blocks_certification_if_false": true,
+      "id": "verdict_independence",
+      "question": "Is target Delta L unavailable to the generator, association selector, and topology transaction selector?"
+    },
+    {
+      "blocks_certification_if_false": true,
+      "id": "blind_generation_projection_separation",
+      "question": "Are support/path records generated before Delta L projection/readout?"
+    },
+    {
+      "blocks_certification_if_false": true,
+      "id": "negative_controls",
+      "question": "Do all mandatory negative controls execute and separate from theorem cases?"
+    },
+    {
+      "blocks_certification_if_false": true,
+      "id": "leakage_checks",
+      "question": "Are charge labels, handedness labels, imposed support classes, same/opposite labels, and target outcomes absent from generator inputs?"
+    },
+    {
+      "blocks_certification_if_false": true,
+      "id": "topology_manipulation_check",
+      "question": "Are insertion/removal transactions triggered only from center-gradient admissibility and a separately approved transaction policy?"
+    },
+    {
+      "blocks_certification_if_false": true,
+      "id": "redressing_check",
+      "question": "Does cyclic/reflection redressing preserve the report class?"
+    },
+    {
+      "blocks_certification_if_false": true,
+      "id": "conjugacy_check",
+      "question": "Do + and - branches remain exact scalar-sign conjugates through split and association formation?"
+    },
+    {
+      "blocks_certification_if_false": true,
+      "id": "odd_even_path_check",
+      "question": "Are odd-center and even-center path cases both handled without ad hoc center special casing?"
+    }
+  ],
+  "certification_rule": "Every gate blocks certification if false.",
+  "framework_version": "0.1.35",
+  "schema": "gradient_path_audit_gate_manifest_v0_1"
+}
