@@ -1,0 +1,52 @@
+{
+  "schema": "rank3_admission_mechanism_declaration_v1",
+  "mechanism_set_id": "charge_path_admission_mechanisms_v0_1",
+  "status": "framework_admission_capable_not_theorem_admitted",
+  "scope": "mechanism availability and leakage control only; does not certify any Delta L claim",
+  "mechanisms": [
+    {
+      "mechanism_id": "bounded_context_soo_v1",
+      "category": "whole_field_SOO",
+      "candidate": false,
+      "certification_usable": true,
+      "constraints": [
+        "whole_field_update_required",
+        "signed_scalar_values_preserved",
+        "zero_crossing_allowed",
+        "soo_trace_required"
+      ],
+      "non_admission_note": "Availability of this SOO rule does not admit any theorem outcome."
+    },
+    {
+      "mechanism_id": "admitted_nonlabel_path_monitor_v1",
+      "category": "path_edit_monitor_policy",
+      "candidate": false,
+      "certification_usable": true,
+      "constraints": [
+        "monitor_may_read_only_scalar_records_and_active_path_records",
+        "monitor_must_not_read_same_or_opposite_orientation_labels",
+        "monitor_must_emit evidence hashes and no_edit/add/remove requests before verdict classification",
+        "framework_path_add_remove_remains external transaction not EAS ontology"
+      ],
+      "non_admission_note": "The monitor is admitted as a non-label policy gate only; it cannot by itself certify Delta L."
+    },
+    {
+      "mechanism_id": "role_path_two_support_v0_1",
+      "category": "relational_path_construction",
+      "candidate": false,
+      "certification_usable": true,
+      "constraints": [
+        "support_to_support_path_declared_before_run",
+        "dressing_boundary_slot_roles_preserved",
+        "non_overlap_required"
+      ],
+      "non_admission_note": "Path construction is admissible as setup only; it is not a path-change result."
+    }
+  ],
+  "forbidden_promotions": [
+    "candidate_overlay_label_to_admission_label_without mechanism declaration",
+    "orientation label as monitor input",
+    "same_opposite label as path edit trigger",
+    "intrinsic path length change framework rule"
+  ]
+}

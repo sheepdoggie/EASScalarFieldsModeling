@@ -1,8 +1,8 @@
-# TDD: Operator-Agent Approval Loop (v0.1.31)
+# TDD: Operator-Agent Approval Loop (v0.1.32)
 
 ## Purpose
 
-v0.1.31 repairs the v0.1.30 ambiguity in which `OPERATOR_REQUIRED_ITEMS.json` could be read as user/operator homework. The framework now treats the modeling chat as an operator-agent that must draft draftable certification materials, mark non-inventable materials honestly, validate the customized packet, and return the packet to the user/operator for explicit approval before any certification-mode model execution.
+v0.1.32 repairs the v0.1.30 ambiguity in which `OPERATOR_REQUIRED_ITEMS.json` could be read as user/operator homework. The framework now treats the modeling chat as an operator-agent that must draft draftable certification materials, mark non-inventable materials honestly, validate the customized packet, and return the packet to the user/operator for explicit approval before any certification-mode model execution.
 
 ## Required workflow
 

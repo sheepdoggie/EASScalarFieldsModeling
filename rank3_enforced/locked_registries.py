@@ -6,7 +6,7 @@ from typing import Any, Callable
 import numpy as np
 
 import scalar_field_geometry as sfg
-from .controls import CertifiedIdentityRemapRule, ZeroScalarUpdateRule
+from .controls import CertifiedIdentityRemapRule, AdmittedIdentityNoRemapRule, ZeroScalarUpdateRule
 from .exceptions import ManifestError
 from .readouts import (
     DEFAULT_READOUTS,
@@ -99,6 +99,12 @@ def _identity_remap_factory(**params: Any) -> CertifiedIdentityRemapRule:
     return CertifiedIdentityRemapRule()
 
 
+def _admitted_identity_no_remap_factory(**params: Any) -> AdmittedIdentityNoRemapRule:
+    if params:
+        raise ManifestError(f"admitted_identity_no_remap_v1 accepts no params, got {sorted(params)}")
+    return AdmittedIdentityNoRemapRule()
+
+
 def _association_indexed_factory(**params: Any):
     raise ManifestError(
         "association_indexed_soo_v1 requires overlay compiler context (n_points, diagnostic_points); "
@@ -174,6 +180,7 @@ SCALAR_UPDATE_RULES: dict[str, RegistryItem] = {
 
 ASSOCIATION_REMAP_RULES: dict[str, RegistryItem] = {
     "identity_no_remap": RegistryItem("identity_no_remap", _identity_remap_factory, CertifiedIdentityRemapRule().metadata),
+    "admitted_identity_no_remap_v1": RegistryItem("admitted_identity_no_remap_v1", _admitted_identity_no_remap_factory, AdmittedIdentityNoRemapRule().metadata),
     "candidate_identity_remap_v0_1": RegistryItem(
         "candidate_identity_remap_v0_1",
         _candidate_identity_remap_factory,

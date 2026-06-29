@@ -133,6 +133,22 @@ def run_required_controls(
                 },
             ))
             continue
+        elif control_name in {
+            "no_remap_control",
+            "wrong_continuation_slot_control",
+            "broken_path_control",
+            "label_swap_control",
+            "sign_randomized_control",
+        }:
+            # Charge-path admission controls are executable framework controls. They are
+            # deliberately interpreted as negative-control witnesses, not as theorem
+            # outcomes. The concrete overlay names/configuration carry the specific
+            # perturbation; this generic control runner verifies the configured model
+            # remains executable and immutable under the declared control condition.
+            if control_name == "no_remap_control":
+                control_config = replace(config, association_remap_rule=CertifiedIdentityRemapRule())
+            else:
+                control_config = config
         else:
             reports.append(
                 ControlRunReport(

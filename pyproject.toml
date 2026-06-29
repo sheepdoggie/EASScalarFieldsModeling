@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "enforceable-rank3-modeling"
-version = "0.1.31"
+version = "0.1.33"
 description = "Enforceable Rank-3 Scalar Field Modeling Framework"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,7 +19,7 @@ py-modules = ["scalar_field_geometry"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-rank3_enforced = ["overlay_suites/charge_same_opposite_association_indexed/*.json", "overlay_suites/charge_role_path_remap_dynamic_path_v0_1/*.json"]
+rank3_enforced = ["overlay_suites/charge_same_opposite_association_indexed/*.json", "overlay_suites/charge_role_path_remap_dynamic_path_v0_1/*.json", "overlay_suites/charge_path_admission_controls_v0_1/*.json", "protocols/*.json", "mechanisms/*.json"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -42,6 +42,8 @@ rank3-synthesize-overlays-from-contract = "rank3_enforced.modeling_intent_cli:ma
 rank3-generate-operator-review-packet = "rank3_enforced.operator_review_packet:main"
 rank3-customize-operator-review-packet = "rank3_enforced.operator_agent_workflow:main_customize"
 rank3-validate-operator-review-packet = "rank3_enforced.operator_agent_workflow:main_validate"
+rank3-validate-workflow-protocol = "rank3_enforced.workflow_protocols:main"
+rank3-list-admission-mechanisms = "rank3_enforced.admission_mechanisms:main"
 rank3-approve-modeling-plan = "rank3_enforced.modeling_intent_cli:main_approve_plan"
 rank3-validate-modeling-plan = "rank3_enforced.modeling_intent_cli:main_validate_plan"
 rank3-analyze-soo-debug-pair = "rank3_enforced.soo_debug_analysis_cli:main"

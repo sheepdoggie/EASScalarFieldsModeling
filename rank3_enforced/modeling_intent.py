@@ -211,8 +211,8 @@ def validate_contract_for_overlay(
     remap_rule = str(rules.get("association_remap_rule", ""))
     model_type = str(payload.get("model_type", ""))
     optional_modules = tuple(str(m.get("module_id", m.get("id", ""))) for m in payload.get("optional_modules", payload.get("modules", [])) if isinstance(m, dict))
-    controls = tuple(str(x) for x in payload.get("controls", []))
-    readouts = tuple(str(x) for x in payload.get("readouts", []))
+    controls = tuple(str(x) for x in payload.get("controls", payload.get("requested_controls", [])))
+    readouts = tuple(str(x) for x in payload.get("readouts", payload.get("requested_readouts", [])))
     initialization = dict(payload.get("initialization", {}))
     path_construction = dict(payload.get("path_construction", {}))
     notes = str(payload.get("notes", ""))
@@ -259,10 +259,28 @@ def validate_contract_for_overlay(
         if contract.modeling_intent == "charge_path_adjustment_theorem":
             if path_construction.get("rule") not in ("role_path_two_support_v0_1", "linear_support_path_v0_2"):
                 violations.append("charge_path_adjustment_theorem requires declared support-to-support relational path construction")
+            required_negative_controls = {
+                "no_remap_control",
+                "wrong_continuation_slot_control",
+                "broken_path_control",
+                "label_swap_control",
+                "sign_randomized_control",
+            }
+            missing_controls = sorted(required_negative_controls - set(controls))
+            if missing_controls:
+                violations.append("charge_path_adjustment_theorem missing required negative controls: " + ", ".join(missing_controls))
+            if model_type == "charge_path_adjustment_admission_v0_1":
+                if scalar_rule != "bounded_context_soo_v1":
+                    violations.append("charge_path_adjustment_admission_v0_1 requires non-candidate bounded_context_soo_v1")
+                if "candidate" in model_type:
+                    violations.append("admission model type may not be candidate-labeled")
             if "external_path_monitor_only_for_path_edits" in contract.required_mechanisms:
                 # This checks that path edit logic is not represented as an intrinsic remap/path mutation rule.
                 if str(remap_rule).startswith("gated_path_") or "lengthening" in str(remap_rule) or "shortening" in str(remap_rule):
                     violations.append("path-length edit appears as intrinsic framework rule rather than external monitor request")
+                if "admitted_nonlabel_path_monitor_v1" in optional_modules:
+                    # The overlay parser has already rejected executable logic. The model type registry checks params.
+                    details["admitted_nonlabel_path_monitor_present"] = True
 
     passed = not violations
     return ModelingIntentComplianceReport(

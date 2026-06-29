@@ -1,6 +1,6 @@
-# Current Framework State v0.1.31
+# Current Framework State v0.1.32
 
-v0.1.31 adds the operator-agent approval loop on top of v0.1.30's operator review packet workflow.
+v0.1.32 adds the operator-agent approval loop on top of v0.1.30's operator review packet workflow.
 
 ## Current capability
 

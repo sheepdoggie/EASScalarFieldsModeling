@@ -196,6 +196,80 @@ def compile_model_type(overlay: DeclarativeOverlay) -> CompiledModelPlan:
 
 
 
+    if overlay.model_type == "charge_path_adjustment_admission_v0_1":
+        if overlay.run_kind != "admission" or not overlay.requested_certification:
+            raise ManifestError("charge_path_adjustment_admission_v0_1 requires run_kind='admission' and requested_certification=true.")
+        if overlay.path_construction.rule != "role_path_two_support_v0_1":
+            raise ManifestError("charge_path_adjustment_admission_v0_1 requires path_construction.rule='role_path_two_support_v0_1'.")
+        if overlay.rules.scalar_update_rule != "bounded_context_soo_v1":
+            raise ManifestError("charge_path_adjustment_admission_v0_1 requires non-candidate scalar_update_rule='bounded_context_soo_v1'.")
+        if overlay.rules.association_remap_rule != "admitted_identity_no_remap_v1":
+            raise ManifestError("charge_path_adjustment_admission_v0_1 requires non-candidate admitted_identity_no_remap_v1. Path add/remove, if any, must be external-monitor transaction evidence.")
+        if len(overlay.supports) != 2:
+            raise ManifestError("charge_path_adjustment_admission_v0_1 requires exactly two supports.")
+        if not overlay.constraints.non_overlap_required:
+            raise ManifestError("charge_path_adjustment_admission_v0_1 requires non_overlap_required=true.")
+        if not overlay.constraints.require_three_phase_coherence:
+            raise ManifestError("charge_path_adjustment_admission_v0_1 requires three-phase coherence.")
+        if overlay.initialization.mode != "explicit_phi":
+            raise ManifestError("charge_path_adjustment_admission_v0_1 currently requires explicit_phi plus declared settling witness policy.")
+        required_controls = {
+            "no_remap_control",
+            "wrong_continuation_slot_control",
+            "broken_path_control",
+            "label_swap_control",
+            "sign_randomized_control",
+        }
+        declared_controls = set(overlay.requested_controls)
+        if not required_controls.issubset(declared_controls):
+            missing = ", ".join(sorted(required_controls - declared_controls))
+            raise ManifestError("charge_path_adjustment_admission_v0_1 missing required negative controls: " + missing)
+        module_ids = {str(m.module_id) for m in overlay.optional_modules}
+        # Path-edit attempts require the non-label monitor policy. No-remap controls may omit it.
+        path_edit_requested = any(str(m.module_id) == "admitted_nonlabel_path_monitor_v1" for m in overlay.optional_modules)
+        if "admitted_nonlabel_path_monitor_v1" in module_ids:
+            for mod in overlay.optional_modules:
+                if mod.module_id == "admitted_nonlabel_path_monitor_v1":
+                    params = dict(mod.params)
+                    if params.get("reads_orientation_labels", False):
+                        raise ManifestError("admitted_nonlabel_path_monitor_v1 may not read orientation labels.")
+                    if "orientation" in params.get("decision_inputs", []):
+                        raise ManifestError("admitted_nonlabel_path_monitor_v1 decision_inputs may not include orientation.")
+                    if params.get("path_edits_are_intrinsic_framework_rule", False):
+                        raise ManifestError("path edits must remain external monitor transactions, not intrinsic rules.")
+        return CompiledModelPlan(
+            required_readouts=_dedupe(BASE_READOUTS + (
+                "path_length_summary",
+                "role_path_midpoint_arrival_readout",
+            ) + EXPLICIT_PATH_READOUTS + CHARGE_PATH_READOUTS + overlay.requested_readouts),
+            required_controls=_dedupe(BASE_CONTROLS + (
+                "completed_path_scope",
+                "active_phase_path_scope",
+                "directed_graph_mode",
+                "undirected_graph_mode",
+                "no_remap_control",
+                "wrong_continuation_slot_control",
+                "broken_path_control",
+                "label_swap_control",
+                "sign_randomized_control",
+            ) + overlay.requested_controls),
+            required_path_scopes=("completed", "active_phase"),
+            required_graph_modes=("directed", "undirected"),
+            required_phases=(0, 1, 2),
+            forbidden_interpretations=BASE_FORBIDDEN + (
+                "candidate_rule_as_certification_mechanism",
+                "support_selection_after_run",
+                "path_construction_after_run",
+                "role_path_midpoint_readout_as_path_mutation",
+                "same_opposite_label_as_path_change_trigger",
+                "orientation_label_as_monitor_input",
+                "center_locus_as_update_input",
+                "external_monitor_result_as_theorem_without_admission_verdict",
+            ),
+        )
+
+
+
     if overlay.model_type == "charge_role_path_remap_dynamic_path_candidate":
         if overlay.path_construction.rule != "role_path_two_support_v0_1":
             raise ManifestError("charge_role_path_remap_dynamic_path_candidate requires path_construction.rule='role_path_two_support_v0_1'.")

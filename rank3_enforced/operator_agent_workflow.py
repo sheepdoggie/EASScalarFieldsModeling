@@ -10,6 +10,13 @@ from typing import Any
 
 from .fingerprints import file_hash, stable_json_hash
 from .modeling_intent import contract_from_file
+from .workflow_protocols import (
+    DEFAULT_APPROVAL_LOOP_PROTOCOL_ID,
+    load_workflow_protocol,
+    protocol_fingerprint,
+    protocol_sequence_markdown,
+    validate_workflow_protocol_payload,
+)
 
 CUSTOMIZED_PACKET_SCHEMA = "rank3_operator_agent_customized_review_packet_v1"
 CUSTOMIZED_VALIDATION_SCHEMA = "rank3_operator_agent_customized_packet_validation_v1"
@@ -89,6 +96,8 @@ class CustomizedPacketManifest:
     contract_hash: str | None
     operator_required_items_path: str | None
     source_packet_manifest_hash: str | None
+    workflow_protocol_id: str | None
+    workflow_protocol_sha256: str | None
     workflow_phase: str
     valid_for_user_review_only: bool
     executable_for_certification: bool
@@ -169,46 +178,32 @@ def _classify_required_items(req_payload: dict[str, Any] | None) -> dict[str, An
     }
 
 
-def _approval_loop_protocol() -> dict[str, Any]:
+def _approval_loop_protocol(protocol_id: str = DEFAULT_APPROVAL_LOOP_PROTOCOL_ID) -> dict[str, Any]:
+    """Load the operator-agent approval loop from a data protocol file.
+
+    Small workflow changes now belong in ``rank3_enforced/protocols/*.json``.
+    Python code only validates and renders the protocol; it should not be the
+    primary place where approval-loop wording or sequencing is maintained.
+    """
+    payload = load_workflow_protocol(protocol_id)
+    report = validate_workflow_protocol_payload(payload)
+    if not report.valid:
+        raise RuntimeError("invalid workflow protocol: " + "; ".join(report.errors))
+    return payload
+
+
+def _workflow_protocol_metadata(protocol: dict[str, Any]) -> dict[str, Any]:
     return {
-        "schema": "rank3_operator_agent_approval_loop_protocol_v1",
-        "states": [
-            "required_items_detected",
-            "customized_packet_drafted",
-            "customized_packet_validated_for_review",
-            "returned_to_user_for_approval",
-            "waiting_for_explicit_user_decision",
-            "revision_requested",
-            "revised_packet_validated_for_review",
-            "approved_by_user",
-            "modeling_execution_allowed",
-            "rejected_or_non_certifying",
-        ],
-        "mandatory_sequence": [
-            "draft_or_mark_all_required_items",
-            "validate_customized_packet",
-            "return_packet_to_user_for_approval",
-            "wait_for_explicit_user_decision",
-            "if_revision_requested_revise_revalidate_and_return_again",
-            "if_approved_bind_approval_to_packet_hash_and_plan_hash",
-            "begin_modeling_only_after_approval_gate_passes",
-        ],
-        "hard_rules": {
-            "may_run_before_user_approval": False,
-            "may_treat_silence_as_approval": False,
-            "may_treat_template_packet_as_approval": False,
-            "may_run_after_revision_request_without_revalidation": False,
-            "may_promote_candidate_evidence_by_label_change": False,
-            "must_record_approval_decision_json": True,
-            "must_bind_approval_to_packet_hash": True,
-            "must_bind_approval_to_plan_hash_for_certification": True,
-        },
-        "approval_decisions": {
-            "approve": "Proceed only if validation report says approved_for_modeling=true and executable_for_certification=true.",
-            "revise": "Apply requested changes, regenerate/revalidate the packet, return it again, and wait again.",
-            "reject": "Stop certification execution and report non-certifying/rejected status.",
-        },
+        "protocol_id": protocol.get("protocol_id"),
+        "protocol_version": protocol.get("protocol_version"),
+        "protocol_sha256": protocol_fingerprint(protocol),
+        "protocol_schema": protocol.get("schema"),
+        "protocol_status": protocol.get("status"),
     }
+
+
+def _workflow_protocol_markdown(protocol: dict[str, Any]) -> str:
+    return protocol_sequence_markdown(protocol)
 
 
 def generate_customized_review_packet(
@@ -270,8 +265,11 @@ def generate_customized_review_packet(
     generated.append("CUSTOMIZATION_DECISION_TABLE.json")
 
     protocol = _approval_loop_protocol()
+    protocol_meta = _workflow_protocol_metadata(protocol)
     _write_json(out / "APPROVAL_LOOP_PROTOCOL.json", protocol)
     generated.append("APPROVAL_LOOP_PROTOCOL.json")
+    _write_json(out / "WORKFLOW_PROTOCOL_METADATA.json", protocol_meta)
+    generated.append("WORKFLOW_PROTOCOL_METADATA.json")
 
     _write_json(out / "USER_APPROVAL_DECISION_TEMPLATE.json", {
         "schema": APPROVAL_DECISION_SCHEMA,
@@ -285,31 +283,18 @@ def generate_customized_review_packet(
     })
     generated.append("USER_APPROVAL_DECISION_TEMPLATE.json")
 
-    _write_text(out / "CHAT_AGENT_WORKFLOW.md", """
+    _write_text(out / "CHAT_AGENT_WORKFLOW.md", f"""
 # Modeling-chat approval workflow
 
 You are acting as a modeling agent, not as the final approving operator.
 
-Mandatory sequence:
+Protocol source: `{protocol_meta.get('protocol_id')}`
+Protocol version: `{protocol_meta.get('protocol_version')}`
+Protocol SHA-256: `{protocol_meta.get('protocol_sha256')}`
 
-1. Draft every draftable missing certification item from the contract and framework.
-2. Do not ask the user to draft items you can draft. Return your proposed artifacts instead.
-3. For items that cannot be invented, mark them `absent_or_non_inventable`, explain why, and mark `certification_usable=false`.
-4. Validate the customized packet with `rank3-validate-operator-review-packet`.
-5. Return the customized packet, validation report, and user approval decision template to the user/operator.
-6. Stop and wait for an explicit user decision.
-7. If the user requests changes, revise the packet, validate again, return it again, and wait again.
-8. If the user rejects the packet, stop certification and report non-certifying/rejected status.
-9. If the user approves, record a `USER_APPROVAL_DECISION.json` with `decision="approve"`, the validated packet hash, and the approved plan hash.
-10. Only after the approval validation reports `approved_for_modeling=true` may certification-mode modeling begin.
+{_workflow_protocol_markdown(protocol)}
 
-Forbidden behavior:
-
-- Do not run SOO/model execution before explicit approval.
-- Do not treat silence, template generation, or partial approval as approval.
-- Do not run after a revision request until the revised packet has been validated and approved.
-- Do not promote candidate mechanisms or overlays by changing labels.
-- Do not make path add/remove intrinsic EAS ontology.
+Operational rule: if the user requests changes, revise the packet, validate it again, return it again, and wait again. Certification modeling may begin only after an explicit approve decision binds the current packet hash and approved plan hash.
 """)
     generated.append("CHAT_AGENT_WORKFLOW.md")
 
@@ -331,6 +316,8 @@ rank3-validate-operator-review-packet --packet-dir "$(dirname "$0")" --output "$
         contract_hash=contract_hash,
         operator_required_items_path=str(src / "SOURCE_OPERATOR_REQUIRED_ITEMS.json") if (src / "SOURCE_OPERATOR_REQUIRED_ITEMS.json").exists() else None,
         source_packet_manifest_hash=file_hash(src / "OPERATOR_REVIEW_PACKET_MANIFEST.json") if (src / "OPERATOR_REVIEW_PACKET_MANIFEST.json").exists() else None,
+        workflow_protocol_id=str(protocol_meta.get("protocol_id")) if protocol_meta.get("protocol_id") is not None else None,
+        workflow_protocol_sha256=str(protocol_meta.get("protocol_sha256")) if protocol_meta.get("protocol_sha256") is not None else None,
         workflow_phase="customized_packet_drafted_for_user_review_waiting_for_approval",
         valid_for_user_review_only=True,
         executable_for_certification=False,

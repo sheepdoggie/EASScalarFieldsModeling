@@ -1,0 +1,329 @@
+{
+  "constraints": {
+    "forbid_projected_graph_evidence": true,
+    "non_overlap_required": true,
+    "require_three_phase_coherence": true
+  },
+  "controls": [
+    "no_remap_control",
+    "wrong_continuation_slot_control",
+    "broken_path_control",
+    "label_swap_control",
+    "sign_randomized_control"
+  ],
+  "execution": {
+    "graph_mode": "directed",
+    "n_layers": 24,
+    "pair_weight_rule": "inverse_path_length",
+    "path_scope": "completed",
+    "phase_rule": "cyclic_phase",
+    "triplet_lift_rule": "product_triplet_lift"
+  },
+  "external_admission_verdict": "Admitted",
+  "initial_geometry": {
+    "allow_self_association": false,
+    "generation_rule": "cyclic_offsets",
+    "n_points": 31,
+    "seed": 3307
+  },
+  "initial_phi": {
+    "kind": "explicit",
+    "values": [
+      1.0,
+      -0.5,
+      -0.5,
+      -0.3333333333333333,
+      0.16666666666666666,
+      0.16666666666666666,
+      1.0,
+      -0.5,
+      -0.5,
+      -0.3333333333333333,
+      0.16666666666666666,
+      0.16666666666666666,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "initialization": {
+    "amplitude": 1.0,
+    "initialization_cycles": 0,
+    "measurement_starts_after_initialization": true,
+    "mode": "explicit_phi",
+    "require_nonzero_support_activation": false,
+    "require_vacuum_zero_elsewhere": false,
+    "settling": {
+      "admission_requirement": "must_report_pass_or_block_before_theorem_verdict",
+      "enabled": true,
+      "max_cycles": 24,
+      "policy_id": "admission_path_facing_steady_recurrent_witness_v0_1",
+      "tolerance": 1e-06,
+      "witness_sets": [
+        "support_dressing_points",
+        "path_facing_exterior_points"
+      ]
+    },
+    "start_sites": "none"
+  },
+  "model_name": "charge_path_admission_broken_path_control_L7",
+  "model_type": "charge_path_adjustment_admission_v0_1",
+  "model_version": "0.1.33",
+  "modeling_intent": {
+    "abort_conditions": [
+      "missing_required_mechanism",
+      "failed_initialization_gate",
+      "candidate_rule_used_for_certification_without explicit allowance",
+      "release_guard_failed"
+    ],
+    "admissible_inputs": [
+      "data_only_overlay",
+      "registered_rules_only",
+      "predeclared_initialization",
+      "predeclared_controls"
+    ],
+    "admission_verdict_rules": [
+      "Admitted only if BASE gate passes",
+      "Admitted only if contract compliance passes",
+      "Admitted only if negative controls do not reproduce target event",
+      "Ambiguous if required mechanism absent",
+      "Rejected if forbidden shortcut is used"
+    ],
+    "allow_candidate_rules": false,
+    "allow_external_monitors": true,
+    "claim": {
+      "magnitude": "|Delta L| / L = 1 / L",
+      "opposite_orientation": "Delta L = -1",
+      "same_orientation": "Delta L = +1"
+    },
+    "contract_schema": "rank3_modeling_intent_contract_v1",
+    "forbidden_shortcuts": [
+      "orientation_label_triggers_path_edit",
+      "intrinsic_path_length_change_rule",
+      "center_only_diagnostic_as_path_change",
+      "graph_shortest_path_substitution_for_Delta_L",
+      "candidate_kernel_certification",
+      "post_hoc_diagnostic_selection",
+      "scalar_value_copy_during_remap"
+    ],
+    "leakage_checks": [
+      "orientation_labels_not_read_by_path_edit_logic",
+      "diagnostics_not_used_as_update_inputs",
+      "external_monitor_declares_exploratory_status"
+    ],
+    "mode": "certification",
+    "modeling_intent": "charge_path_adjustment_theorem",
+    "negative_controls": [
+      "no_remap_control",
+      "wrong_continuation_slot_control",
+      "broken_path_control",
+      "label_swap_control",
+      "sign_randomized_control"
+    ],
+    "notes": "Template contract; edit explicitly before certification/admission use.",
+    "required_initialization": [
+      "steady_or_recurrent_path_facing_exterior_records",
+      "initial_two_ledger_report"
+    ],
+    "required_mechanisms": [
+      "whole_field_SOO",
+      "signed_scalar_values_preserved",
+      "zero_crossing_allowed",
+      "support_steady_initialization",
+      "phase_complete_relational_paths",
+      "role_path_remap_if_remap_enabled",
+      "external_path_monitor_only_for_path_edits"
+    ],
+    "required_monitors": [
+      "path_monitor_snapshot",
+      "external_path_edit_request_log_if_path_edits_enabled",
+      "dynamic_path_readout"
+    ],
+    "required_soo_properties": [
+      "whole_field_update",
+      "signed_values_not_rectified",
+      "SOO_trace_available"
+    ]
+  },
+  "notes": "Admission/control overlay. Non-label monitor policy may inspect scalar/path records only; same/opposite labels cannot trigger path edits. A run may still reject or remain ambiguous.",
+  "optional_modules": [
+    {
+      "module_id": "charge_path_admission_controls_v0_1",
+      "params": {
+        "case_id": "broken_path_control_L7",
+        "claim_orientation_label": "same",
+        "control_id": "broken_path_control",
+        "label_swap_control": false
+      },
+      "status": "admission_control_suite"
+    },
+    {
+      "module_id": "admitted_nonlabel_path_monitor_v1",
+      "params": {
+        "control_id": "broken_path_control",
+        "decision_inputs": [
+          "signed_scalar_center_record",
+          "active_path_record",
+          "center_sum",
+          "center_contrast",
+          "late_window_record"
+        ],
+        "forbidden_inputs": [
+          "orientation",
+          "same_label",
+          "opposite_label",
+          "target_delta_l"
+        ],
+        "monitor_id": "signed_center_record_nonlabel_monitor_v1",
+        "output_policy": "emit_request_or_no_edit_with_evidence_hash_before_admission_verdict",
+        "path_edits_are_intrinsic_framework_rule": false,
+        "reads_orientation_labels": false
+      },
+      "status": "admission_capable_policy"
+    }
+  ],
+  "path_construction": {
+    "allow_support_overlap": false,
+    "left_support": "support_A",
+    "orientation": "same",
+    "path_length": 7,
+    "path_points": [
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "path_slot": 1,
+    "reverse_slot": 0,
+    "right_support": "support_B",
+    "rule": "role_path_two_support_v0_1"
+  },
+  "purpose": "Executable certification/admission material for charge path-adjustment theorem preflight. Mechanism execution does not by itself admit the theorem.",
+  "readouts": [
+    "center_locus_readout",
+    "structural_silence_readout",
+    "delta_l_classification",
+    "role_path_midpoint_arrival_readout",
+    "relation_complete_packet_readout",
+    "common_mode_zero_sum_report"
+  ],
+  "requested_certification": true,
+  "rules": {
+    "association_remap_params": {},
+    "association_remap_rule": "admitted_identity_no_remap_v1",
+    "scalar_update_params": {
+      "epsilon": 0.1,
+      "stiffness_values": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "scalar_update_rule": "bounded_context_soo_v1"
+  },
+  "run_kind": "admission",
+  "schema_version": "1.0",
+  "supports": [
+    {
+      "active_phase_map": {
+        "0": 3,
+        "1": 4,
+        "2": 5
+      },
+      "boundary_points": [
+        0,
+        1,
+        2
+      ],
+      "dressing_points": [
+        3,
+        4,
+        5
+      ],
+      "handedness": "right",
+      "name": "support_A",
+      "support_points": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "active_phase_map": {
+        "0": 9,
+        "1": 10,
+        "2": 11
+      },
+      "boundary_points": [
+        6,
+        7,
+        8
+      ],
+      "dressing_points": [
+        9,
+        10,
+        11
+      ],
+      "handedness": "right",
+      "name": "support_B",
+      "support_points": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    }
+  ]
+}

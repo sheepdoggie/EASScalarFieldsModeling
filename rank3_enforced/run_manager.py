@@ -76,6 +76,26 @@ BUILTIN_SUITES: dict[str, BuiltinSuite] = {
             "ROLE_PATH_REMAP_REPORT.json",
         ),
     ),
+    "charge_path_admission_controls_v0_1": BuiltinSuite(
+        suite_id="charge_path_admission_controls_v0_1",
+        description=(
+            "v0.1.33 executable admission/control material suite for the charge path-adjustment contract. "
+            "Includes theorem same/opposite cases plus no-remap, wrong-continuation-slot, broken-path, "
+            "label-swap, and sign-randomized controls. Mechanism execution still does not certify the theorem."
+        ),
+        required_artifacts=(
+            "CERTIFICATE.json",
+            "EVIDENCE_ENVELOPE.json",
+            "MODELING_INTENT_CONTRACT.json",
+            "MODELING_INTENT_COMPLIANCE_REPORT.json",
+            "OPTIONAL_MODULE_REPORT.json",
+            "SOO_EXECUTION_REPORT.json",
+            "SOO_FUNCTIONAL_REPORT.json",
+            "PATH_CONSTRUCTION_REPORT.json",
+            "PATH_FACING_ASSOCIATION_REPORT.json",
+            "BASE_GATE_REPORT.json",
+        ),
+    ),
 }
 
 

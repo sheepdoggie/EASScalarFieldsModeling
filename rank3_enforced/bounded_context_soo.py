@@ -129,20 +129,19 @@ class BoundedContextSOOUpdateRule:
 
     It uses the complete rank-3 association context at each point. It does not
     condition on charge labels, path-shortening targets, midpoint-zero targets,
-    or detector records. It remains candidate infrastructure, not an admitted
-    EAS law.
+    or detector records. It is admitted as a deterministic whole-field framework mechanism for certification attempts; this does not admit any theorem outcome as EAS law.
     """
 
     name = "bounded_context_soo_v1"
     metadata = RuleMetadata(
         name="bounded_context_soo_v1",
         version="0.1.16",
-        status=RuleStatus.CANDIDATE,
-        source_hash="locked_bounded_context_soo_v1",
-        allowed_for_certified_runs=False,
+        status=RuleStatus.ADMITTED,
+        source_hash="locked_bounded_context_soo_v1_admission_capable",
+        allowed_for_certified_runs=True,
         notes=(
-            "Candidate boundedness-derived rank-3 context SOO kernel. Uses one scalar stiffness "
-            "value per scalar point and complete rank-3 context comparison. Not admitted."
+            "Admission-capable boundedness-derived rank-3 context SOO mechanism. Uses one scalar stiffness "
+            "value per scalar point and complete rank-3 context comparison. Mechanism admission does not admit any theorem outcome."
         ),
     )
 

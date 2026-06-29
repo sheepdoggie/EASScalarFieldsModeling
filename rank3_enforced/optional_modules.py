@@ -28,6 +28,14 @@ SUPPORTED_OPTIONAL_MODULES = {
         "status": "candidate_suite",
         "purpose": "Theorem-capable candidate overlays using role/path remap and gated dynamic path infrastructure; not admission by itself.",
     },
+    "admitted_nonlabel_path_monitor_v1": {
+        "status": "admission_capable_policy",
+        "purpose": "Non-label scalar-record path monitor policy. It may inspect signed scalar/path records but must not read same/opposite labels or impose theorem outcomes.",
+    },
+    "charge_path_admission_controls_v0_1": {
+        "status": "admission_control_suite",
+        "purpose": "Executable admission/control overlays for charge path-adjustment certification preflight and negative controls.",
+    },
 }
 
 

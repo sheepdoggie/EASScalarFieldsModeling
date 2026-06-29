@@ -11,6 +11,7 @@ from typing import Any
 from .capabilities import FRAMEWORK_RELEASE_LABEL, FRAMEWORK_VERSION
 from .fingerprints import file_hash, stable_json_hash
 from .version_guard import compute_framework_code_sha256
+from .workflow_protocols import compute_workflow_protocols_sha256
 
 
 _CODE_ROOTS = (
@@ -40,6 +41,9 @@ class ReleaseIdentityReport:
     manifest_code_sha256: str | None
     actual_source_tree_code_sha256: str
     actual_framework_zip_code_sha256: str | None
+    manifest_workflow_protocol_sha256: str | None
+    actual_workflow_protocol_sha256: str
+    accepted_workflow_protocol_sha256: tuple[str, ...]
     accepted_framework_code_sha256: tuple[str, ...]
     manifest_tar_gz_sha256: str | None
     actual_tar_gz_sha256: str | None
@@ -125,6 +129,7 @@ def check_release_identity(
     missing_required: list[str] = []
 
     actual_tree_code = compute_framework_code_sha256(repo_root)
+    actual_workflow_protocol_hash = compute_workflow_protocols_sha256()
 
     if framework_zip_path.exists():
         actual_zip_sha = file_hash(framework_zip_path)
@@ -149,6 +154,8 @@ def check_release_identity(
     manifest_zip_size = manifest.get("latest_framework_size_bytes")
     manifest_code = manifest.get("latest_framework_code_sha256")
     accepted_code = tuple(str(x) for x in manifest.get("accepted_framework_code_sha256", ()))
+    manifest_protocol = manifest.get("latest_workflow_protocol_sha256")
+    accepted_protocol = tuple(str(x) for x in manifest.get("accepted_workflow_protocol_sha256", ()))
     manifest_tar_sha = manifest.get("latest_framework_tar_gz_sha256")
 
     if str(latest_version) != FRAMEWORK_VERSION:
@@ -165,6 +172,10 @@ def check_release_identity(
         errors.append(f"framework ZIP code hash mismatch: manifest {manifest_code}, actual {actual_zip_code}")
     if manifest_code and manifest_code not in accepted_code:
         errors.append("latest_framework_code_sha256 is not listed in accepted_framework_code_sha256")
+    if manifest_protocol != actual_workflow_protocol_hash:
+        errors.append(f"workflow protocol hash mismatch: manifest {manifest_protocol}, actual {actual_workflow_protocol_hash}")
+    if manifest_protocol and manifest_protocol not in accepted_protocol:
+        errors.append("latest_workflow_protocol_sha256 is not listed in accepted_workflow_protocol_sha256")
     if actual_tar_sha and manifest_tar_sha != actual_tar_sha:
         errors.append(f"framework TAR.GZ hash mismatch: manifest {manifest_tar_sha}, actual {actual_tar_sha}")
     if missing_required:
@@ -186,6 +197,9 @@ def check_release_identity(
         manifest_code_sha256=str(manifest_code) if manifest_code is not None else None,
         actual_source_tree_code_sha256=actual_tree_code,
         actual_framework_zip_code_sha256=actual_zip_code,
+        manifest_workflow_protocol_sha256=str(manifest_protocol) if manifest_protocol is not None else None,
+        actual_workflow_protocol_sha256=actual_workflow_protocol_hash,
+        accepted_workflow_protocol_sha256=accepted_protocol,
         accepted_framework_code_sha256=accepted_code,
         manifest_tar_gz_sha256=str(manifest_tar_sha) if manifest_tar_sha is not None else None,
         actual_tar_gz_sha256=actual_tar_sha,

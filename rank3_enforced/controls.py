@@ -42,6 +42,22 @@ class CertifiedIdentityRemapRule:
 
 
 @dataclass(frozen=True)
+class AdmittedIdentityNoRemapRule:
+    name: str = "admitted_identity_no_remap_v1"
+    metadata: RuleMetadata = RuleMetadata(
+        name="admitted_identity_no_remap_v1",
+        version="0.1.33",
+        status=RuleStatus.ADMITTED,
+        source_hash="declared_admission_capable_identity_no_remap_v1",
+        allowed_for_certified_runs=True,
+        notes="Admission-capable no-remap rule: returns current association table unchanged. It is a setup/control mechanism, not theorem evidence.",
+    )
+
+    def __call__(self, context: sfg.RemapContext) -> sfg.IntArray:
+        return context.state_current.assoc.copy()
+
+
+@dataclass(frozen=True)
 class CertifiedSlotRotationRemapRule:
     name: str = "demo_slot_rotation"
     metadata: RuleMetadata = RuleMetadata(

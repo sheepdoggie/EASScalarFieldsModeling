@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.31"
-FRAMEWORK_RELEASE_LABEL = "0.1.31-operator-agent-approval-loop"
+FRAMEWORK_VERSION = "0.1.33"
+FRAMEWORK_RELEASE_LABEL = "0.1.33-admission-control-materials"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -145,6 +145,17 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "operator_required_items_generator_directives_v0_1",
         "chat_customizable_certification_material_templates_v0_1",
         "certification_run_requires_operator_agent_approval_loop_v0_1",
+        "data_driven_workflow_protocols_v0_1",
+        "workflow_protocol_hash_manifest_field_v0_1",
+        "operator_agent_protocol_loader_v0_1",
+        "workflow_protocol_validation_cli_v0_1",
+
+        "charge_path_admission_controls_suite_v0_1",
+        "admission_capable_bounded_context_soo_v1_declaration",
+        "admitted_nonlabel_path_monitor_policy_v0_1",
+        "negative_control_overlay_suite_v0_1",
+        "package_embedded_release_signature_materials_v0_1",
+        "executable_certification_plan_case_materials_v0_1",
     }
 )
 
