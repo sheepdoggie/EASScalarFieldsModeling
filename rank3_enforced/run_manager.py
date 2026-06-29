@@ -79,9 +79,9 @@ BUILTIN_SUITES: dict[str, BuiltinSuite] = {
     "charge_path_admission_controls_v0_1": BuiltinSuite(
         suite_id="charge_path_admission_controls_v0_1",
         description=(
-            "v0.1.33 executable admission/control material suite for the charge path-adjustment contract. "
+            "v0.1.34 executable admission/control material suite for the charge path-adjustment contract. "
             "Includes theorem same/opposite cases plus no-remap, wrong-continuation-slot, broken-path, "
-            "label-swap, and sign-randomized controls. Mechanism execution still does not certify the theorem."
+            "label-swap, and sign-randomized controls. Adds causal failure diagnostics; mechanism execution still does not certify the theorem."
         ),
         required_artifacts=(
             "CERTIFICATE.json",
@@ -94,6 +94,12 @@ BUILTIN_SUITES: dict[str, BuiltinSuite] = {
             "PATH_CONSTRUCTION_REPORT.json",
             "PATH_FACING_ASSOCIATION_REPORT.json",
             "BASE_GATE_REPORT.json",
+            "EFFECTIVE_ORIENTATION_RECORD.json",
+            "PATH_MONITOR_DECISION_REPORT.json",
+            "PATH_EDIT_ADMISSION_REPORT.json",
+            "GEOMETRY_TRANSACTION_REPORT.json",
+            "ACTIVE_PATH_RECORD_REPORT.json",
+            "THEOREM_FAILURE_TRACE.json",
         ),
     ),
 }
@@ -544,7 +550,13 @@ def run_signed_overlay_case(
         )
         verification = verify_certificate(output)
         missing = tuple(name for name in required_artifacts if not (output / name).is_file())
-        status = "passed" if verification.valid and not missing else "failed"
+        base_gate_failed_for_certification = bool(modeling_mode == "certification" and not result.gate.passed)
+        status = "passed" if verification.valid and not missing and not base_gate_failed_for_certification else "failed"
+        error = None
+        if missing or not verification.valid:
+            error = "Missing required artifacts or invalid certificate."
+        elif base_gate_failed_for_certification:
+            error = "Certification/admission blocked by BASE gate; signed failure diagnostics were written."
         return OverlayRunRecord(
             case_id=case_id,
             overlay_path=str(overlay),
@@ -554,7 +566,7 @@ def run_signed_overlay_case(
             base_gate_passed=bool(result.gate.passed),
             external_verdict=str(result.gate.external_admission_verdict.value),
             missing_required_artifacts=missing,
-            error=None if status == "passed" else "Missing required artifacts or invalid certificate.",
+            error=error,
             modeling_mode=modeling_mode,
             contract_hash=contract_hash,
             compliance_passed=bool(getattr(result.modeling_intent_compliance_report, "passed", False)) if result.modeling_intent_compliance_report else None,

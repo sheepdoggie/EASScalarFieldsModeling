@@ -192,7 +192,9 @@ class BoundedContextSOOUpdateRule:
                 "active_phase_transport_used": False,
                 "one_scalar_value_per_point": True,
                 "one_stiffness_value_per_point": True,
-                "candidate_not_admitted": True,
+                "candidate_not_admitted": False,
+                "primitive_admitted_for_certification_attempts": True,
+                "mechanism_admission_does_not_admit_theorem_outcome": True,
                 "first_step_policy": self.first_step_policy,
             },
         )

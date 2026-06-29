@@ -20,6 +20,7 @@ from .path_debugging import (
     build_path_facing_association_report,
     build_run_debugging_report,
 )
+from .path_failure_diagnostics import build_all_path_failure_diagnostics
 from .readouts import DEFAULT_READOUTS, ReadoutReport, ReadoutRule
 from .rule_metadata import AdmissionVerdict, RuleMetadata, RuleStatus, get_rule_metadata
 from .source_audit import SourceAuditReport, audit_object_source
@@ -85,6 +86,12 @@ class EnforcedRunResult:
     path_facing_association_report: object | None = None
     role_path_remap_report: object | None = None
     run_debugging_report: object | None = None
+    effective_orientation_record: object | None = None
+    path_monitor_decision_report: object | None = None
+    path_edit_admission_report: object | None = None
+    geometry_transaction_report: object | None = None
+    active_path_record_report: object | None = None
+    theorem_failure_trace: object | None = None
     initialization_settling_report: InitializationSettlingReport | None = None
     modeling_intent_contract: ModelingIntentContract | None = None
     modeling_intent_compliance_report: ModelingIntentComplianceReport | None = None
@@ -265,10 +272,31 @@ def _build_base_gate(
     evidence: EvidencePackage,
     soo_trace_audit_passed: bool,
     soo_trace_details: dict[str, object],
+    soo_execution_report: object | None = None,
+    theorem_failure_trace: object | None = None,
 ) -> BaseGateReport:
     required_readouts = set(package.manifest.diagnostics.required_readouts)
     completed_readouts = {report.name for report in readouts}
     missing_readouts = sorted(required_readouts - completed_readouts)
+
+    def _dataclassish_to_dict(value: object | None) -> dict[str, object]:
+        if value is None:
+            return {}
+        if hasattr(value, "to_dict"):
+            return value.to_dict()  # type: ignore[no-any-return,union-attr]
+        if hasattr(value, "__dict__"):
+            return dict(value.__dict__)
+        return {}
+
+    soo_execution_payload = _dataclassish_to_dict(soo_execution_report)
+    soo_details = soo_execution_payload.get("details", {}) if isinstance(soo_execution_payload, dict) else {}
+    soo_candidate_not_admitted = bool(soo_details.get("candidate_not_admitted", False)) if isinstance(soo_details, dict) else False
+    trace_payload = theorem_failure_trace if isinstance(theorem_failure_trace, dict) else {}
+    failure_chain = trace_payload.get("failure_chain", {}) if isinstance(trace_payload, dict) else {}
+    init_status = failure_chain.get("initialization_settling", {}) if isinstance(failure_chain, dict) else {}
+    init_blocking_reason = init_status.get("blocking_reason") if isinstance(init_status, dict) else None
+    mechanism_status_passed = not (package.manifest.requested_certification and soo_candidate_not_admitted)
+    initialization_contract_gate_passed = not bool(init_blocking_reason)
 
     source_provenance_passed = all(
         bool(value)
@@ -292,6 +320,8 @@ def _build_base_gate(
         not missing_readouts
         and all(audit.passed for audit in source_audits)
         and soo_trace_audit_passed
+        and mechanism_status_passed
+        and initialization_contract_gate_passed
         and (package.initialization_report is None or package.initialization_report.passed)
     )
 
@@ -304,6 +334,8 @@ def _build_base_gate(
         and all(state.verify() for state in result.states)
         and all(audit.passed for audit in source_audits)
         and soo_trace_audit_passed
+        and mechanism_status_passed
+        and initialization_contract_gate_passed
         and (package.initialization_report is None or package.initialization_report.passed)
     )
 
@@ -326,6 +358,11 @@ def _build_base_gate(
         "modeling_intent_contract_hash": (package.modeling_intent_contract.fingerprint() if package.modeling_intent_contract else None),
         "modeling_intent_compliance_report": package.modeling_intent_compliance_report,
         "soo_primitive_operator": getattr(package.config.scalar_update_rule, "primitive_operator_id", None),
+        "soo_execution_candidate_not_admitted": soo_candidate_not_admitted,
+        "mechanism_status_gate_passed": mechanism_status_passed,
+        "initialization_contract_gate_passed": initialization_contract_gate_passed,
+        "initialization_contract_blocking_reason": init_blocking_reason,
+        "theorem_failure_trace_hash": (stable_json_hash(theorem_failure_trace) if theorem_failure_trace is not None else None),
         "rule_statuses": {
             "scalar_update": package.scalar_update_metadata.status.value,
             "association_remap": package.association_remap_metadata.status.value,
@@ -412,6 +449,17 @@ def run_model_package(package: ModelPackage) -> EnforcedRunResult:
         readout_rules=package.readout_rules,
     )
 
+    path_failure_diagnostics = build_all_path_failure_diagnostics(
+        readouts=readouts,
+        path_report=package.path_construction_report,
+        optional_module_report=package.optional_module_report,
+        soo_execution_report=soo_execution_report,
+        initialization_settling_report=package.initialization_settling_report,
+        modeling_intent_contract=package.modeling_intent_contract,
+        scalar_update_metadata=package.scalar_update_metadata,
+        association_remap_metadata=package.association_remap_metadata,
+    )
+
     evidence = build_evidence_package(
         manifest=package.manifest,
         scalar_update_metadata=package.scalar_update_metadata,
@@ -438,13 +486,14 @@ def run_model_package(package: ModelPackage) -> EnforcedRunResult:
         evidence=evidence,
         soo_trace_audit_passed=soo_trace_audit_passed,
         soo_trace_details=soo_trace_details,
+        soo_execution_report=soo_execution_report,
+        theorem_failure_trace=path_failure_diagnostics.get("THEOREM_FAILURE_TRACE"),
     )
 
-    if package.manifest.requested_certification and not gate.passed:
-        raise CertificationBlocked(
-            "Certification/admission blocked by BASE gate. "
-            f"Details: {gate.details}"
-        )
+    # v0.1.34 keeps failed certification attempts packageable so the signed
+    # artifact can explain why BASE/admission gates did not certify. The
+    # certificate records base_gate_passed/admitted=false and the suite manager
+    # marks such cases failed in certification mode.
 
     return EnforcedRunResult(
         manifest=package.manifest,
@@ -473,6 +522,12 @@ def run_model_package(package: ModelPackage) -> EnforcedRunResult:
         path_facing_association_report=path_facing_association_report,
         role_path_remap_report=role_path_remap_report,
         run_debugging_report=run_debugging_report,
+        effective_orientation_record=path_failure_diagnostics.get("EFFECTIVE_ORIENTATION_RECORD"),
+        path_monitor_decision_report=path_failure_diagnostics.get("PATH_MONITOR_DECISION_REPORT"),
+        path_edit_admission_report=path_failure_diagnostics.get("PATH_EDIT_ADMISSION_REPORT"),
+        geometry_transaction_report=path_failure_diagnostics.get("GEOMETRY_TRANSACTION_REPORT"),
+        active_path_record_report=path_failure_diagnostics.get("ACTIVE_PATH_RECORD_REPORT"),
+        theorem_failure_trace=path_failure_diagnostics.get("THEOREM_FAILURE_TRACE"),
         initialization_settling_report=package.initialization_settling_report,
         modeling_intent_contract=package.modeling_intent_contract,
         modeling_intent_compliance_report=package.modeling_intent_compliance_report,

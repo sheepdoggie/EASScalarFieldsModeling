@@ -280,6 +280,12 @@ def write_enforced_run_package(
     write_json(output / "PATH_CONSTRUCTION_REPORT.json", getattr(result, "path_construction_report", None))
     write_json(output / "PATH_FACING_ASSOCIATION_REPORT.json", getattr(result, "path_facing_association_report", None))
     write_json(output / "ROLE_PATH_REMAP_REPORT.json", getattr(result, "role_path_remap_report", None))
+    write_json(output / "EFFECTIVE_ORIENTATION_RECORD.json", getattr(result, "effective_orientation_record", None))
+    write_json(output / "PATH_MONITOR_DECISION_REPORT.json", getattr(result, "path_monitor_decision_report", None))
+    write_json(output / "PATH_EDIT_ADMISSION_REPORT.json", getattr(result, "path_edit_admission_report", None))
+    write_json(output / "GEOMETRY_TRANSACTION_REPORT.json", getattr(result, "geometry_transaction_report", None))
+    write_json(output / "ACTIVE_PATH_RECORD_REPORT.json", getattr(result, "active_path_record_report", None))
+    write_json(output / "THEOREM_FAILURE_TRACE.json", getattr(result, "theorem_failure_trace", None))
     write_json(output / "RUN_DEBUG_REPORT.json", getattr(result, "run_debugging_report", None))
     write_json(
         output / "raw_result_package.json",

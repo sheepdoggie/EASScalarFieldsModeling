@@ -63,11 +63,13 @@ def validate_optional_modules(modules: tuple[object, ...]) -> OptionalModuleRepo
             metadata = {"status": "unsupported", "purpose": "not recognized"}
         else:
             metadata = SUPPORTED_OPTIONAL_MODULES[module_id]
+        params = dict(getattr(module, "params", {}) or {})
         records.append(
             {
                 "module_id": module_id,
                 "declared_status": str(getattr(module, "status", "experimental")),
-                "params_hash": stable_json_hash(getattr(module, "params", {})),
+                "params_hash": stable_json_hash(params),
+                "params": params,
                 "framework_status": metadata["status"],
                 "purpose": metadata["purpose"],
             }
@@ -81,6 +83,7 @@ def validate_optional_modules(modules: tuple[object, ...]) -> OptionalModuleRepo
         passed=True,
         details={
             "optional_modules_are_configuration_overlays_not_executable_plugins": True,
+            "module_params_by_id": {record["module_id"]: record.get("params", {}) for record in records},
             "supported_module_ids": sorted(SUPPORTED_OPTIONAL_MODULES),
         },
     )

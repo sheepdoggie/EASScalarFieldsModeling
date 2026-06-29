@@ -231,10 +231,16 @@ def compile_model_type(overlay: DeclarativeOverlay) -> CompiledModelPlan:
             for mod in overlay.optional_modules:
                 if mod.module_id == "admitted_nonlabel_path_monitor_v1":
                     params = dict(mod.params)
+                    forbidden_inputs = {"orientation", "same_label", "opposite_label", "target_delta_l"}
                     if params.get("reads_orientation_labels", False):
-                        raise ManifestError("admitted_nonlabel_path_monitor_v1 may not read orientation labels.")
-                    if "orientation" in params.get("decision_inputs", []):
-                        raise ManifestError("admitted_nonlabel_path_monitor_v1 decision_inputs may not include orientation.")
+                        raise ManifestError("admitted_nonlabel_path_monitor_v1 may not read orientation/same/opposite/target labels.")
+                    decision_inputs = {str(x) for x in params.get("decision_inputs", [])}
+                    bad_inputs = sorted(forbidden_inputs & decision_inputs)
+                    if bad_inputs:
+                        raise ManifestError(
+                            "admitted_nonlabel_path_monitor_v1 decision_inputs may not include forbidden inputs: "
+                            + ", ".join(bad_inputs)
+                        )
                     if params.get("path_edits_are_intrinsic_framework_rule", False):
                         raise ManifestError("path edits must remain external monitor transactions, not intrinsic rules.")
         return CompiledModelPlan(
@@ -263,6 +269,8 @@ def compile_model_type(overlay: DeclarativeOverlay) -> CompiledModelPlan:
                 "role_path_midpoint_readout_as_path_mutation",
                 "same_opposite_label_as_path_change_trigger",
                 "orientation_label_as_monitor_input",
+                "same_opposite_label_as_monitor_input",
+                "target_delta_l_as_monitor_input",
                 "center_locus_as_update_input",
                 "external_monitor_result_as_theorem_without_admission_verdict",
             ),

@@ -1,1 +1,1 @@
-Manifest is unsigned until the local operator signs it. Do not certify until signature verifies.
+Manifest was generated locally for this package. Re-sign with the operator trusted private key before authoritative publication.

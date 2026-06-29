@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.33"
-FRAMEWORK_RELEASE_LABEL = "0.1.33-admission-control-materials"
+FRAMEWORK_VERSION = "0.1.34"
+FRAMEWORK_RELEASE_LABEL = "0.1.34-failure-diagnostics"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -156,6 +156,16 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "negative_control_overlay_suite_v0_1",
         "package_embedded_release_signature_materials_v0_1",
         "executable_certification_plan_case_materials_v0_1",
+        "effective_orientation_record_v0_1",
+        "path_monitor_decision_report_v0_1",
+        "path_edit_admission_report_v0_1",
+        "geometry_transaction_report_v0_2",
+        "active_path_record_report_v0_1",
+        "theorem_failure_trace_v0_1",
+        "nonlabel_monitor_forbidden_input_full_gate_v0_1",
+        "candidate_not_admitted_blocks_certification_v0_1",
+        "contract_required_initialization_settling_gate_v0_1",
+        "packageable_failed_certification_attempts_v0_1",
     }
 )
 
