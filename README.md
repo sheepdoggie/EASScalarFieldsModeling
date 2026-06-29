@@ -1,45 +1,25 @@
 # EASScalarFieldsModeling
 
-Current framework release: `0.1.29` / `0.1.29-contract-driven-overlay-synthesis`.
+Current framework release: `0.1.30` / `0.1.30-operator-review-packet-workflow`.
 
-v0.1.29 adds contract-driven overlay synthesis and operator-required-items reporting. Certification mode still requires a predeclared modeling_intent contract, an approved modeling plan, signed release identity, and contract-compliant executable overlays.
+v0.1.30 adds the operator-review packet workflow. A certification-mode run that lacks required operator materials writes `OPERATOR_REQUIRED_ITEMS.json` with a recommended `rank3-generate-operator-review-packet` command. The modeling chat should generate/customize that packet and return it for user approval before execution.
 
-## Install
+Install after publishing:
 
 ```bash
-python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.29#egg=enforceable-rank3-modeling"
+python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.30#egg=enforceable-rank3-modeling"
 ```
 
-## Synthesize or request overlays from a contract
+Generate a review packet from a blocked certification preflight:
 
 ```bash
-rank3-synthesize-overlays-from-contract \
-  --suite-id charge_role_path_remap_dynamic_path_v0_1 \
+rank3-generate-operator-review-packet \
   --contract overlays/charge_path_adjustment_contract.json \
-  --output-overlays overlays/synthesized_charge_path_v0129
-```
-
-This command does not run SOO. If the selected overlays cannot satisfy the contract, it writes `OPERATOR_REQUIRED_ITEMS.json` explaining what the operator must provide.
-
-## Generate a reviewable plan
-
-```bash
-rank3-plan-from-modeling-intent \
+  --operator-required-items results/charge_path_attempt/OPERATOR_REQUIRED_ITEMS.json \
   --suite-id charge_role_path_remap_dynamic_path_v0_1 \
-  --contract overlays/charge_path_adjustment_contract.json \
-  --synthesize-overlays \
-  --output-plan plans/charge_path_draft_plan_v0129.json \
-  --output-overlays overlays/synthesized_charge_path_v0129
+  --output-dir review_packets/charge_path_v0130
 ```
 
-## Certification execution
+This does not run the model. It creates reviewable templates for admission overlays, mechanism declarations, initialization/settling, negative controls, path monitor policy, plan approval, and release signing.
 
-Certification execution requires:
-
-```text
---modeling-intent-contract
---approved-plan
-signed release manifest/signature/public key/framework zip
-```
-
-If required items are absent, the run writes `OPERATOR_REQUIRED_ITEMS.json` and stops before model execution.
+The current built-in charge role/path suite remains candidate/exploratory and does not certify the charge path-adjustment theorem.

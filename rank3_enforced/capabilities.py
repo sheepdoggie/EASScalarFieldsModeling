@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.29"
-FRAMEWORK_RELEASE_LABEL = "0.1.29-contract-driven-overlay-synthesis"
+FRAMEWORK_VERSION = "0.1.30"
+FRAMEWORK_RELEASE_LABEL = "0.1.30-operator-review-packet-workflow"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -140,6 +140,11 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "operator_required_items_report_v0_1",
         "certification_operator_item_preflight_v0_1",
         "no_candidate_promotion_by_synthesis_v0_1",
+
+        "operator_review_packet_generator_v0_1",
+        "operator_required_items_generator_directives_v0_1",
+        "chat_customizable_certification_material_templates_v0_1",
+        "certification_run_requires_operator_review_packet_workflow_v0_1",
     }
 )
 

@@ -11,7 +11,7 @@ from .fingerprints import file_hash, stable_json_hash
 from .modeling_intent import ModelingIntentContract, contract_from_file, validate_contract_for_overlay
 
 SYNTHESIS_SCHEMA = "rank3_contract_overlay_synthesis_report_v1"
-OPERATOR_REQUIREMENTS_SCHEMA = "rank3_operator_required_items_report_v1"
+OPERATOR_REQUIREMENTS_SCHEMA = "rank3_operator_required_items_report_v2"
 
 
 def _now_utc() -> str:
@@ -41,6 +41,9 @@ class OperatorRequiredItem:
     reason: str
     acceptable_forms: tuple[str, ...] = ()
     blocks_certification_execution: bool = True
+    generator: str | None = None
+    generator_args: tuple[str, ...] = ()
+    review_artifacts: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -101,6 +104,8 @@ class OperatorRequiredItemsReport:
     output_root: str | None
     items: tuple[OperatorRequiredItem, ...]
     blocks_certification_execution: bool
+    recommended_generator_command: str | None = None
+    recommended_generator_outputs: tuple[str, ...] = ()
     notes: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -108,6 +113,64 @@ class OperatorRequiredItemsReport:
 
     def fingerprint(self) -> str:
         return stable_json_hash(self.to_dict())
+
+
+
+def operator_review_packet_outputs() -> tuple[str, ...]:
+    return (
+        "OPERATOR_REVIEW_PACKET_MANIFEST.json",
+        "CHAT_MODELING_INSTRUCTIONS.md",
+        "ADMISSION_OVERLAY_TEMPLATE.json",
+        "MECHANISM_STATUS_DECLARATION_TEMPLATE.json",
+        "INITIALIZATION_SETTLING_REQUIREMENTS_TEMPLATE.json",
+        "NEGATIVE_CONTROL_SUITE_TEMPLATE/README.md",
+        "NEGATIVE_CONTROL_SUITE_TEMPLATE/negative_control_overlay_template.json",
+        "PATH_MONITOR_POLICY_TEMPLATE.json",
+        "MODELING_PLAN_APPROVAL_REQUEST_TEMPLATE.json",
+        "RELEASE_SIGNING_CHECKLIST.md",
+        "USER_APPROVAL_CHECKLIST.md",
+    )
+
+
+def recommended_operator_review_packet_command(
+    *,
+    contract_path: str | Path | None = None,
+    operator_required_items_path: str | Path | None = None,
+    output_dir: str | Path | None = None,
+    suite_id: str | None = None,
+) -> str:
+    parts = ["rank3-generate-operator-review-packet"]
+    if contract_path is not None:
+        parts += ["--contract", str(contract_path)]
+    else:
+        parts += ["--contract", "<path/to/modeling_intent_contract.json>"]
+    if operator_required_items_path is not None:
+        parts += ["--operator-required-items", str(operator_required_items_path)]
+    else:
+        parts += ["--operator-required-items", "<path/to/OPERATOR_REQUIRED_ITEMS.json>"]
+    if suite_id is not None:
+        parts += ["--suite-id", suite_id]
+    if output_dir is not None:
+        parts += ["--output-dir", str(output_dir)]
+    else:
+        parts += ["--output-dir", "<path/to/OPERATOR_REVIEW_PACKET>"]
+    return " ".join(parts)
+
+
+def _with_generator(item: OperatorRequiredItem, *args: str) -> OperatorRequiredItem:
+    return OperatorRequiredItem(
+        item_id=item.item_id,
+        severity=item.severity,
+        category=item.category,
+        required_from_operator=item.required_from_operator,
+        prompt=item.prompt,
+        reason=item.reason,
+        acceptable_forms=item.acceptable_forms,
+        blocks_certification_execution=item.blocks_certification_execution,
+        generator="rank3-generate-operator-review-packet",
+        generator_args=tuple(args),
+        review_artifacts=operator_review_packet_outputs(),
+    )
 
 
 def _base_operator_items(contract: ModelingIntentContract) -> list[OperatorRequiredItem]:
@@ -376,6 +439,7 @@ def operator_required_items_from_synthesis(report: OverlaySynthesisReport, *, co
     dedup: dict[tuple[str, str, str], OperatorRequiredItem] = {}
     for item in items:
         dedup[(item.item_id, item.category, item.prompt)] = item
+    wrapped_items = tuple(_with_generator(item) for item in dedup.values())
     return OperatorRequiredItemsReport(
         schema=OPERATOR_REQUIREMENTS_SCHEMA,
         generated_utc=_now_utc(),
@@ -385,9 +449,11 @@ def operator_required_items_from_synthesis(report: OverlaySynthesisReport, *, co
         requested_mode="certification",
         approved_plan_path=None,
         output_root=None,
-        items=tuple(dedup.values()),
-        blocks_certification_execution=any(i.blocks_certification_execution for i in dedup.values()),
-        notes="Operator must supply or approve the listed items before certification-mode execution is allowed.",
+        items=wrapped_items,
+        blocks_certification_execution=any(i.blocks_certification_execution for i in wrapped_items),
+        recommended_generator_command=recommended_operator_review_packet_command(),
+        recommended_generator_outputs=operator_review_packet_outputs(),
+        notes="Operator must supply or approve the listed items before certification-mode execution is allowed. Use the recommended generator command to create a review packet for the modeling chat/user approval workflow.",
     )
 
 
@@ -402,6 +468,14 @@ def write_operator_required_items_report(
     output_root: str | Path | None = None,
     notes: str = "",
 ) -> OperatorRequiredItemsReport:
+    path = Path(path)
+    generator_output_dir = path.parent / "OPERATOR_REVIEW_PACKET"
+    wrapped_items = tuple(_with_generator(item) for item in items)
+    recommended_command = recommended_operator_review_packet_command(
+        contract_path=None,
+        operator_required_items_path=path,
+        output_dir=generator_output_dir,
+    )
     report = OperatorRequiredItemsReport(
         schema=OPERATOR_REQUIREMENTS_SCHEMA,
         generated_utc=_now_utc(),
@@ -411,11 +485,23 @@ def write_operator_required_items_report(
         requested_mode=requested_mode,
         approved_plan_path=str(approved_plan_path) if approved_plan_path else None,
         output_root=str(output_root) if output_root else None,
-        items=tuple(items),
-        blocks_certification_execution=any(i.blocks_certification_execution for i in items),
-        notes=notes or "Certification execution is blocked until the operator provides the required items.",
+        items=wrapped_items,
+        blocks_certification_execution=any(i.blocks_certification_execution for i in wrapped_items),
+        recommended_generator_command=recommended_command,
+        recommended_generator_outputs=operator_review_packet_outputs(),
+        notes=notes or "Certification execution is blocked until the operator provides the required items. The modeling chat should run the recommended generator command, customize the resulting packet, and return it to the operator/user for approval before certification execution.",
     )
     _write_json(path, report.to_dict())
+    # Give modeling chats/operators an immediately visible next command. The
+    # command intentionally contains a contract placeholder when the caller did
+    # not pass an actual contract path; this keeps the framework from guessing
+    # a user-specific file location.
+    try:
+        script = path.parent / "GENERATE_OPERATOR_REVIEW_PACKET.sh"
+        script.write_text("#!/usr/bin/env bash\nset -euo pipefail\n" + recommended_command + "\n", encoding="utf-8")
+        script.chmod(0o755)
+    except Exception:
+        pass
     return report
 
 
