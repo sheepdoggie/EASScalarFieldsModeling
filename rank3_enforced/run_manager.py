@@ -612,6 +612,7 @@ def run_overlay_suite(
             requested_mode=modeling_mode,
             approved_plan_path=approved_plan_path,
             output_root=output_root_path,
+            contract_path=modeling_intent_contract_path,
         )
         raise ValueError("certification mode requires --modeling-intent-contract. See OPERATOR_REQUIRED_ITEMS.json in the output root.")
     modeling_contract = (
@@ -642,6 +643,7 @@ def run_overlay_suite(
                 requested_mode=modeling_mode,
                 approved_plan_path=approved_plan_path,
                 output_root=output_root_path,
+                contract_path=modeling_intent_contract_path,
             )
             raise ValueError("certification mode requires --approved-plan generated and approved before execution. See OPERATOR_REQUIRED_ITEMS.json in the output root.")
         modeling_plan = load_modeling_plan(approved_plan_path)
@@ -671,6 +673,7 @@ def run_overlay_suite(
                 requested_mode=modeling_mode,
                 approved_plan_path=approved_plan_path,
                 output_root=output_root_path,
+                contract_path=modeling_intent_contract_path,
                 notes="The approved modeling plan is structurally invalid or has no contract-executable certification cases.",
             )
             raise ValueError("certification mode requires a valid and executable approved modeling plan: " + "; ".join(reasons) + ". See OPERATOR_REQUIRED_ITEMS.json in the output root.")
@@ -688,6 +691,7 @@ def run_overlay_suite(
                 requested_mode=modeling_mode,
                 approved_plan_path=approved_plan_path,
                 output_root=output_root_path,
+                contract_path=modeling_intent_contract_path,
             )
             raise ValueError("certification execution cannot add run-time overrides outside the approved modeling plan. Regenerate and reapprove the plan.")
     plan_cases_by_id = {case.case_id: case for case in getattr(modeling_plan, "cases", ())} if modeling_plan is not None else {}
@@ -720,7 +724,8 @@ def run_overlay_suite(
                 requested_mode=modeling_mode,
                 approved_plan_path=approved_plan_path,
                 output_root=output_root_path,
-                notes="Release guard failed before model execution. Provide signed local release files or reachable signed release URLs.",
+                contract_path=modeling_intent_contract_path,
+                notes="Release guard failed before model execution. Provide signed local release files or reachable signed release URLs. The modeling chat must not treat this as approval to run; generate/customize/validate a review packet and return it for explicit approval after the release material is supplied.",
             )
         raise
     (output_root_path / "release_guard.json").write_text(json.dumps(guard.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")

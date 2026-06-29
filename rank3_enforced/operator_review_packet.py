@@ -12,7 +12,7 @@ from .fingerprints import file_hash, stable_json_hash
 from .modeling_intent import ModelingIntentContract, contract_from_file
 from .run_manager import BUILTIN_SUITES
 
-PACKET_SCHEMA = "rank3_operator_review_packet_v1"
+PACKET_SCHEMA = "rank3_operator_review_packet_v2"
 
 
 def _now_utc() -> str:
@@ -294,7 +294,7 @@ Private signing keys must remain outside the repository and outside run packages
     _write_text(out / "USER_APPROVAL_CHECKLIST.md", f"""
 # User approval checklist
 
-The modeling chat should return this customized packet for review before any certification run.
+The modeling chat must return a customized packet for review before any certification run.
 
 Approve only if:
 
@@ -306,11 +306,74 @@ Approve only if:
 - the path-monitor policy does not make path length change intrinsic EAS ontology;
 - the initialization/settling gate is predeclared;
 - the modeling plan is executable under the contract;
-- the release files are signed and verified.
+- the release files are signed and verified;
+- `rank3-validate-operator-review-packet` reports `valid_for_user_review=true`;
+- no modeling execution has already occurred.
 
-Operator decision: `<approve|reject|revise>`
+Operator decision must be explicit: `approve`, `revise`, or `reject`.
+Silence, partial agreement, and template generation are not approval.
 """)
     generated.append("USER_APPROVAL_CHECKLIST.md")
+
+    _write_text(out / "CHAT_APPROVAL_LOOP_PROTOCOL.md", """
+# Required approval loop for modeling chats
+
+This packet is not approval to run. It is a scaffold for drafting the materials that the user/operator must review.
+
+Mandatory sequence:
+
+1. Generate or inspect `OPERATOR_REQUIRED_ITEMS.json`.
+2. Generate this operator review packet.
+3. Run `rank3-customize-operator-review-packet` to produce a customized packet.
+4. Draft every chat-draftable item. Do not ask the user to draft items the chat can draft.
+5. Mark every non-inventable item honestly as absent/non-certification-usable.
+6. Validate the customized packet with `rank3-validate-operator-review-packet`.
+7. Return the customized packet and validation report to the user/operator for approval.
+8. Stop and wait for an explicit user decision.
+9. If the user requests changes, revise the packet, validate it again, return it again, and wait again.
+10. If the user rejects it, stop certification and report rejected/non-certifying status.
+11. If the user approves it, record `USER_APPROVAL_DECISION.json` binding the approved packet hash and approved plan hash.
+12. Validate the approval decision with `rank3-validate-operator-review-packet --approval-decision`.
+13. Begin certification modeling only after approval validation says `approved_for_modeling=true`.
+
+Forbidden:
+
+- Do not run before approval.
+- Do not infer approval from silence.
+- Do not run after a revision request until revised, revalidated, returned, and approved.
+- Do not relabel candidate overlays or mechanisms as admission evidence.
+- Do not make path add/remove intrinsic EAS ontology.
+""")
+    generated.append("CHAT_APPROVAL_LOOP_PROTOCOL.md")
+
+    _write_json(out / "CHAT_TASKS.json", {
+        "schema": "rank3_chat_operator_agent_tasks_v1",
+        "mode": "certification_material_preparation_only",
+        "may_execute_model_before_approval": False,
+        "tasks": [
+            {"step": 1, "action": "read_contract_and_required_items", "must_wait_after_step": False},
+            {"step": 2, "action": "customize_review_packet", "command": "rank3-customize-operator-review-packet --review-packet-dir <this_packet> --output-dir <customized_packet>", "must_wait_after_step": False},
+            {"step": 3, "action": "validate_customized_packet", "command": "rank3-validate-operator-review-packet --packet-dir <customized_packet>", "must_wait_after_step": False},
+            {"step": 4, "action": "return_customized_packet_to_user", "must_wait_after_step": True},
+            {"step": 5, "action": "wait_for_explicit_user_decision", "allowed_decisions": ["approve", "revise", "reject"], "must_wait_after_step": True},
+            {"step": 6, "on_decision": "revise", "action": "revise_revalidate_return_and_wait_again", "must_wait_after_step": True},
+            {"step": 7, "on_decision": "reject", "action": "stop_certification", "must_wait_after_step": False},
+            {"step": 8, "on_decision": "approve", "action": "record_approval_decision_and_validate_hashes", "must_wait_after_step": False},
+            {"step": 9, "action": "begin_modeling_only_if_approval_validation_passes", "must_wait_after_step": False}
+        ],
+    })
+    generated.append("CHAT_TASKS.json")
+
+    _write_text(out / "GENERATE_CUSTOMIZED_REVIEW_PACKET.sh", """
+#!/usr/bin/env bash
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd)"
+OUT="${1:-$HERE/../CUSTOMIZED_REVIEW_PACKET}"
+rank3-customize-operator-review-packet --review-packet-dir "$HERE" --output-dir "$OUT"
+rank3-validate-operator-review-packet --packet-dir "$OUT" --output "$OUT/CUSTOMIZED_PACKET_VALIDATION_REPORT.json"
+""")
+    (out / "GENERATE_CUSTOMIZED_REVIEW_PACKET.sh").chmod(0o755)
+    generated.append("GENERATE_CUSTOMIZED_REVIEW_PACKET.sh")
 
     _write_text(out / "CHAT_MODELING_INSTRUCTIONS.md", f"""
 # Instructions for the modeling chat
@@ -321,14 +384,22 @@ Workflow:
 
 1. Read the modeling_intent contract.
 2. Read OPERATOR_REQUIRED_ITEMS.json if supplied.
-3. Customize every template in this packet for the requested model.
-4. Replace every `<...>` placeholder with concrete proposed mechanisms, overlays, controls, paths, gates, or explicit "absent/cannot certify" entries.
-5. Do not promote candidate overlays to admission evidence by relabeling.
-6. Do not encode same/opposite orientation labels as path-edit triggers.
-7. Do not make path add/remove intrinsic EAS ontology.
-8. Produce a draft modeling plan from the customized overlays.
-9. Return the customized packet and draft plan to the operator/user for approval.
-10. Do not execute certification mode until the operator approves the exact plan hash.
+3. Run `rank3-customize-operator-review-packet` or complete the equivalent customization manually.
+4. Draft every item the chat can draft: admission overlay proposals, initialization/settling gates, negative controls, path-monitor policy, and draft modeling plan.
+5. Do not ask the user to draft chat-draftable items; return your proposed drafts for review.
+6. For items that cannot be invented, mark them honestly as absent/non-certification-usable and explain why.
+7. Replace or explicitly resolve every `<...>` placeholder.
+8. Do not promote candidate overlays to admission evidence by relabeling.
+9. Do not encode same/opposite orientation labels as path-edit triggers.
+10. Do not make path add/remove intrinsic EAS ontology.
+11. Validate the customized packet with `rank3-validate-operator-review-packet`.
+12. Return the customized packet, draft plan, and validation report to the operator/user for approval.
+13. Stop and wait for explicit operator/user decision.
+14. If changes are required, revise the packet, validate it again, return it again, and wait again.
+15. If rejected, stop and report non-certifying/rejected status.
+16. If approved, record a USER_APPROVAL_DECISION.json binding the approved packet hash and approved plan hash.
+17. Validate the approval decision.
+18. Begin certification modeling only after approval validation reports approved_for_modeling=true.
 
 Contract hash: `{contract.fingerprint()}`
 Suite basis: `{suite_id}`

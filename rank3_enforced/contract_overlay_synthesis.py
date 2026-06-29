@@ -453,7 +453,7 @@ def operator_required_items_from_synthesis(report: OverlaySynthesisReport, *, co
         blocks_certification_execution=any(i.blocks_certification_execution for i in wrapped_items),
         recommended_generator_command=recommended_operator_review_packet_command(),
         recommended_generator_outputs=operator_review_packet_outputs(),
-        notes="Operator must supply or approve the listed items before certification-mode execution is allowed. Use the recommended generator command to create a review packet for the modeling chat/user approval workflow.",
+        notes="The listed materials are not permission to run. The modeling chat must draft all draftable items, mark non-inventable items honestly, validate the customized packet, return it for explicit user/operator approval, wait, revise/revalidate/return if changes are requested, and begin modeling only after approval validation passes.",
     )
 
 
@@ -466,13 +466,14 @@ def write_operator_required_items_report(
     requested_mode: str | None = None,
     approved_plan_path: str | Path | None = None,
     output_root: str | Path | None = None,
+    contract_path: str | Path | None = None,
     notes: str = "",
 ) -> OperatorRequiredItemsReport:
     path = Path(path)
     generator_output_dir = path.parent / "OPERATOR_REVIEW_PACKET"
     wrapped_items = tuple(_with_generator(item) for item in items)
     recommended_command = recommended_operator_review_packet_command(
-        contract_path=None,
+        contract_path=contract_path,
         operator_required_items_path=path,
         output_dir=generator_output_dir,
     )
@@ -489,7 +490,7 @@ def write_operator_required_items_report(
         blocks_certification_execution=any(i.blocks_certification_execution for i in wrapped_items),
         recommended_generator_command=recommended_command,
         recommended_generator_outputs=operator_review_packet_outputs(),
-        notes=notes or "Certification execution is blocked until the operator provides the required items. The modeling chat should run the recommended generator command, customize the resulting packet, and return it to the operator/user for approval before certification execution.",
+        notes=notes or "Certification execution is blocked. The modeling chat must run the recommended generator command, customize all draftable items, mark non-inventable items honestly, validate the customized packet, return it to the user/operator for explicit approval, wait, revise and revalidate if requested, and begin modeling only after approval validation passes.",
     )
     _write_json(path, report.to_dict())
     # Give modeling chats/operators an immediately visible next command. The

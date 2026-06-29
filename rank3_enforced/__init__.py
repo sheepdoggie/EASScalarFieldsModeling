@@ -1,4 +1,4 @@
-__version__ = "0.1.30"
+__version__ = "0.1.31"
 
 from .certified_runner import ModelPackage, run_declarative_overlay, run_model_package
 from .controls import CertifiedIdentityRemapRule, ZeroScalarUpdateRule
