@@ -9,6 +9,7 @@ from .modeling_intent import (
     contract_from_file,
     validate_contract_for_overlay,
 )
+from .contract_overlay_synthesis import synthesize_overlays_from_contract
 from .modeling_plan import (
     approve_modeling_plan,
     build_modeling_plan,
@@ -66,19 +67,41 @@ def main_plan(argv: list[str] | None = None) -> int:
     parser.add_argument("--contract", required=True, help="modeling_intent contract JSON")
     parser.add_argument("--output-plan", required=True, help="Draft plan JSON to write")
     parser.add_argument("--output-overlays", help="Optional directory for exact staged overlays proposed by the plan")
+    parser.add_argument("--synthesize-overlays", action="store_true", help="Attempt contract-driven overlay synthesis before planning. If synthesis cannot satisfy the contract, writes operator-required-items reports and plans the available synthesized/blocked cases without running the model.")
+    parser.add_argument("--allow-candidate-promotion", action="store_true", help="Allow candidate overlays to be marked admission by synthesis. This remains blocked unless the contract itself allows candidate rules.")
     parser.add_argument("--mode", choices=["exploratory", "certification"], default="certification")
     parser.add_argument("--notes", default="")
     args = parser.parse_args(argv)
     contract = contract_from_file(args.contract)
     overlays = _selected_overlay_files(args)
+    synthesis_report = None
+    if args.synthesize_overlays:
+        if not args.output_overlays:
+            raise SystemExit("--synthesize-overlays requires --output-overlays")
+        synthesis_report = synthesize_overlays_from_contract(
+            contract=contract,
+            overlay_files=overlays,
+            output_overlays_dir=args.output_overlays,
+            suite_id=args.suite_id,
+            allow_candidate_promotion=args.allow_candidate_promotion,
+            notes=args.notes,
+        )
+        synthesized = [
+            Path(case.synthesized_overlay_path)
+            for case in synthesis_report.cases
+            if case.synthesized_overlay_path
+        ]
+        # If no cases could be synthesized safely, plan from the original overlays so
+        # the approval package still shows exactly why execution is blocked.
+        overlays = synthesized or overlays
     plan = build_modeling_plan(
         contract=contract,
         overlay_files=overlays,
         suite_id=args.suite_id,
         overlays_dir=args.overlays_dir,
-        output_overlays_dir=args.output_overlays,
+        output_overlays_dir=None if args.synthesize_overlays else args.output_overlays,
         modeling_mode=args.mode,
-        notes=args.notes,
+        notes=(args.notes + ("\nSynthesis report: OVERLAY_SYNTHESIS_REPORT.json" if synthesis_report else "")).strip(),
     )
     write_modeling_plan(args.output_plan, plan)
     print(f"Wrote draft modeling plan: {args.output_plan}")
@@ -92,6 +115,7 @@ def main_plan(argv: list[str] | None = None) -> int:
         "blocked_case_count": plan.blocked_case_count,
         "plan_certification_executable": plan.plan_certification_executable,
         "execution_blocking_reasons": plan.execution_blocking_reasons,
+        "synthesis_report_written": bool(synthesis_report),
     }, indent=2, sort_keys=True))
     return 0
 
@@ -115,6 +139,12 @@ def main_approve_plan(argv: list[str] | None = None) -> int:
         "execution_blocking_reasons": approved.execution_blocking_reasons,
     }, indent=2, sort_keys=True))
     return 0
+
+
+
+def main_synthesize(argv: list[str] | None = None) -> int:
+    from .contract_overlay_synthesis import main as synthesis_main
+    return synthesis_main(argv)
 
 
 def main_validate_plan(argv: list[str] | None = None) -> int:

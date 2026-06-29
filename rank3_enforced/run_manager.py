@@ -15,6 +15,7 @@ from .fingerprints import file_hash, stable_json_hash
 from .package_manifest import default_environment_record, package_and_sign_enforced_result
 from .signing import verify_certificate
 from .modeling_intent import default_exploratory_contract, contract_from_file, validate_contract_for_overlay
+from .contract_overlay_synthesis import required_items_for_certification_preflight, write_operator_required_items_report
 from .modeling_plan import load_modeling_plan, validate_modeling_plan
 from .version_guard import enforce_latest_release_guard
 
@@ -597,7 +598,22 @@ def run_overlay_suite(
     if modeling_mode not in ("exploratory", "certification"):
         raise ValueError("modeling_mode must be exploratory or certification")
     if modeling_mode == "certification" and modeling_intent_contract_path is None:
-        raise ValueError("certification mode requires --modeling-intent-contract")
+        items = required_items_for_certification_preflight(
+            contract=None,
+            requested_mode=modeling_mode,
+            missing_contract=True,
+            missing_approved_plan=approved_plan_path is None,
+        )
+        write_operator_required_items_report(
+            path=output_root_path / "OPERATOR_REQUIRED_ITEMS.json",
+            context="certification_preflight_missing_contract",
+            items=items,
+            contract=None,
+            requested_mode=modeling_mode,
+            approved_plan_path=approved_plan_path,
+            output_root=output_root_path,
+        )
+        raise ValueError("certification mode requires --modeling-intent-contract. See OPERATOR_REQUIRED_ITEMS.json in the output root.")
     modeling_contract = (
         contract_from_file(modeling_intent_contract_path)
         if modeling_intent_contract_path is not None
@@ -613,7 +629,21 @@ def run_overlay_suite(
     plan_validation_report = None
     if modeling_mode == "certification":
         if approved_plan_path is None:
-            raise ValueError("certification mode requires --approved-plan generated before execution")
+            items = required_items_for_certification_preflight(
+                contract=modeling_contract,
+                requested_mode=modeling_mode,
+                missing_approved_plan=True,
+            )
+            write_operator_required_items_report(
+                path=output_root_path / "OPERATOR_REQUIRED_ITEMS.json",
+                context="certification_preflight_missing_approved_plan",
+                items=items,
+                contract=modeling_contract,
+                requested_mode=modeling_mode,
+                approved_plan_path=approved_plan_path,
+                output_root=output_root_path,
+            )
+            raise ValueError("certification mode requires --approved-plan generated and approved before execution. See OPERATOR_REQUIRED_ITEMS.json in the output root.")
         modeling_plan = load_modeling_plan(approved_plan_path)
         plan_validation_report = validate_modeling_plan(
             contract=modeling_contract,
@@ -628,23 +658,71 @@ def run_overlay_suite(
             blockers = list(getattr(plan_validation_report, "execution_blocking_violations", ()))
             structural = list(getattr(plan_validation_report, "violations", ()))
             reasons = structural + blockers
-            raise ValueError("certification mode requires a valid and executable approved modeling plan: " + "; ".join(reasons))
+            items = required_items_for_certification_preflight(
+                contract=modeling_contract,
+                requested_mode=modeling_mode,
+                invalid_plan_reasons=reasons,
+            )
+            write_operator_required_items_report(
+                path=output_root_path / "OPERATOR_REQUIRED_ITEMS.json",
+                context="certification_preflight_invalid_or_nonexecutable_plan",
+                items=items,
+                contract=modeling_contract,
+                requested_mode=modeling_mode,
+                approved_plan_path=approved_plan_path,
+                output_root=output_root_path,
+                notes="The approved modeling plan is structurally invalid or has no contract-executable certification cases.",
+            )
+            raise ValueError("certification mode requires a valid and executable approved modeling plan: " + "; ".join(reasons) + ". See OPERATOR_REQUIRED_ITEMS.json in the output root.")
         if debug or settling_overrides or execution_overrides:
-            raise ValueError("certification execution cannot add run-time overrides outside the approved modeling plan")
+            items = required_items_for_certification_preflight(
+                contract=modeling_contract,
+                requested_mode=modeling_mode,
+                invalid_plan_reasons=("runtime overrides were requested outside the approved plan",),
+            )
+            write_operator_required_items_report(
+                path=output_root_path / "OPERATOR_REQUIRED_ITEMS.json",
+                context="certification_preflight_runtime_overrides_not_in_plan",
+                items=items,
+                contract=modeling_contract,
+                requested_mode=modeling_mode,
+                approved_plan_path=approved_plan_path,
+                output_root=output_root_path,
+            )
+            raise ValueError("certification execution cannot add run-time overrides outside the approved modeling plan. Regenerate and reapprove the plan.")
     plan_cases_by_id = {case.case_id: case for case in getattr(modeling_plan, "cases", ())} if modeling_plan is not None else {}
 
     suite_label = suite_id or f"external:{Path(overlays_dir).resolve()}"
     _progress(progress, f"[suite] {suite_label}")
     _progress(progress, f"[suite] overlays={len(overlays)} selected_from={len(overlays_all)} output={output_root_path}")
     _progress(progress, "[release-guard] checking latest signed framework manifest")
-    guard = enforce_latest_release_guard(
-        run_kind="candidate",
-        cache_dir=output_root_path,
-        manifest_url=release_manifest_url,
-        signature_url=release_signature_url,
-        public_key_url=release_public_key_url,
-        framework_zip_path=framework_zip_path,
-    )
+    try:
+        guard = enforce_latest_release_guard(
+            run_kind="candidate",
+            cache_dir=output_root_path,
+            manifest_url=release_manifest_url,
+            signature_url=release_signature_url,
+            public_key_url=release_public_key_url,
+            framework_zip_path=framework_zip_path,
+        )
+    except Exception as exc:
+        if modeling_mode == "certification":
+            items = required_items_for_certification_preflight(
+                contract=modeling_contract,
+                requested_mode=modeling_mode,
+                release_guard_reasons=(str(exc),),
+            )
+            write_operator_required_items_report(
+                path=output_root_path / "OPERATOR_REQUIRED_ITEMS.json",
+                context="certification_release_guard_failed",
+                items=items,
+                contract=modeling_contract,
+                requested_mode=modeling_mode,
+                approved_plan_path=approved_plan_path,
+                output_root=output_root_path,
+                notes="Release guard failed before model execution. Provide signed local release files or reachable signed release URLs.",
+            )
+        raise
     (output_root_path / "release_guard.json").write_text(json.dumps(guard.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (output_root_path / "MODELING_INTENT_CONTRACT.json").write_text(json.dumps(modeling_contract.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (output_root_path / "MODELING_INTENT_CONTRACT.sha256").write_text(modeling_contract.fingerprint() + "\n", encoding="utf-8")

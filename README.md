@@ -1,54 +1,45 @@
 # EASScalarFieldsModeling
 
-Current framework release: `0.1.28` / `0.1.28-release-identity-self-consistency`.
+Current framework release: `0.1.29` / `0.1.29-contract-driven-overlay-synthesis`.
 
-v0.1.28 adds a release identity self-consistency gate. The release manifest must now identify the exact source tree and exact internal release archives before a package should be published or used for future certification/admission work.
+v0.1.29 adds contract-driven overlay synthesis and operator-required-items reporting. Certification mode still requires a predeclared modeling_intent contract, an approved modeling plan, signed release identity, and contract-compliant executable overlays.
 
 ## Install
 
 ```bash
-python -m pip install --force-reinstall \
-  "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.28#egg=enforceable-rank3-modeling"
+python -m pip install "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.29#egg=enforceable-rank3-modeling"
 ```
 
-## Release identity check
-
-Run this before signing/publishing:
+## Synthesize or request overlays from a contract
 
 ```bash
-rank3-check-release-identity \
-  --repo-root . \
-  --manifest releases/current/FRAMEWORK_RELEASE_MANIFEST.json \
-  --framework-zip releases/current/enforceable_rank3_modeling_v0.1.28_release_identity_self_consistency.zip \
-  --framework-tar-gz releases/current/enforceable_rank3_modeling_v0.1.28_release_identity_self_consistency.tar.gz
+rank3-synthesize-overlays-from-contract \
+  --suite-id charge_role_path_remap_dynamic_path_v0_1 \
+  --contract overlays/charge_path_adjustment_contract.json \
+  --output-overlays overlays/synthesized_charge_path_v0129
 ```
 
-The check fails if the manifest code hash, release archive hash, version, release label, TAR.GZ hash, or required ZIP contents are stale or inconsistent.
+This command does not run SOO. If the selected overlays cannot satisfy the contract, it writes `OPERATOR_REQUIRED_ITEMS.json` explaining what the operator must provide.
 
-## Modeling modes
-
-Any run without a `modeling_intent` contract is exploratory by default. Certification/admission mode requires a predeclared contract and an approved modeling plan.
+## Generate a reviewable plan
 
 ```bash
-rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 \
-  --mode exploratory \
-  --output-root results/charge_role_path_exploratory \
-  --continue-on-failure
+rank3-plan-from-modeling-intent \
+  --suite-id charge_role_path_remap_dynamic_path_v0_1 \
+  --contract overlays/charge_path_adjustment_contract.json \
+  --synthesize-overlays \
+  --output-plan plans/charge_path_draft_plan_v0129.json \
+  --output-overlays overlays/synthesized_charge_path_v0129
 ```
 
-Certification mode requires both a contract and an approved plan:
+## Certification execution
 
-```bash
-rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 \
-  --mode certification \
-  --modeling-intent-contract overlays/charge_path_adjustment_contract.json \
-  --approved-plan plans/charge_path_approved_plan.json \
-  --output-root results/charge_path_certification \
-  --continue-on-failure
+Certification execution requires:
+
+```text
+--modeling-intent-contract
+--approved-plan
+signed release manifest/signature/public key/framework zip
 ```
 
-The current built-in charge role/path suite remains candidate/exploratory. It is expected to be blocked by a certification contract unless the overlays become contract-compliant and certification-executable.
-
-## Scientific status
-
-This release does not certify the charge path-adjustment theorem. It strengthens release identity controls required before future certification/admission work.
+If required items are absent, the run writes `OPERATOR_REQUIRED_ITEMS.json` and stops before model execution.

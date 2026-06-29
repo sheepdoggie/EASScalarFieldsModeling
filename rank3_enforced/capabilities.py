@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.28"
-FRAMEWORK_RELEASE_LABEL = "0.1.28-release-identity-self-consistency"
+FRAMEWORK_VERSION = "0.1.29"
+FRAMEWORK_RELEASE_LABEL = "0.1.29-contract-driven-overlay-synthesis"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -136,6 +136,10 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "offline_local_release_guard_sources_v0_1",
         "release_identity_self_consistency_gate_v0_1",
         "release_manifest_exact_code_hash_gate_v0_1",
+        "contract_driven_overlay_synthesis_v0_1",
+        "operator_required_items_report_v0_1",
+        "certification_operator_item_preflight_v0_1",
+        "no_candidate_promotion_by_synthesis_v0_1",
     }
 )
 
