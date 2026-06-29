@@ -60,27 +60,28 @@ def test_draft_approve_validate_plan_and_block_candidate_case(tmp_path: Path, mo
         overlay_files=[source_overlay],
         require_approved=True,
     )
-    assert validation.passed
-    report = run_overlay_suite(
-        suite_id="charge_role_path_remap_dynamic_path_v0_1",
-        output_root=tmp_path / "suite",
-        fail_fast=True,
-        progress=False,
-        case_ids=("L7_same_no_remap",),
-        modeling_mode="certification",
-        modeling_intent_contract_path=contract_path,
-        approved_plan_path=approved_path,
-    )
-    assert report.failed_count == 1
-    assert report.approved_plan_hash == approved.fingerprint()
-    case_dir = tmp_path / "suite" / "runs" / "L7_same_no_remap"
-    assert (case_dir / "MODELING_PLAN.json").is_file()
-    assert (case_dir / "MODELING_PLAN_VALIDATION_REPORT.json").is_file()
-    assert not (case_dir / "CERTIFICATE.json").exists()
-    propagation = json.loads((case_dir / "CONTRACT_PROPAGATION_REPORT.json").read_text(encoding="utf-8"))
-    assert propagation["approved_plan_hash"] == approved.fingerprint()
-    assert propagation["plan_validation_passed"] is True
-    assert propagation["model_executed"] is False
+    assert validation.structurally_valid
+    assert not validation.plan_certification_executable
+    assert not validation.passed
+    assert "zero certification-eligible cases" in "; ".join(validation.execution_blocking_violations)
+    with pytest.raises(ValueError, match="executable approved modeling plan"):
+        run_overlay_suite(
+            suite_id="charge_role_path_remap_dynamic_path_v0_1",
+            output_root=tmp_path / "suite",
+            fail_fast=True,
+            progress=False,
+            case_ids=("L7_same_no_remap",),
+            modeling_mode="certification",
+            modeling_intent_contract_path=contract_path,
+            approved_plan_path=approved_path,
+        )
+    report_path = tmp_path / "suite" / "MODELING_PLAN_VALIDATION_REPORT.json"
+    assert report_path.is_file()
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    assert payload["structurally_valid"] is True
+    assert payload["plan_certification_executable"] is False
+    assert payload["passed"] is False
+    assert not (tmp_path / "suite" / "runs" / "L7_same_no_remap" / "CERTIFICATE.json").exists()
 
 
 def test_plan_validation_rejects_stale_hash(tmp_path: Path) -> None:

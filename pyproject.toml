@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "enforceable-rank3-modeling"
-version = "0.1.26"
+version = "0.1.27"
 description = "Enforceable Rank-3 Scalar Field Modeling Framework"
 readme = "README.md"
 requires-python = ">=3.10"

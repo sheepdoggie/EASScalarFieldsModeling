@@ -9,8 +9,8 @@ import json
 from .fingerprints import file_hash, stable_json_hash
 from .modeling_intent import ModelingIntentContract, contract_from_file, validate_contract_for_overlay
 
-PLAN_SCHEMA = "rank3_modeling_execution_plan_v1"
-PLAN_VALIDATION_SCHEMA = "rank3_modeling_plan_validation_v1"
+PLAN_SCHEMA = "rank3_modeling_execution_plan_v2"
+PLAN_VALIDATION_SCHEMA = "rank3_modeling_plan_validation_v2"
 APPROVED_STATUS = "approved_for_execution"
 DRAFT_STATUS = "draft_pending_user_approval"
 
@@ -67,6 +67,8 @@ class ModelingExecutionPlan:
     selected_case_count: int
     certification_eligible_case_count: int
     blocked_case_count: int
+    plan_certification_executable: bool
+    execution_blocking_reasons: tuple[str, ...]
     cases: tuple[ModelingPlanCase, ...]
     approval: dict[str, Any] = field(default_factory=dict)
     notes: str = ""
@@ -82,6 +84,9 @@ class ModelingExecutionPlan:
 class ModelingPlanValidationReport:
     report_schema: str
     passed: bool
+    structurally_valid: bool
+    plan_certification_executable: bool
+    execution_blocking_violations: tuple[str, ...]
     require_approved: bool
     plan_status: str | None
     plan_hash: str | None
@@ -149,6 +154,15 @@ def build_modeling_plan(
         ))
     eligible = sum(1 for c in cases if c.certification_eligible)
     blocked = sum(1 for c in cases if not c.will_execute_model_if_run)
+    execution_blockers: list[str] = []
+    if modeling_mode == "certification":
+        if not cases:
+            execution_blockers.append("certification plan selects zero cases")
+        if eligible <= 0:
+            execution_blockers.append("certification plan has zero certification-eligible cases")
+        if blocked >= len(cases) and cases:
+            execution_blockers.append("certification plan has no case that can execute model under the contract")
+    plan_certification_executable = bool(modeling_mode == "certification" and not execution_blockers)
     return ModelingExecutionPlan(
         plan_schema=PLAN_SCHEMA,
         plan_status=plan_status,
@@ -162,6 +176,8 @@ def build_modeling_plan(
         selected_case_count=len(cases),
         certification_eligible_case_count=eligible,
         blocked_case_count=blocked,
+        plan_certification_executable=plan_certification_executable,
+        execution_blocking_reasons=tuple(execution_blockers),
         cases=tuple(cases),
         approval={},
         notes=notes,
@@ -170,9 +186,19 @@ def build_modeling_plan(
 
 def load_modeling_plan(path: str | Path) -> ModelingExecutionPlan:
     payload = _read_json(path)
-    if payload.get("plan_schema") != PLAN_SCHEMA:
+    if payload.get("plan_schema") not in {PLAN_SCHEMA, "rank3_modeling_execution_plan_v1"}:
         raise ValueError(f"Unsupported modeling plan schema: {payload.get('plan_schema')}")
     cases = tuple(ModelingPlanCase(**case) for case in payload.get("cases", []))
+    eligible = sum(1 for c in cases if c.certification_eligible)
+    blocked = sum(1 for c in cases if not c.will_execute_model_if_run)
+    computed_blockers: list[str] = []
+    if str(payload.get("modeling_mode", "")) == "certification":
+        if not cases:
+            computed_blockers.append("certification plan selects zero cases")
+        if eligible <= 0:
+            computed_blockers.append("certification plan has zero certification-eligible cases")
+        if blocked >= len(cases) and cases:
+            computed_blockers.append("certification plan has no case that can execute model under the contract")
     return ModelingExecutionPlan(
         plan_schema=str(payload["plan_schema"]),
         plan_status=str(payload.get("plan_status", "")),
@@ -185,7 +211,9 @@ def load_modeling_plan(path: str | Path) -> ModelingExecutionPlan:
         output_overlays_dir=payload.get("output_overlays_dir"),
         selected_case_count=int(payload.get("selected_case_count", len(cases))),
         certification_eligible_case_count=int(payload.get("certification_eligible_case_count", 0)),
-        blocked_case_count=int(payload.get("blocked_case_count", 0)),
+        blocked_case_count=int(payload.get("blocked_case_count", blocked)),
+        plan_certification_executable=bool(payload.get("plan_certification_executable", bool(str(payload.get("modeling_mode", "")) == "certification" and not computed_blockers))),
+        execution_blocking_reasons=tuple(str(x) for x in payload.get("execution_blocking_reasons", computed_blockers)),
         cases=cases,
         approval=dict(payload.get("approval", {})),
         notes=str(payload.get("notes", "")),
@@ -214,6 +242,8 @@ def approve_modeling_plan(
         selected_case_count=draft.selected_case_count,
         certification_eligible_case_count=draft.certification_eligible_case_count,
         blocked_case_count=draft.blocked_case_count,
+        plan_certification_executable=draft.plan_certification_executable,
+        execution_blocking_reasons=draft.execution_blocking_reasons,
         cases=draft.cases,
         approval={
             "approval_status": APPROVED_STATUS,
@@ -237,6 +267,7 @@ def validate_modeling_plan(
 ) -> ModelingPlanValidationReport:
     violations: list[str] = []
     warnings: list[str] = []
+    execution_blocking_violations: list[str] = []
     details: dict[str, Any] = {}
     if plan.contract_hash != contract.fingerprint():
         violations.append("plan contract_hash does not match supplied modeling_intent contract")
@@ -288,9 +319,25 @@ def validate_modeling_plan(
         violations.append("plan certification_eligible_case_count does not match case records")
     if blocked != plan.blocked_case_count:
         violations.append("plan blocked_case_count does not match case records")
+    if plan.modeling_mode == "certification":
+        if len(plan.cases) == 0:
+            execution_blocking_violations.append("certification plan selects zero cases")
+        if eligible <= 0:
+            execution_blocking_violations.append("certification plan has zero certification-eligible cases")
+        if blocked >= len(plan.cases) and plan.cases:
+            execution_blocking_violations.append("certification plan has no case that can execute model under the contract")
+        expected_executable = bool(not execution_blocking_violations)
+        if plan.plan_certification_executable != expected_executable:
+            violations.append("plan_certification_executable flag is stale or inconsistent with case records")
+    structurally_valid = not violations
+    plan_certification_executable = bool(structurally_valid and plan.modeling_mode == "certification" and not execution_blocking_violations)
+    passed = bool(structurally_valid and (not require_approved or plan.modeling_mode != "certification" or plan_certification_executable))
     return ModelingPlanValidationReport(
         report_schema=PLAN_VALIDATION_SCHEMA,
-        passed=not violations,
+        passed=passed,
+        structurally_valid=structurally_valid,
+        plan_certification_executable=plan_certification_executable,
+        execution_blocking_violations=tuple(execution_blocking_violations),
         require_approved=require_approved,
         plan_status=plan.plan_status,
         plan_hash=plan.fingerprint(),

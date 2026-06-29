@@ -90,6 +90,8 @@ def main_plan(argv: list[str] | None = None) -> int:
         "selected_case_count": plan.selected_case_count,
         "certification_eligible_case_count": plan.certification_eligible_case_count,
         "blocked_case_count": plan.blocked_case_count,
+        "plan_certification_executable": plan.plan_certification_executable,
+        "execution_blocking_reasons": plan.execution_blocking_reasons,
     }, indent=2, sort_keys=True))
     return 0
 
@@ -109,6 +111,8 @@ def main_approve_plan(argv: list[str] | None = None) -> int:
         "draft_plan_hash": approved.approval.get("draft_plan_hash"),
         "certification_eligible_case_count": approved.certification_eligible_case_count,
         "blocked_case_count": approved.blocked_case_count,
+        "plan_certification_executable": approved.plan_certification_executable,
+        "execution_blocking_reasons": approved.execution_blocking_reasons,
     }, indent=2, sort_keys=True))
     return 0
 

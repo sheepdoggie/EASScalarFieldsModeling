@@ -625,7 +625,10 @@ def run_overlay_suite(
             output_root_path.mkdir(parents=True, exist_ok=True)
             (output_root_path / "MODELING_PLAN.json").write_text(json.dumps(modeling_plan.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
             (output_root_path / "MODELING_PLAN_VALIDATION_REPORT.json").write_text(json.dumps(plan_validation_report.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            raise ValueError("certification mode requires a valid approved modeling plan: " + "; ".join(plan_validation_report.violations))
+            blockers = list(getattr(plan_validation_report, "execution_blocking_violations", ()))
+            structural = list(getattr(plan_validation_report, "violations", ()))
+            reasons = structural + blockers
+            raise ValueError("certification mode requires a valid and executable approved modeling plan: " + "; ".join(reasons))
         if debug or settling_overrides or execution_overrides:
             raise ValueError("certification execution cannot add run-time overrides outside the approved modeling plan")
     plan_cases_by_id = {case.case_id: case for case in getattr(modeling_plan, "cases", ())} if modeling_plan is not None else {}

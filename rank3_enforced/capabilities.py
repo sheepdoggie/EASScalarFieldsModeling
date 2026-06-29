@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.26"
-FRAMEWORK_RELEASE_LABEL = "0.1.26-modeling-plan-approval"
+FRAMEWORK_VERSION = "0.1.27"
+FRAMEWORK_RELEASE_LABEL = "0.1.27-certification-plan-executability"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -125,6 +125,9 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "certification_requires_approved_plan_v0_1",
         "approved_plan_hash_binding_v0_1",
         "pre_run_plan_validation_report_v0_1",
+        "certification_plan_executability_gate_v0_1",
+        "plan_structural_vs_executable_status_v0_1",
+        "zero_eligible_certification_plan_block_v0_1",
 
         "contract_propagation_enforced_v0_1",
         "suite_contract_hash_consistency_v0_1",

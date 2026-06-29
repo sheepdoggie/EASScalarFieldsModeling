@@ -39,28 +39,24 @@ def test_certification_suite_blocks_before_modeling_and_preserves_contract(tmp_p
     write_modeling_plan(draft_path, draft)
     approved_path = tmp_path / "approved_plan.json"
     approve_modeling_plan(plan_path=draft_path, output_path=approved_path, approved_by="test-user")
-    report = run_overlay_suite(
-        suite_id="charge_role_path_remap_dynamic_path_v0_1",
-        output_root=tmp_path / "suite",
-        private_key_path=Path.home() / ".rank3" / "private_key.pem",
-        fail_fast=True,
-        progress=False,
-        case_ids=("L7_same_no_remap",),
-        modeling_mode="certification",
-        modeling_intent_contract_path=contract_path,
-        approved_plan_path=approved_path,
-    )
-    assert report.failed_count == 1
-    case_dir = tmp_path / "suite" / "runs" / "L7_same_no_remap"
-    assert (case_dir / "MODELING_INTENT_CONTRACT.json").is_file()
-    assert not (case_dir / "CERTIFICATE.json").exists()
-    emitted = json.loads((case_dir / "MODELING_INTENT_CONTRACT.json").read_text(encoding="utf-8"))
-    assert emitted["mode"] == "certification"
-    assert emitted["modeling_intent"] == "charge_path_adjustment_theorem"
-    propagation = json.loads((case_dir / "CONTRACT_PROPAGATION_REPORT.json").read_text(encoding="utf-8"))
-    assert propagation["supplied_contract_used"] is True
-    assert propagation["exploratory_default_substituted"] is False
-    assert propagation["model_executed"] is False
+    import pytest
+    with pytest.raises(ValueError, match="executable approved modeling plan"):
+        run_overlay_suite(
+            suite_id="charge_role_path_remap_dynamic_path_v0_1",
+            output_root=tmp_path / "suite",
+            private_key_path=Path.home() / ".rank3" / "private_key.pem",
+            fail_fast=True,
+            progress=False,
+            case_ids=("L7_same_no_remap",),
+            modeling_mode="certification",
+            modeling_intent_contract_path=contract_path,
+            approved_plan_path=approved_path,
+        )
+    report = json.loads((tmp_path / "suite" / "MODELING_PLAN_VALIDATION_REPORT.json").read_text(encoding="utf-8"))
+    assert report["structurally_valid"] is True
+    assert report["plan_certification_executable"] is False
+    assert report["passed"] is False
+    assert not (tmp_path / "suite" / "runs" / "L7_same_no_remap" / "CERTIFICATE.json").exists()
 
 
 def test_suite_accepts_local_release_guard_sources_args(tmp_path: Path) -> None:
