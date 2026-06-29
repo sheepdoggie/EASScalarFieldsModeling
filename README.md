@@ -1,94 +1,54 @@
 # EASScalarFieldsModeling
 
-Current framework release: `0.1.27` / `0.1.27-certification-plan-executability`.
+Current framework release: `0.1.28` / `0.1.28-release-identity-self-consistency`.
 
-v0.1.27 adds a certification-plan executability gate above the v0.1.27 pre-run modeling-plan approval layer. The modeling_intent contract remains the controlling scientific authority; the modeling plan is the concrete executable run plan proposed under that contract and approved before model execution.
+v0.1.28 adds a release identity self-consistency gate. The release manifest must now identify the exact source tree and exact internal release archives before a package should be published or used for future certification/admission work.
 
 ## Install
 
 ```bash
 python -m pip install --force-reinstall \
-  "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.27#egg=enforceable-rank3-modeling"
+  "git+https://github.com/sheepdoggie/EASScalarFieldsModeling.git@v0.1.28#egg=enforceable-rank3-modeling"
 ```
 
-## Framework-use modes
+## Release identity check
 
-Exploratory mode is the default. It may run candidate mechanisms and diagnostics but is non-certifying.
-
-Certification mode requires:
-
-```text
---modeling-intent-contract <contract.json>
---approved-plan <approved_plan.json>
-```
-
-No certification-mode SOO/model execution begins without a valid approved modeling plan whose contract and overlay hashes match and that contains at least one certification-eligible executable case.
-
-## Pre-run planning workflow
+Run this before signing/publishing:
 
 ```bash
-cd ~/Projects/EAS_runs
-
-rank3-write-modeling-intent-template \
-  --output overlays/charge_path_adjustment_contract.json
-
-rank3-plan-from-modeling-intent \
-  --suite-id charge_role_path_remap_dynamic_path_v0_1 \
-  --contract overlays/charge_path_adjustment_contract.json \
-  --output-plan plans/charge_path_draft_plan_v0127.json \
-  --output-overlays overlays/planned_charge_path_v0127
-
-rank3-approve-modeling-plan \
-  --plan plans/charge_path_draft_plan_v0127.json \
-  --output plans/charge_path_approved_plan_v0127.json \
-  --approved-by Michael
-
-rank3-validate-modeling-plan \
-  --suite-id charge_role_path_remap_dynamic_path_v0_1 \
-  --contract overlays/charge_path_adjustment_contract.json \
-  --plan plans/charge_path_approved_plan_v0127.json \
-  --require-approved
+rank3-check-release-identity \
+  --repo-root . \
+  --manifest releases/current/FRAMEWORK_RELEASE_MANIFEST.json \
+  --framework-zip releases/current/enforceable_rank3_modeling_v0.1.28_release_identity_self_consistency.zip \
+  --framework-tar-gz releases/current/enforceable_rank3_modeling_v0.1.28_release_identity_self_consistency.tar.gz
 ```
 
-Only after approval and validation as certification-executable:
+The check fails if the manifest code hash, release archive hash, version, release label, TAR.GZ hash, or required ZIP contents are stale or inconsistent.
+
+## Modeling modes
+
+Any run without a `modeling_intent` contract is exploratory by default. Certification/admission mode requires a predeclared contract and an approved modeling plan.
+
+```bash
+rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 \
+  --mode exploratory \
+  --output-root results/charge_role_path_exploratory \
+  --continue-on-failure
+```
+
+Certification mode requires both a contract and an approved plan:
 
 ```bash
 rank3-run-suite charge_role_path_remap_dynamic_path_v0_1 \
   --mode certification \
   --modeling-intent-contract overlays/charge_path_adjustment_contract.json \
-  --approved-plan plans/charge_path_approved_plan_v0127.json \
-  --output-root results/charge_path_certification_v0127 \
-  --signing-key ~/.rank3/private_key.pem \
+  --approved-plan plans/charge_path_approved_plan.json \
+  --output-root results/charge_path_certification \
   --continue-on-failure
 ```
 
-## Run workspace
+The current built-in charge role/path suite remains candidate/exploratory. It is expected to be blocked by a certification contract unless the overlays become contract-compliant and certification-executable.
 
-Use separate subtrees:
+## Scientific status
 
-```text
-~/Projects/EASScalarFieldsModeling_github_files/
-    EASScalarFieldsModeling_publish/
-    packages/
-
-~/Projects/EAS_runs/
-    overlays/
-    plans/
-    results/
-    logs/
-    workspaces/
-```
-
-Initialize with:
-
-```bash
-rank3-init-workspace --separate-subtrees --project-root ~/Projects
-```
-
-## External path monitor boundary
-
-Path add/remove is not EAS ontology and not an intrinsic framework rule. Path edits can only enter through an external exploratory monitor request that the framework validates, applies transactionally, and logs.
-
-## Certification status of current charge role/path suite
-
-`charge_role_path_remap_dynamic_path_v0_1` remains a candidate suite unless a supplied modeling_intent contract and approved plan make a selected overlay set certification eligible. Candidate overlays must not be used as certified support for the charge path-adjustment theorem.
+This release does not certify the charge path-adjustment theorem. It strengthens release identity controls required before future certification/admission work.

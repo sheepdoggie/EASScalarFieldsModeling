@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "enforceable-rank3-modeling"
-version = "0.1.27"
+version = "0.1.28"
 description = "Enforceable Rank-3 Scalar Field Modeling Framework"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -27,6 +27,7 @@ testpaths = ["tests"]
 
 [project.scripts]
 rank3-check-release-guard = "rank3_enforced.check_release_guard:main"
+rank3-check-release-identity = "rank3_enforced.release_identity:main"
 rank3-generate-signing-key = "rank3_enforced.generate_signing_key:main"
 rank3-generate-encryption-key = "rank3_enforced.generate_encryption_key:main"
 rank3-verify-dual-package = "rank3_enforced.verify_dual_package:main"
