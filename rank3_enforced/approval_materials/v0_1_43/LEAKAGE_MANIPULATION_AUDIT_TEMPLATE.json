@@ -1,0 +1,33 @@
+{
+  "checks": {
+    "component_zero_sealing_forbidden": true,
+    "constructed_photon_endpoint_forbidden": true,
+    "endpoint_drive_for_path_accommodation_is_derived_lambda": true,
+    "first_association_generates_conjugate_split": true,
+    "longitudinal_zero_read_as_lambda_difference": true,
+    "one_conjugate_association_generated_not_loaded_photon_template": true,
+    "q_minus_q_initializer_forbidden": true,
+    "standard_model_interpretation_quarantined": true,
+    "stored_path_facing_zero_scalar_value_forbidden": true,
+    "whole_field_origin_is_undefined_vacuum": true
+  },
+  "forbidden_generator_inputs": [
+    "stored_path_facing_zero_scalar_value",
+    "path_facing_zero_layer",
+    "component_zero_sealing",
+    "constructed_photon_endpoint",
+    "loaded_photon_transverse_form",
+    "q_minus_q_initializer",
+    "photon_like_label",
+    "standard_model_role_label",
+    "target_delta_l",
+    "expected_delta_l",
+    "predeclared_photon_candidate",
+    "predeclared_triangle_membership",
+    "predeclared_bounded_support",
+    "endpoint_class_comparison_set"
+  ],
+  "framework_version": "0.1.43",
+  "passed": true,
+  "schema": "whole_field_conjugate_vacuum_leakage_manipulation_audit_v0_1"
+}

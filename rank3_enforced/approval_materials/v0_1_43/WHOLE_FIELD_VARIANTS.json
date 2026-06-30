@@ -1,0 +1,46 @@
+{
+  "framework_version": "0.1.43",
+  "schema": "whole_field_conjugate_vacuum_variants_v0_1",
+  "variants": [
+    {
+      "conjugate_link_slot": null,
+      "cyclic_successor_weight": 0.0,
+      "id": "A_NO_CONJUGATE_FIRST_ASSOC_BASELINE",
+      "name": "No conjugate-first-association baseline",
+      "path_slot": 0,
+      "purpose": "Whole-field split/lift baseline: vacuum first-association splits, but no generated conjugate link is reserved.",
+      "relation_complete_weight": 0.0,
+      "same_sign_path_affinity": 1.0
+    },
+    {
+      "conjugate_link_slot": 0,
+      "cyclic_successor_weight": 0.0,
+      "id": "B_CONJUGATE_LINK_PATH_SLOT_CONTROL",
+      "name": "Conjugate link in path-facing slot control",
+      "path_slot": 0,
+      "purpose": "Control showing that using the conjugate relation itself as the path-facing association makes the derived longitudinal residual nonzero.",
+      "relation_complete_weight": 0.0,
+      "same_sign_path_affinity": 1.0
+    },
+    {
+      "conjugate_link_slot": 1,
+      "cyclic_successor_weight": 0.0,
+      "id": "C_CONJUGATE_LINK_TRANSVERSE_SLOT",
+      "name": "Conjugate link in transverse slot",
+      "path_slot": 0,
+      "purpose": "Test whether a generated conjugate pair can supply non-path q/-q while path-facing residual is derived from a separate generated association.",
+      "relation_complete_weight": 0.45,
+      "same_sign_path_affinity": 1.0
+    },
+    {
+      "conjugate_link_slot": 1,
+      "cyclic_successor_weight": 0.35,
+      "id": "D_SUCCESSOR_COVARIANT_CONJUGATE_SLOT",
+      "name": "Successor-covariant conjugate slot",
+      "path_slot": 0,
+      "purpose": "Read the candidate relation through ordered scalar-field phases without initializing a three-component photon vector.",
+      "relation_complete_weight": 0.45,
+      "same_sign_path_affinity": 1.0
+    }
+  ]
+}

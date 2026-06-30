@@ -16,8 +16,8 @@ from rank3_enforced.endpoint_class_path_response_separation import (
 
 
 def test_v0138_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.42"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.42-vacuum-admissibility-variation"
+    assert FRAMEWORK_VERSION == "0.1.43"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.43-whole-field-conjugate-vacuum-derived-longitudinal"
     assert "endpoint_class_path_response_separation_runner_v0_2" in FRAMEWORK_CAPABILITIES
     assert "photon_like_local_certifier_report_v0_1" in FRAMEWORK_CAPABILITIES
     assert "endpoint_class_not_delta_l_selector_v0_1" in FRAMEWORK_CAPABILITIES

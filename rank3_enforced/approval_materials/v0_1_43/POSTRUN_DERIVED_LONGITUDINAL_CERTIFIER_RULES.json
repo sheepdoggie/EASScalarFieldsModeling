@@ -1,0 +1,12 @@
+{
+  "framework_version": "0.1.43",
+  "rules": {
+    "candidate_condition": "lambda=0, tau_plus+tau_minus=0, tau_plus-tau_minus != 0",
+    "lambda": "Phi(P)-Phi(a_path(P))",
+    "q_minus_q_preload_forbidden": true,
+    "tau_minus": "Phi(a_conjugate(P))",
+    "tau_plus": "Phi(P)",
+    "zero_storage_forbidden": true
+  },
+  "schema": "postrun_derived_longitudinal_certifier_rules_v0_1"
+}

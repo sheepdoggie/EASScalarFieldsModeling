@@ -1,0 +1,49 @@
+{
+  "allowed_generator_inputs": [
+    "whole_field_shape",
+    "first_association_cycle",
+    "vacuum_first_association_conjugate_split_rule",
+    "generated_conjugate_link_slot_policy",
+    "path_slot_policy",
+    "same_sign_path_affinity_selector",
+    "bounded_context_soo_v1_parameters",
+    "cycles",
+    "admissibility_variant_id",
+    "postrun_derived_longitudinal_certifier_rules"
+  ],
+  "forbidden_generator_inputs": [
+    "stored_path_facing_zero_scalar_value",
+    "path_facing_zero_layer",
+    "component_zero_sealing",
+    "constructed_photon_endpoint",
+    "loaded_photon_transverse_form",
+    "q_minus_q_initializer",
+    "photon_like_label",
+    "standard_model_role_label",
+    "target_delta_l",
+    "expected_delta_l",
+    "predeclared_photon_candidate",
+    "predeclared_triangle_membership",
+    "predeclared_bounded_support",
+    "endpoint_class_comparison_set"
+  ],
+  "framework_version": "0.1.43",
+  "purpose": "Explore whether whole-field vacuum first-association conjugate splitting can generate derived longitudinal zero with non-path q/-q balance.",
+  "required_artifacts": [
+    "WHOLE_FIELD_RUN_SCOPE_REPORT.json",
+    "WHOLE_FIELD_ADMISSIBILITY_VARIANT_LEDGER.json",
+    "VACUUM_FIRST_ASSOCIATION_CONJUGATE_SPLIT_LEDGER.json",
+    "WHOLE_FIELD_ASSOCIATION_SELECTION_LEDGER.json",
+    "WHOLE_FIELD_SOO_TRACE.json",
+    "DERIVED_LONGITUDINAL_RESIDUAL_REPORT.json",
+    "NON_PATH_CONJUGATE_BALANCE_REPORT.json",
+    "POSTRUN_TRANSVERSE_RECORD_CANDIDATE_REPORT.json",
+    "PHOTON_CANDIDATE_DERIVED_ZERO_AUDIT.json",
+    "PATH_ACCOMMODATION_FROM_DERIVED_RESIDUAL_REPORT.json",
+    "PHOTON_NONZERO_PATH_FACING_CONTROL_REPORT.json",
+    "LEAKAGE_MANIPULATION_AUDIT.json",
+    "EXPLORATORY_VERDICT_REPORT.json"
+  ],
+  "runner_id": "whole_field_conjugate_vacuum_derived_longitudinal_runner_v0_1",
+  "schema": "whole_field_conjugate_vacuum_runner_spec_v0_1"
+}

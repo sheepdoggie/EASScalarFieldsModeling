@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.42"
-FRAMEWORK_RELEASE_LABEL = "0.1.42-vacuum-admissibility-variation"
+FRAMEWORK_VERSION = "0.1.43"
+FRAMEWORK_RELEASE_LABEL = "0.1.43-whole-field-conjugate-vacuum-derived-longitudinal"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -241,6 +241,18 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "relation_complete_burden_admissibility_v0_1",
         "successor_covariant_cyclic_admissibility_v0_1",
         "split_conjugacy_preserving_admissibility_v0_1",
+
+        "whole_field_conjugate_vacuum_derived_longitudinal_runner_v0_1",
+        "vacuum_first_association_conjugate_split_v0_1",
+        "generated_conjugate_association_slot_policy_v0_1",
+        "derived_longitudinal_residual_lambda_v0_1",
+        "non_path_conjugate_balance_readout_v0_1",
+        "postrun_transverse_record_candidate_audit_v0_1",
+        "photon_candidate_derived_zero_audit_v0_1",
+        "path_accommodation_from_derived_lambda_v0_1",
+        "nonzero_path_facing_photon_perturbation_control_v0_1",
+        "stored_path_facing_zero_value_forbidden_v0_1",
+        "whole_field_no_endpoint_class_comparison_v0_1",
     }
 )
 

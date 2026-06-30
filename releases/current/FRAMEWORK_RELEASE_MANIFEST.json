@@ -1,37 +1,36 @@
 {
   "accepted_framework_code_sha256": [
-    "45d91bc3be47bf4b858ff907ac413d16e577c097989d0bfa4320aa5a73cdb5c3"
+    "62629fb3c0511904bed730d8746c25900b1e741d2470bd8f389c002aada88902"
   ],
   "accepted_workflow_protocol_sha256": [
     "83e8b199a2c1b8d8e64664b39497f5f98db5edabaadc6b7ff0055316bfec9074"
   ],
-  "created_utc": "2026-06-30T17:30:00Z",
-  "framework_zip_relative_path": "releases/current/enforceable_rank3_modeling_v0.1.42_vacuum_admissibility_variation.zip",
+  "created_utc": "2026-06-30T18:36:00Z",
+  "framework_zip_relative_path": "releases/current/enforceable_rank3_modeling_v0.1.43_whole_field_conjugate_vacuum_derived_longitudinal.zip",
   "github_repository": "https://github.com/sheepdoggie/EASScalarFieldsModeling.git",
-  "latest_framework_code_sha256": "45d91bc3be47bf4b858ff907ac413d16e577c097989d0bfa4320aa5a73cdb5c3",
-  "latest_framework_filename": "enforceable_rank3_modeling_v0.1.42_vacuum_admissibility_variation.zip",
-  "latest_framework_release_label": "0.1.42-vacuum-admissibility-variation",
-  "latest_framework_sha256": "0c262ff25c834c9cf75972cad909a6c31f1d1dda69ebfa687ef76bedc87ad7d0",
-  "latest_framework_size_bytes": 766451,
-  "latest_framework_tar_gz_filename": "enforceable_rank3_modeling_v0.1.42_vacuum_admissibility_variation.tar.gz",
-  "latest_framework_tar_gz_sha256": "0a6a0036da6ce8f9f3e7eaba9347d2013a9e441dadf28071e9db87ff506c0abd",
-  "latest_framework_version": "0.1.42",
+  "latest_framework_code_sha256": "62629fb3c0511904bed730d8746c25900b1e741d2470bd8f389c002aada88902",
+  "latest_framework_filename": "enforceable_rank3_modeling_v0.1.43_whole_field_conjugate_vacuum_derived_longitudinal.zip",
+  "latest_framework_release_label": "0.1.43-whole-field-conjugate-vacuum-derived-longitudinal",
+  "latest_framework_sha256": "cd2e6e117f3b1f58a604055865ddd4c12a510fdad5c890dc016d9204cbf1c9f5",
+  "latest_framework_size_bytes": 785881,
+  "latest_framework_tar_gz_filename": "enforceable_rank3_modeling_v0.1.43_whole_field_conjugate_vacuum_derived_longitudinal.tar.gz",
+  "latest_framework_tar_gz_sha256": "37c56a8d017b599b54db33e0ad7f5a6774c659baef61887df843a90f536efb8a",
+  "latest_framework_version": "0.1.43",
   "latest_workflow_protocol_sha256": "83e8b199a2c1b8d8e64664b39497f5f98db5edabaadc6b7ff0055316bfec9074",
   "manifest_relative_path": "releases/current/FRAMEWORK_RELEASE_MANIFEST.json",
-  "notes": "v0.1.42 adds the vacuum-admissibility variation runner. Every candidate shares undefined-vacuum -> split/lift -> SOO -> association selection -> motif discovery -> post-run classification provenance. Exploratory only; do not certify.",
+  "notes": "v0.1.43 adds the whole-field conjugate-vacuum derived-longitudinal exploratory runner. It tests whether lambda(P)=Phi(P)-Phi(a_path(P)) can be zero after SOO while non-path conjugate records remain q/-q, without stored path-facing zero layers or constructed photon endpoints.",
   "operator_materials_policy": {
-    "bounded_support_calibration_endpoint_forbidden": true,
-    "bounded_support_certified": false,
     "charge_certified": false,
+    "component_zero_sealing_forbidden": true,
     "constructed_photon_endpoint_forbidden": true,
+    "derived_longitudinal_residual_required": true,
     "exploratory_only_release": true,
     "photon_certified": false,
-    "photon_path_facing_zero_layer_quarantined": true,
     "q_minus_q_initializer_forbidden": true,
-    "single_origin_vacuum_provenance_required": true,
     "standard_model_interface_quarantined": true,
+    "stored_path_facing_zero_scalar_value_forbidden": true,
     "theorem_certified": false,
-    "v0141_endpoint_class_comparison_reclassified_as_separation_diagnostic": true
+    "whole_field_vacuum_origin_required": true
   },
   "package_name": "enforceable-rank3-modeling",
   "project": "EASScalarFieldsModeling",
@@ -41,27 +40,30 @@
   "raw_signature_url": "https://raw.githubusercontent.com/sheepdoggie/EASScalarFieldsModeling/main/releases/current/FRAMEWORK_RELEASE_MANIFEST.sig",
   "release_channel": "current",
   "required_capabilities": [
-    "vacuum_admissibility_variation_runner_v0_1",
-    "vacuum_admissibility_variants_A_to_E_v0_1",
-    "single_origin_vacuum_provenance_chain_v0_1",
-    "constructed_photon_endpoint_quarantine_v0_1",
-    "photon_path_facing_zero_layer_control_v0_1",
-    "postrun_photon_like_certifier_v0_1",
-    "bounded_support_closure_admissibility_v0_1",
-    "path_accommodation_by_provenance_v0_1",
-    "standard_model_interface_quarantine_v0_1"
+    "whole_field_conjugate_vacuum_derived_longitudinal_runner_v0_1",
+    "vacuum_first_association_conjugate_split_v0_1",
+    "generated_conjugate_association_slot_policy_v0_1",
+    "derived_longitudinal_residual_lambda_v0_1",
+    "non_path_conjugate_balance_readout_v0_1",
+    "postrun_transverse_record_candidate_audit_v0_1",
+    "photon_candidate_derived_zero_audit_v0_1",
+    "path_accommodation_from_derived_lambda_v0_1",
+    "nonzero_path_facing_photon_perturbation_control_v0_1",
+    "stored_path_facing_zero_value_forbidden_v0_1",
+    "whole_field_no_endpoint_class_comparison_v0_1"
   ],
   "required_files_in_zip": [
     "enforceable_rank3_modeling/pyproject.toml",
     "enforceable_rank3_modeling/rank3_enforced/__init__.py",
+    "enforceable_rank3_modeling/rank3_enforced/whole_field_conjugate_vacuum.py",
     "enforceable_rank3_modeling/rank3_enforced/vacuum_admissibility_variation.py",
     "enforceable_rank3_modeling/rank3_enforced/split_vacuum_triangle_emergence.py",
     "enforceable_rank3_modeling/rank3_enforced/endpoint_class_path_response_separation.py",
-    "enforceable_rank3_modeling/rank3_enforced/approval_materials/v0_1_42/EXPLORATORY_RUNNER_SPEC.json",
-    "enforceable_rank3_modeling/rank3_enforced/approval_materials/v0_1_42/VACUUM_ADMISSIBILITY_VARIANTS.json",
-    "enforceable_rank3_modeling/rank3_enforced/approval_materials/v0_1_42/POSTRUN_CERTIFIER_RULES.json",
-    "enforceable_rank3_modeling/rank3_enforced/approval_materials/v0_1_42/LEAKAGE_MANIPULATION_AUDIT.json",
-    "enforceable_rank3_modeling/tests/test_vacuum_admissibility_variation_v0142.py"
+    "enforceable_rank3_modeling/rank3_enforced/approval_materials/v0_1_43/EXPLORATORY_RUNNER_SPEC.json",
+    "enforceable_rank3_modeling/rank3_enforced/approval_materials/v0_1_43/WHOLE_FIELD_VARIANTS.json",
+    "enforceable_rank3_modeling/rank3_enforced/approval_materials/v0_1_43/POSTRUN_DERIVED_LONGITUDINAL_CERTIFIER_RULES.json",
+    "enforceable_rank3_modeling/rank3_enforced/approval_materials/v0_1_43/LEAKAGE_MANIPULATION_AUDIT_TEMPLATE.json",
+    "enforceable_rank3_modeling/tests/test_whole_field_conjugate_vacuum_v0143.py"
   ],
   "signature_relative_path": "releases/current/FRAMEWORK_RELEASE_MANIFEST.sig"
 }

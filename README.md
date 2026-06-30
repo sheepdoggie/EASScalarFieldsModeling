@@ -117,3 +117,7 @@ Commands:
 rank3-write-endpoint-class-separation-packet --output endpoint_class_path_response_separation_approval_items_v0138.zip --print-summary
 rank3-run-endpoint-class-separation --output-root endpoint_class_path_response_separation_results_v0138 --zip endpoint_class_path_response_separation_results_v0138.zip
 ```
+
+## v0.1.43 whole-field conjugate-vacuum derived-longitudinal runner
+
+This release adds `rank3-run-whole-field-conjugate-vacuum`, an exploratory whole-field runner testing whether vacuum first-association conjugate splitting can yield `lambda(P)=Phi(P)-Phi(a_path(P))=0` as a derived longitudinal residual while preserving generated non-path conjugate balance. It forbids stored path-facing zero layers, constructed photon endpoints, and q/-q initializers.
