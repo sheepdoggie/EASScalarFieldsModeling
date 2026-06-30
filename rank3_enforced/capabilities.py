@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.40"
-FRAMEWORK_RELEASE_LABEL = "0.1.40-endpoint-class-photon-field-processing"
+FRAMEWORK_VERSION = "0.1.41"
+FRAMEWORK_RELEASE_LABEL = "0.1.41-endpoint-class-loaded-photon-field-processing"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -222,6 +222,10 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "even_center_branch_transition_classifier_v0_2",
         "bounded_support_calibration_controls_v0_2",
         "photon_like_not_transaction_suppression_selector_v0_2",
+        "loaded_photon_transverse_field_processing_v0_1",
+        "photon_transverse_load_in_soo_evolved_field_v0_1",
+        "all_zero_photon_field_layer_quarantine_v0_1",
+        "metadata_only_transverse_load_quarantine_v0_1",
     }
 )
 

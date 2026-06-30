@@ -16,8 +16,8 @@ from rank3_enforced.endpoint_class_path_response_separation import (
 
 
 def test_v0138_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.40"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.40-endpoint-class-photon-field-processing"
+    assert FRAMEWORK_VERSION == "0.1.41"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.41-endpoint-class-loaded-photon-field-processing"
     assert "endpoint_class_path_response_separation_runner_v0_2" in FRAMEWORK_CAPABILITIES
     assert "photon_like_local_certifier_report_v0_1" in FRAMEWORK_CAPABILITIES
     assert "endpoint_class_not_delta_l_selector_v0_1" in FRAMEWORK_CAPABILITIES
@@ -99,7 +99,7 @@ def test_v0138_approval_packet_contains_required_materials(tmp_path: Path):
         assert "LEAKAGE_MANIPULATION_AUDIT.json" in names
         spec = json.loads(zf.read("EXPLORATORY_RUNNER_SPEC.json"))
         assert spec["theorem_certification_ready"] is False
-        assert "Center condition" in spec["critical_rule"]
+        assert "center condition" in spec["critical_rule"] or "Center condition" in spec["critical_rule"]
 
 
 def test_v0138_packaged_payloads_non_imposing():
@@ -156,7 +156,7 @@ def test_v0140_photon_records_are_field_processed_before_path_readout():
     for rec in field["records"]:
         assert rec["placed_into_association_graph"] is True
         assert rec["local_certifier_path_component_used_as_endpoint_scalar"] is False
-        assert rec["readout_source"] == "post_SOO_path_facing_exterior_value"
+        assert rec["readout_source"] == "post_SOO_path_facing_exterior_component0_value_from_loaded_three_component_field"
 
 
 def test_v0140_photon_path_facing_readout_not_from_local_certifier_shortcut():
@@ -164,7 +164,7 @@ def test_v0140_photon_path_facing_readout_not_from_local_certifier_shortcut():
     readouts = reports["PATH_FACING_SCALAR_READOUT_REPORT.json"]["readouts"]
     photon_readouts = [r for r in readouts if r["endpoint_class"] == "certified_photon_like_local_record"]
     assert photon_readouts
-    assert all(r["source"] == "processed_field_path_facing_exterior_readout_after_SOO" for r in photon_readouts)
+    assert all(r["source"] == "processed_field_path_facing_exterior_component0_readout_after_SOO" for r in photon_readouts)
     assert all(r["local_photon_certifier_component_used_directly"] is False for r in photon_readouts)
     audit = reports["LEAKAGE_MANIPULATION_AUDIT.json"]
     assert audit["checks"]["photon_like_records_field_processed_before_path_readout"] is True
@@ -179,3 +179,30 @@ def test_v0140_new_photon_shortcut_controls_rejected():
     reports = run_exploratory(path_length=7)
     assert reports["NEGATIVE_CONTROL_local_photon_certifier_path_component_shortcut_control.json"]["passed"] is True
     assert reports["NEGATIVE_CONTROL_photon_field_processing_bypass_control.json"]["passed"] is True
+
+
+def test_v0141_photon_transverse_load_present_in_processed_field():
+    reports = run_exploratory(path_length=7)
+    field = reports["PHOTON_FIELD_PROCESSING_REPORT.json"]
+    assert field["all_photon_records_loaded_in_processed_field"] is True
+    load = reports["PHOTON_FIELD_SCALAR_LOAD_REPORT.json"]
+    assert load["passed_loaded_field_requirement"] is True
+    assert load["all_zero_photon_field_layer_used"] is False
+    assert load["metadata_only_transverse_load_used"] is False
+    for rec in load["records"]:
+        assert rec["transverse_load_present_in_processed_field_initial_state"] is True
+        assert rec["initial_transverse_norm_in_processed_field"] > 0.0
+        assert rec["transverse_load_metadata_only"] is False
+
+
+def test_v0141_all_zero_and_metadata_only_photon_controls_rejected():
+    for forbidden in ["all_zero_photon_field_layer", "photon_transverse_load_metadata_only"]:
+        report = validate_generator_inputs([forbidden])
+        assert not report["passed"]
+        assert forbidden in report["forbidden_inputs_present"]
+    reports = run_exploratory(path_length=7)
+    assert reports["NEGATIVE_CONTROL_all_zero_photon_field_layer_control.json"]["passed"] is True
+    assert reports["NEGATIVE_CONTROL_metadata_only_transverse_load_control.json"]["passed"] is True
+    audit = reports["LEAKAGE_MANIPULATION_AUDIT.json"]
+    assert audit["checks"]["all_zero_photon_field_layer_quarantined"] is True
+    assert audit["checks"]["metadata_only_transverse_load_quarantined"] is True

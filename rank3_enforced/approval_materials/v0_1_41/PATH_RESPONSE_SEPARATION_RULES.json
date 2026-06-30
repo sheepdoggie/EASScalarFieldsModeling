@@ -1,0 +1,29 @@
+{
+  "center_classifier": "generated_path_scalar_profile_only",
+  "forbidden_dispatch": [
+    "triangle_sign_label_as_delta_l_selector",
+    "photon_like_label_as_no_accommodation_selector",
+    "bounded_support_label_as_accommodation_selector",
+    "target_delta_l",
+    "expected_delta_l",
+    "preselected_center_point",
+    "preselected_center_action",
+    "preselected_path_action",
+    "charge_label",
+    "standard_model_role_label",
+    "endpoint_class_dispatched_center_condition",
+    "endpoint_class_dispatched_delta_l",
+    "photon_class_transaction_suppression",
+    "photon_class_forced_path_facing_nullity",
+    "bounded_opposite_expected_delta_l_selector",
+    "local_photon_certifier_path_component_as_endpoint_scalar",
+    "photon_field_processing_bypass",
+    "photon_class_path_profile_override",
+    "all_zero_photon_field_layer",
+    "photon_transverse_load_metadata_only"
+  ],
+  "framework_version": "0.1.41",
+  "photon_endpoint_processing": "local_certifier_then_loaded_three_component_field_SOO_then_component0_path_facing_readout",
+  "schema": "endpoint_class_path_response_rules_v0_3",
+  "transaction_selector": "center_condition_only"
+}

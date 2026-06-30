@@ -16,8 +16,8 @@ from rank3_enforced.gradient_path_accommodation import (
 
 
 def test_v0135_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.40"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.40-endpoint-class-photon-field-processing"
+    assert FRAMEWORK_VERSION == "0.1.41"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.41-endpoint-class-loaded-photon-field-processing"
     assert "gradient_governed_vacuum_split_plan_v0_1" in FRAMEWORK_CAPABILITIES
     assert "theorem_hypotheses_not_primitive_rules_v0_1" in FRAMEWORK_CAPABILITIES
     assert "forced_delta_l_leakage_control_v0_1" in FRAMEWORK_CAPABILITIES

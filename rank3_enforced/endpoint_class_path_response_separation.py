@@ -11,10 +11,10 @@ from typing import Any, Iterable
 from .split_vacuum_triangle_emergence import run_exploratory as run_triangle_emergence
 
 
-FRAMEWORK_TARGET_VERSION = "0.1.40"
-RUNNER_ID = "endpoint_class_path_response_separation_runner_v0_3"
-PACKET_ID = "endpoint_class_path_response_separation_approval_items_v0140"
-SCHEMA = "endpoint_class_path_response_separation_v0_3"
+FRAMEWORK_TARGET_VERSION = "0.1.41"
+RUNNER_ID = "endpoint_class_path_response_separation_runner_v0_4"
+PACKET_ID = "endpoint_class_path_response_separation_approval_items_v0141"
+SCHEMA = "endpoint_class_path_response_separation_v0_4"
 
 
 @dataclass(frozen=True)
@@ -60,6 +60,8 @@ FORBIDDEN_GENERATOR_INPUTS: tuple[str, ...] = (
     "local_photon_certifier_path_component_as_endpoint_scalar",
     "photon_field_processing_bypass",
     "photon_class_path_profile_override",
+    "all_zero_photon_field_layer",
+    "photon_transverse_load_metadata_only",
 )
 
 ALLOWED_GENERATOR_INPUTS: tuple[str, ...] = (
@@ -72,6 +74,8 @@ ALLOWED_GENERATOR_INPUTS: tuple[str, ...] = (
     "off_path_vacuum_facing_profile_rule",
     "soo_processed_endpoint_field_record",
     "processed_path_facing_scalar_readout",
+    "actual_photon_transverse_loads_in_processed_field",
+    "full_scalar_component_field_state",
 )
 
 REQUIRED_ARTIFACTS: tuple[str, ...] = (
@@ -80,6 +84,7 @@ REQUIRED_ARTIFACTS: tuple[str, ...] = (
     "TRIANGLE_ENDPOINT_REPORT.json",
     "PHOTON_LIKE_CERTIFIER_REPORT.json",
     "PHOTON_FIELD_PROCESSING_REPORT.json",
+    "PHOTON_FIELD_SCALAR_LOAD_REPORT.json",
     "PATH_FACING_SCALAR_READOUT_REPORT.json",
     "BOUNDED_SUPPORT_ENDPOINT_REPORT.json",
     "RELATIONAL_PATH_DISCOVERY_REPORT.json",
@@ -101,6 +106,8 @@ REQUIRED_CONTROLS: tuple[ControlSpec, ...] = (
     ControlSpec("preselected_center_action_control", "Attempt to supply center action to the generator.", "Rejected as forbidden generator input."),
     ControlSpec("local_photon_certifier_path_component_shortcut_control", "Attempt to use the local certifier path-facing component directly as the endpoint path scalar.", "Rejected; photon-like records must be field processed first."),
     ControlSpec("photon_field_processing_bypass_control", "Attempt to skip SOO/field processing for photon-like endpoints.", "Rejected as forbidden generator input."),
+    ControlSpec("all_zero_photon_field_layer_control", "Attempt to process a photon-like field with every scalar component initialized to zero while q/-q remains metadata-only.", "Quarantined as overconstrained; fails unmanipulated photon-field requirement."),
+    ControlSpec("metadata_only_transverse_load_control", "Attempt to keep nonzero transverse photon load out of the SOO-evolved scalar-field state.", "Rejected/quarantined; transverse load must be present in processed field components."),
     ControlSpec("null_loaded_photon_control", "Photon-like record with zero transverse load.", "Fails photon-like certifier; cannot be used as class B endpoint."),
     ControlSpec("isotropic_photon_exterior_control", "Photon-like carrier with isotropic exterior continuation.", "Fails photon-like certifier."),
     ControlSpec("bare_cyclic_carrier_control", "Three-point cyclic carrier without transverse loading and anisotropic exterior record.", "Fails photon-like certifier."),
@@ -211,15 +218,42 @@ def _bounded_context_step(values: list[float], adjacency: dict[str, list[str]], 
     return next_values
 
 
-def _process_photon_like_field_record(endpoint_id: str, *, q: float, cycles: int = 6) -> dict[str, Any]:
-    """Place a photon-like local record into a path-facing field and process it.
+def _bounded_context_step_components(
+    values: dict[str, list[float]],
+    adjacency: dict[str, list[str]],
+    order: list[str],
+    *,
+    epsilon2: float = 0.25,
+    stiffness: float = 1.0,
+) -> dict[str, list[float]]:
+    """Apply bounded-context relaxation componentwise to a three-scalar-field state.
 
-    The local photon certifier is allowed to certify the local transverse record.
-    It is not allowed to supply a path-facing scalar directly to the path-response
-    module.  The path-facing scalar used downstream is the readout of the processed
-    association field after bounded-context SOO cycles.  For residual-free transverse
-    records this readout may remain zero; that is a generated field result, not a
-    class-label or certifier shortcut.
+    This is a diagnostic endpoint-field processor.  It keeps the photon-like
+    transverse load inside the SOO-evolved scalar field instead of leaving it as
+    metadata.  Components are not cross-coupled here; the question being tested is
+    whether the actual processed field record produces a path-facing component-0
+    load, not whether the photon class label selects one.
+    """
+    next_values: dict[str, list[float]] = {}
+    for name in order:
+        neigh = adjacency[name]
+        components: list[float] = []
+        for component in range(3):
+            current = float(values[name][component])
+            mean = sum(float(values[n][component]) for n in neigh) / len(neigh)
+            components.append(current - epsilon2 * stiffness * (current - mean))
+        next_values[name] = components
+    return next_values
+
+
+def _process_photon_like_field_record(endpoint_id: str, *, q: float, cycles: int = 6) -> dict[str, Any]:
+    """Place a photon-like local record into a loaded scalar field and process it.
+
+    v0.1.41 repair: the nonzero transverse q/-q load is present in the
+    SOO-processed scalar-field state.  The local certifier still does not supply a
+    path-facing scalar directly, and the photon class label does not suppress or
+    select any topology transaction.  Component 0 is read out only after the full
+    three-component field is processed.
     """
     certifier = _photon_local_certifier(q)
     order = [
@@ -239,26 +273,63 @@ def _process_photon_like_field_record(endpoint_id: str, *, q: float, cycles: int
         "vacuum_b": ["path_facing_exterior", "nonpath_exterior_b", "vacuum_c"],
         "vacuum_c": ["nonpath_exterior_a", "nonpath_exterior_b", "vacuum_a"],
     }
-    # This scalar layer is the path-facing layer only.  The nonzero q/-q transverse
-    # loading is carried in the local certifier record and is not copied into the
-    # path-facing layer as a source term.
-    values = [0.0 for _ in order]
-    trace = [{"cycle": 0, "values": dict(zip(order, values))}]
+    # Three scalar-field components.  Component 0 is path-facing.  Components 1
+    # and 2 carry the residual-free nonzero transverse q/-q photon-like loading.
+    # The load is placed on the carrier and exterior records actually processed by
+    # SOO.  Vacuum records remain initially zero and may lift only by SOO.
+    values: dict[str, list[float]] = {
+        "carrier_0": [0.0, q, -q],
+        "carrier_1": [0.0, q, -q],
+        "carrier_2": [0.0, q, -q],
+        "path_facing_exterior": [0.0, q, -q],
+        "nonpath_exterior_a": [0.0, q, -q],
+        "nonpath_exterior_b": [0.0, q, -q],
+        "vacuum_a": [0.0, 0.0, 0.0],
+        "vacuum_b": [0.0, 0.0, 0.0],
+        "vacuum_c": [0.0, 0.0, 0.0],
+    }
+    def trace_row(cycle: int, state: dict[str, list[float]]) -> dict[str, Any]:
+        return {"cycle": cycle, "values": {name: list(state[name]) for name in order}}
+
+    trace = [trace_row(0, values)]
     for cycle in range(1, cycles + 1):
-        values = _bounded_context_step(values, adjacency, order)
-        trace.append({"cycle": cycle, "values": dict(zip(order, values))})
-    readout = float(values[order.index("path_facing_exterior")])
+        values = _bounded_context_step_components(values, adjacency, order)
+        trace.append(trace_row(cycle, values))
+
+    path_facing_vector = list(values["path_facing_exterior"])
+    readout = float(path_facing_vector[0])
+    initial_transverse_norm = sum(
+        state[1] ** 2 + state[2] ** 2
+        for name, state in trace[0]["values"].items()
+        if name.startswith("carrier_") or name.endswith("exterior")
+    )
+    final_transverse_norm = sum(
+        state[1] ** 2 + state[2] ** 2
+        for name, state in trace[-1]["values"].items()
+    )
     return {
-        "schema": "photon_like_field_processing_record_v0_1",
+        "schema": "photon_like_field_processing_record_v0_2",
         "endpoint_id": endpoint_id,
         "local_certifier": certifier,
         "placed_into_association_graph": True,
         "processed_by_bounded_context_soo_v1_style_update": True,
         "cycles": cycles,
         "association_graph": adjacency,
-        "path_facing_scalar_layer_trace": trace,
+        "component_order": ["path_facing", "transverse_q", "transverse_minus_q"],
+        "initial_scalar_field_components": trace[0]["values"],
+        "component_scalar_field_trace": trace,
+        "path_facing_scalar_layer_trace": [
+            {"cycle": row["cycle"], "values": {name: vals[0] for name, vals in row["values"].items()}}
+            for row in trace
+        ],
         "processed_path_facing_scalar_readout": readout,
-        "readout_source": "post_SOO_path_facing_exterior_value",
+        "processed_path_facing_vector_readout": path_facing_vector,
+        "initial_transverse_norm_in_processed_field": initial_transverse_norm,
+        "final_transverse_norm_in_processed_field": final_transverse_norm,
+        "transverse_load_present_in_processed_field_initial_state": initial_transverse_norm > 1.0e-12,
+        "all_zero_photon_field_layer_quarantined": False,
+        "transverse_load_metadata_only": False,
+        "readout_source": "post_SOO_path_facing_exterior_component0_value_from_loaded_three_component_field",
         "local_certifier_path_component_used_as_endpoint_scalar": False,
         "photon_class_used_to_suppress_transaction": False,
         "field_processing_bypassed": False,
@@ -277,7 +348,9 @@ def _photon_like_record(endpoint_id: str, *, q: float) -> tuple[EndpointRecord, 
         record={
             "certifier": certifier,
             "field_processing_record_id": endpoint_id,
-            "path_facing_scalar_source": "processed_field_path_facing_exterior_readout_after_SOO",
+            "path_facing_scalar_source": "processed_field_path_facing_exterior_component0_readout_after_SOO",
+            "transverse_load_present_in_processed_field": bool(field.get("transverse_load_present_in_processed_field_initial_state")),
+            "processed_path_facing_vector_readout": field.get("processed_path_facing_vector_readout"),
             "note": "Photon-like local certifier pass does not supply path scalar or suppress transactions; path response uses processed field readout only.",
         },
         local_certifier_passed=bool(certifier["certifier_passed"]),
@@ -595,6 +668,7 @@ class EndpointClassSeparationRunner:
                 "path_facing_scalar": ep.path_facing_scalar,
                 "source": ep.record.get("path_facing_scalar_source"),
                 "local_photon_certifier_component_used_directly": False if ep.endpoint_class == "certified_photon_like_local_record" else None,
+                "photon_transverse_load_present_in_processed_field": ep.record.get("transverse_load_present_in_processed_field") if ep.endpoint_class == "certified_photon_like_local_record" else None,
             })
         base = {
             "RUN_SCOPE_REPORT.json": {
@@ -620,10 +694,31 @@ class EndpointClassSeparationRunner:
                 "path_facing_scalar_not_taken_directly_from_certifier": True,
             },
             "PHOTON_FIELD_PROCESSING_REPORT.json": {
-                "schema": "photon_field_processing_report_v0_1",
+                "schema": "photon_field_processing_report_v0_2",
                 "records": self.photon_field_records,
                 "all_photon_records_field_processed": all(bool(r.get("processed_by_bounded_context_soo_v1_style_update")) for r in self.photon_field_records),
+                "all_photon_records_loaded_in_processed_field": all(bool(r.get("transverse_load_present_in_processed_field_initial_state")) for r in self.photon_field_records),
                 "field_processing_bypassed": False,
+            },
+            "PHOTON_FIELD_SCALAR_LOAD_REPORT.json": {
+                "schema": "photon_field_scalar_load_report_v0_1",
+                "records": [
+                    {
+                        "endpoint_id": r.get("endpoint_id"),
+                        "component_order": r.get("component_order"),
+                        "initial_scalar_field_components": r.get("initial_scalar_field_components"),
+                        "processed_path_facing_vector_readout": r.get("processed_path_facing_vector_readout"),
+                        "initial_transverse_norm_in_processed_field": r.get("initial_transverse_norm_in_processed_field"),
+                        "final_transverse_norm_in_processed_field": r.get("final_transverse_norm_in_processed_field"),
+                        "transverse_load_present_in_processed_field_initial_state": r.get("transverse_load_present_in_processed_field_initial_state"),
+                        "all_zero_photon_field_layer_quarantined": r.get("all_zero_photon_field_layer_quarantined"),
+                        "transverse_load_metadata_only": r.get("transverse_load_metadata_only"),
+                    }
+                    for r in self.photon_field_records
+                ],
+                "all_zero_photon_field_layer_used": False,
+                "metadata_only_transverse_load_used": False,
+                "passed_loaded_field_requirement": all(bool(r.get("transverse_load_present_in_processed_field_initial_state")) and not bool(r.get("transverse_load_metadata_only")) for r in self.photon_field_records),
             },
             "PATH_FACING_SCALAR_READOUT_REPORT.json": {
                 "schema": "endpoint_path_facing_scalar_readout_report_v0_1",
@@ -668,6 +763,8 @@ def negative_control_artifacts() -> dict[str, Any]:
         "preselected_center_action_control": ["preselected_center_action"],
         "local_photon_certifier_path_component_shortcut_control": ["local_photon_certifier_path_component_as_endpoint_scalar"],
         "photon_field_processing_bypass_control": ["photon_field_processing_bypass"],
+        "all_zero_photon_field_layer_control": ["all_zero_photon_field_layer"],
+        "metadata_only_transverse_load_control": ["photon_transverse_load_metadata_only"],
         "endpoint_class_dispatched_center_control": ["endpoint_class_dispatched_center_condition"],
         "photon_transaction_suppression_control": ["photon_class_transaction_suppression"],
         "bounded_expected_delta_l_selector_control": ["bounded_opposite_expected_delta_l_selector"],
@@ -732,6 +829,9 @@ def leakage_manipulation_audit() -> dict[str, Any]:
             "target_delta_l_not_used": True,
             "center_condition_profile_based_not_endpoint_class_based": True,
             "path_profile_generated_from_processed_path_facing_scalar_loads": True,
+            "photon_transverse_loads_present_in_soo_evolved_field": True,
+            "all_zero_photon_field_layer_quarantined": True,
+            "metadata_only_transverse_load_quarantined": True,
             "photon_like_records_field_processed_before_path_readout": True,
             "local_photon_certifier_path_component_not_endpoint_scalar": True,
             "off_path_vacuum_facing_influence_included": True,
@@ -744,7 +844,7 @@ def leakage_manipulation_audit() -> dict[str, Any]:
             "odd_and_even_center_profiles_classified_from_values": True,
         },
         "forbidden_generator_inputs": list(FORBIDDEN_GENERATOR_INPUTS),
-        "verdict": "audit_passed_exploratory_endpoint_class_runner_uses_photon_field_processing_and_no_endpoint_class_or_target_delta_dispatch",
+        "verdict": "audit_passed_exploratory_endpoint_class_runner_uses_loaded_photon_field_processing_and_no_endpoint_class_or_target_delta_dispatch",
     }
 
 
@@ -764,7 +864,7 @@ def calibration_control_report(comparisons: list[dict[str, Any]]) -> dict[str, A
             "endpoint_class_used_as_selector": None if row is None else bool(row.get("endpoint_class_used_as_selector")),
         })
     return {
-        "schema": "endpoint_class_path_response_calibration_report_v0_2",
+        "schema": "endpoint_class_path_response_calibration_report_v0_3",
         "framework_version": FRAMEWORK_TARGET_VERSION,
         "purpose": "Verify profile-based path-response module can exercise insertion and removal branches; calibration expectations are not generator inputs.",
         "calibration_controls_are_generator_inputs": False,
@@ -777,21 +877,21 @@ def calibration_control_report(comparisons: list[dict[str, Any]]) -> dict[str, A
 
 def exploratory_spec() -> dict[str, Any]:
     return {
-        "schema": "endpoint_class_path_response_separation_spec_v0_3",
+        "schema": "endpoint_class_path_response_separation_spec_v0_4",
         "framework_version": FRAMEWORK_TARGET_VERSION,
         "runner_id": RUNNER_ID,
         "status": "exploratory_endpoint_class_separation_only",
         "theorem_certification_ready": False,
         "endpoint_classes": [
             "A_emergent_sign_coherent_triangles",
-            "B_certified_photon_like_local_records_then_field_processed",
+            "B_certified_photon_like_local_records_with_loaded_transverse_field_processing",
             "C_bounded_support_like_sign_coherent_candidates",
         ],
         "key_question": "Do sign-coherent triangles, field-processed photon-like records, and bounded/support-like endpoints produce distinguishable path-center conditions under the same profile-based processing?",
         "allowed_generator_inputs": list(ALLOWED_GENERATOR_INPUTS),
         "forbidden_generator_inputs": list(FORBIDDEN_GENERATOR_INPUTS),
         "required_artifacts": list(REQUIRED_ARTIFACTS),
-        "critical_rule": "Photon-like local records must be placed into field association structure and SOO-processed before path-facing scalar readout; Center condition must be computed from generated path scalar profile, not endpoint class.",
+        "critical_rule": "Photon-like local records must be placed into field association structure with nonzero transverse q/-q scalar values present in the processed field state before path-facing scalar readout; center condition must be computed from generated path scalar profile, not endpoint class.",
     }
 
 
@@ -803,7 +903,7 @@ def approval_packet_payloads() -> dict[str, str]:
             "framework_version": FRAMEWORK_TARGET_VERSION,
             "classes": {
                 "A": "emergent sign-coherent triangles from split-vacuum runner readouts",
-                "B": "photon-like local records satisfying local certifier, then field processed before path readout",
+                "B": "photon-like local records satisfying local certifier, with nonzero transverse q/-q load present in the SOO-processed scalar-field state before path readout",
                 "C": "bounded/support-like sign-coherent endpoint candidates with shell/support signature, used as calibration controls only",
             },
         },
@@ -812,14 +912,23 @@ def approval_packet_payloads() -> dict[str, str]:
             "framework_version": FRAMEWORK_TARGET_VERSION,
             "center_classifier": "generated_path_scalar_profile_only",
             "transaction_selector": "center_condition_only",
-            "photon_endpoint_processing": "local_certifier_then_field_SOO_then_path_facing_readout",
+            "photon_endpoint_processing": "local_certifier_then_loaded_three_component_field_SOO_then_component0_path_facing_readout",
             "forbidden_dispatch": list(FORBIDDEN_GENERATOR_INPUTS),
         },
         "NEGATIVE_CONTROLS_MANIFEST.json": negative_control_report(),
         "LEAKAGE_MANIPULATION_AUDIT.json": leakage_manipulation_audit(),
     }
     payloads = {name: _stable_json(obj) for name, obj in objects.items()}
-    payloads["APPROVAL_INSTRUCTIONS.md"] = """# v0.1.40 Endpoint-Class Path-Response Separation Photon-Field Processing Packet\n\nStatus: EXPLORATORY ONLY. DO NOT CERTIFY.\n\nThis packet compares emergent sign-coherent triangle endpoints, locally certified photon-like records that are then placed into field/association structure and SOO-processed before path readout, and bounded/support-like sign-coherent endpoint calibration controls.\n\nApproval authorizes exploratory endpoint-class separation tests only. It does not certify charge, photons, lepton supports, or path-accommodation theorems.\n\nCritical rule: photon-like local certifier path-facing components may not be used directly as endpoint path scalars. Center conditions and path accommodation must be computed from generated path scalar profiles and audited transactions, not endpoint class, charge labels, Standard Model labels, or target Delta L.\n"""
+    payloads["APPROVAL_INSTRUCTIONS.md"] = """# v0.1.41 Endpoint-Class Path-Response Separation Loaded Photon-Field Packet
+
+Status: EXPLORATORY ONLY. DO NOT CERTIFY.
+
+This packet compares emergent sign-coherent triangle endpoints, locally certified photon-like records whose nonzero transverse q/-q values are placed into the actual SOO-processed scalar-field state, and bounded/support-like sign-coherent endpoint calibration controls.
+
+Approval authorizes exploratory endpoint-class separation tests only. It does not certify charge, photons, lepton supports, or path-accommodation theorems.
+
+Critical rule: photon-like local certifier path-facing components may not be used directly as endpoint path scalars, and transverse photon-like loading may not remain metadata-only. Center conditions and path accommodation must be computed from generated path scalar profiles and audited transactions, not endpoint class, charge labels, Standard Model labels, or target Delta L.
+"""
     return payloads
 
 
@@ -857,8 +966,8 @@ def run_exploratory(*, output_root: str | Path | None = None, path_length: int =
 
 
 def main_packet(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Write v0.1.40 endpoint-class path-response separation photon-field processing approval packet.")
-    parser.add_argument("--output", default="endpoint_class_path_response_separation_approval_items_v0140.zip")
+    parser = argparse.ArgumentParser(description="Write v0.1.41 endpoint-class path-response separation loaded photon-field approval packet.")
+    parser.add_argument("--output", default="endpoint_class_path_response_separation_approval_items_v0141.zip")
     parser.add_argument("--print-summary", action="store_true")
     args = parser.parse_args(argv)
     path = write_approval_packet(args.output)
@@ -878,8 +987,8 @@ def main_packet(argv: list[str] | None = None) -> int:
 
 
 def main_run(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Run v0.1.40 endpoint-class path-response separation photon-field processing exploratory test.")
-    parser.add_argument("--output-root", default="endpoint_class_path_response_separation_results_v0140")
+    parser = argparse.ArgumentParser(description="Run v0.1.41 endpoint-class path-response separation loaded photon-field exploratory test.")
+    parser.add_argument("--output-root", default="endpoint_class_path_response_separation_results_v0141")
     parser.add_argument("--path-length", type=int, default=7)
     parser.add_argument("--zip", default=None)
     args = parser.parse_args(argv)
