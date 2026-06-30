@@ -1,5 +1,29 @@
 # EASScalarFieldsModeling
 
+Current framework release: `0.1.44` / `0.1.44-field0-locked-admissibility-simulation`.
+
+## v0.1.44 field-0 locked admissibility simulation
+
+v0.1.44 adds `rank3-run-field0-locked-simulation` and `rank3-write-field0-locked-simulation-packet`. This release repairs the operational boundary for exploratory scalar-field modeling: tests may impose scalar point values and rank-3 associations on field 0, and may select a frozen admissibility specification before the run begins. All later fields are generated only by SOO plus that locked admissibility specification.
+
+Admissibility exploration is still allowed, but admissibility changes are pre-run choices only. Runtime admissibility changes, later-field point/association construction, structure-label generator inputs, endpoint classes, target tuples, and slot-specific sign policies are rejected or quarantined.
+
+The new compliant runner is:
+
+```text
+rank3_enforced/field0_locked_simulation.py
+```
+
+Commands:
+
+```bash
+rank3-run-field0-locked-simulation --output v0144_field0_locked_run --cycles 6 --point-count 6
+rank3-write-field0-locked-simulation-packet --output v0144_field0_locked_approval_packet
+```
+
+This release is exploratory only. It does not certify photons, charge, bounded supports, Standard Model particles, or a path-accommodation theorem. It certifies only the operational constraint surface needed for future whole-field tests.
+
+
 Current framework release: `0.1.42` / `0.1.42-vacuum-admissibility-variation`.
 
 

@@ -1,0 +1,68 @@
+{
+  "framework_version": "0.1.44",
+  "schema": "locked_admissibility_registry_v0_1",
+  "specs": {
+    "LOCKED_CONJUGATE_SPLIT_ON_FIRST_ASSOCIATION": {
+      "association_update_rule": "least_gradient_all_slots_same_functional",
+      "burden_terms": [
+        "scalar_gradient_abs",
+        "generated_conjugacy_continuation_penalty",
+        "stable_id_tiebreak"
+      ],
+      "candidate_pool_rule": "field_state_points_after_admissible_topology_update",
+      "created_before_run": true,
+      "hash": "3f6ece802389da18dbce634861f7d3f6e26ee183c9f21d24c7062606bf1daf40",
+      "id": "LOCKED_CONJUGATE_SPLIT_ON_FIRST_ASSOCIATION",
+      "name": "Locked pre-run admissibility: first-associated zero-vacuum points split into conjugate branches",
+      "parameters": {
+        "conjugacy_penalty_weight": 0.25,
+        "epsilon2_k": 0.05,
+        "split_magnitude": 1.0
+      },
+      "scalar_update_rule": "rank3_mean_contrast_soo",
+      "single_functional_for_all_slots": true,
+      "slot_role_policy_present": false,
+      "structure_label_generator_present": false,
+      "topology_update_rule": "split_zero_vacuum_points_on_first_association"
+    },
+    "LOCKED_LEAST_GRADIENT_REASSOCIATION": {
+      "association_update_rule": "least_gradient_all_slots_same_functional",
+      "burden_terms": [
+        "scalar_gradient_abs",
+        "stable_id_tiebreak"
+      ],
+      "candidate_pool_rule": "field_state_points_only",
+      "created_before_run": true,
+      "hash": "910c24e238907cba3526ea2943e5edbb99ae73fb8d4204d9aff51cb3cc105ff0",
+      "id": "LOCKED_LEAST_GRADIENT_REASSOCIATION",
+      "name": "Locked least-gradient reassociation over the generated field state",
+      "parameters": {
+        "epsilon2_k": 0.05
+      },
+      "scalar_update_rule": "rank3_mean_contrast_soo",
+      "single_functional_for_all_slots": true,
+      "slot_role_policy_present": false,
+      "structure_label_generator_present": false,
+      "topology_update_rule": "none"
+    },
+    "LOCKED_PURE_GRADIENT_STATIC_ASSOCIATIONS": {
+      "association_update_rule": "frozen_field0_associations",
+      "burden_terms": [
+        "scalar_gradient_abs"
+      ],
+      "candidate_pool_rule": "field_state_points_only",
+      "created_before_run": true,
+      "hash": "a2e0ba141ad4958d0e3f87c39a840cb4fdc2c79dc10feb9ce9300f5eb1401ec5",
+      "id": "LOCKED_PURE_GRADIENT_STATIC_ASSOCIATIONS",
+      "name": "Locked pure-gradient SOO with fixed field-0 associations",
+      "parameters": {
+        "epsilon2_k": 0.05
+      },
+      "scalar_update_rule": "rank3_mean_contrast_soo",
+      "single_functional_for_all_slots": true,
+      "slot_role_policy_present": false,
+      "structure_label_generator_present": false,
+      "topology_update_rule": "none"
+    }
+  }
+}

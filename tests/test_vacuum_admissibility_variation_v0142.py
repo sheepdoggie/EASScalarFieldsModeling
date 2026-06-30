@@ -15,8 +15,8 @@ from rank3_enforced.vacuum_admissibility_variation import (
 
 
 def test_v0142_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.43"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.43-whole-field-conjugate-vacuum-derived-longitudinal"
+    assert FRAMEWORK_VERSION == "0.1.44"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.44-field0-locked-admissibility-simulation"
     assert "vacuum_admissibility_variation_runner_v0_1" in FRAMEWORK_CAPABILITIES
     assert "constructed_photon_endpoint_quarantine_v0_1" in FRAMEWORK_CAPABILITIES
     assert "photon_path_facing_zero_layer_control_v0_1" in FRAMEWORK_CAPABILITIES

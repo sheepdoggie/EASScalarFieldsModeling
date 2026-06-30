@@ -1,0 +1,10 @@
+{
+  "admissibility_variation_pre_run_only": true,
+  "field0_only_input": true,
+  "framework_version": "0.1.44",
+  "postrun_observer_no_feedback": true,
+  "runner_id": "field0_configured_locked_admissibility_simulation_v0_1",
+  "runtime_admissibility_changes_allowed": false,
+  "schema": "field0_locked_runner_spec_v0_1",
+  "structure_labels_generator_forbidden": true
+}

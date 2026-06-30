@@ -16,8 +16,8 @@ from rank3_enforced.split_vacuum_triangle_emergence import (
 
 
 def test_v0137_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.43"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.43-whole-field-conjugate-vacuum-derived-longitudinal"
+    assert FRAMEWORK_VERSION == "0.1.44"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.44-field0-locked-admissibility-simulation"
     assert "split_vacuum_triangle_emergence_exploratory_v0_1" in FRAMEWORK_CAPABILITIES
     assert "split_vacuum_triangle_emergence_runner_repair_v0_2" in FRAMEWORK_CAPABILITIES
     assert "dynamic_lifted_vacuum_splitting_v0_2" in FRAMEWORK_CAPABILITIES

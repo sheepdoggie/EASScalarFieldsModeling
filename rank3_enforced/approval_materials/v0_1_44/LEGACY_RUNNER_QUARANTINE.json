@@ -1,0 +1,21 @@
+{
+  "framework_version": "0.1.44",
+  "legacy_runners": [
+    {
+      "module": "rank3_enforced.endpoint_class_path_response_separation",
+      "reason": "constructs endpoint classes and comparison paths instead of accepting only field-0 configuration",
+      "status": "historical_diagnostic_quarantined"
+    },
+    {
+      "module": "rank3_enforced.vacuum_admissibility_variation",
+      "reason": "encodes runner-local admissibility variants and motif labels rather than a frozen pre-run admissibility specification",
+      "status": "historical_diagnostic_quarantined"
+    },
+    {
+      "module": "rank3_enforced.whole_field_conjugate_vacuum",
+      "reason": "uses slot-role construction policies that can manufacture a formal photon-like tuple",
+      "status": "historical_false_positive_diagnostic_quarantined"
+    }
+  ],
+  "schema": "legacy_runner_quarantine_v0_1"
+}

@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.43"
-FRAMEWORK_RELEASE_LABEL = "0.1.43-whole-field-conjugate-vacuum-derived-longitudinal"
+FRAMEWORK_VERSION = "0.1.44"
+FRAMEWORK_RELEASE_LABEL = "0.1.44-field0-locked-admissibility-simulation"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -253,6 +253,20 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "nonzero_path_facing_photon_perturbation_control_v0_1",
         "stored_path_facing_zero_value_forbidden_v0_1",
         "whole_field_no_endpoint_class_comparison_v0_1",
+
+
+        "field0_locked_admissibility_simulation_runner_v0_1",
+        "field0_only_input_gate_v0_1",
+        "pre_run_admissibility_variation_v0_1",
+        "runtime_admissibility_change_forbidden_v0_1",
+        "frozen_admissibility_spec_hash_v0_1",
+        "locked_admissibility_registry_v0_1",
+        "later_field_configuration_forbidden_v0_1",
+        "structure_label_generator_forbidden_v0_1",
+        "postrun_observer_no_feedback_v0_1",
+        "legacy_runner_quarantine_v0_1",
+        "single_functional_all_slots_gate_v0_1",
+        "topology_transition_authorized_by_pre_run_admissibility_v0_1",
     }
 )
 

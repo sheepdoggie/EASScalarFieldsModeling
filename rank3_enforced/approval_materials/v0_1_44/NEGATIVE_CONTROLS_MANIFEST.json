@@ -1,0 +1,11 @@
+{
+  "framework_version": "0.1.44",
+  "negative_controls": [
+    "reject_field0_structure_label_key",
+    "reject_unregistered_admissibility_spec",
+    "reject_mutated_registered_admissibility_spec",
+    "reject_association_to_non_field0_point",
+    "record_legacy_runner_quarantine"
+  ],
+  "schema": "field0_locked_negative_controls_manifest_v0_1"
+}

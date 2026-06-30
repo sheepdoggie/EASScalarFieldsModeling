@@ -16,8 +16,8 @@ from rank3_enforced.gradient_path_accommodation import (
 
 
 def test_v0135_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.43"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.43-whole-field-conjugate-vacuum-derived-longitudinal"
+    assert FRAMEWORK_VERSION == "0.1.44"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.44-field0-locked-admissibility-simulation"
     assert "gradient_governed_vacuum_split_plan_v0_1" in FRAMEWORK_CAPABILITIES
     assert "theorem_hypotheses_not_primitive_rules_v0_1" in FRAMEWORK_CAPABILITIES
     assert "forced_delta_l_leakage_control_v0_1" in FRAMEWORK_CAPABILITIES

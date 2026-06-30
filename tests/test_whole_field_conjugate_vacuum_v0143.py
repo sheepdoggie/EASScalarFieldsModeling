@@ -13,8 +13,8 @@ from rank3_enforced.whole_field_conjugate_vacuum import (
 
 
 def test_v0143_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.43"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.43-whole-field-conjugate-vacuum-derived-longitudinal"
+    assert FRAMEWORK_VERSION == "0.1.44"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.44-field0-locked-admissibility-simulation"
     assert "whole_field_conjugate_vacuum_derived_longitudinal_runner_v0_1" in FRAMEWORK_CAPABILITIES
     assert "vacuum_first_association_conjugate_split_v0_1" in FRAMEWORK_CAPABILITIES
     assert "derived_longitudinal_residual_lambda_v0_1" in FRAMEWORK_CAPABILITIES

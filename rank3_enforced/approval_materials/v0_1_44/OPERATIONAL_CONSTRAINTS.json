@@ -1,0 +1,14 @@
+{
+  "constraints": {
+    "admissibility_changes_during_run_allowed": false,
+    "admissibility_variants_allowed_before_run": true,
+    "field0_values_and_associations_allowed": true,
+    "later_field_values_and_associations_as_test_input_allowed": false,
+    "new_admissibilities_during_run_allowed": false,
+    "postrun_labels_observer_only": true,
+    "special_constructions_during_run_allowed": false,
+    "structure_labels_generator_allowed": false
+  },
+  "framework_version": "0.1.44",
+  "schema": "field0_locked_operational_constraints_v0_1"
+}
