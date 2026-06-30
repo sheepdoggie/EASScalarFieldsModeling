@@ -1,0 +1,61 @@
+{
+  "controls": [
+    {
+      "expected_exploratory_behavior": "Rejected/quarantined as constructed zero-lane control.",
+      "id": "PHOTON_PATH_FACING_ZERO_LAYER_CONTROL",
+      "purpose": "Attempt to make Delta L=0 by sealing component 0 as an all-zero subsystem."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as provenance mismatch; photon-like records must be post-run readouts.",
+      "id": "CONSTRUCTED_PHOTON_ENDPOINT_CONTROL",
+      "purpose": "Attempt to install [0,q,-q] locally before SOO."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected; v0.1.42 uses one vacuum provenance for all candidates.",
+      "id": "endpoint_class_comparison_control",
+      "purpose": "Attempt to compare prebuilt triangle/photon/bounded endpoint classes."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected before motif discovery.",
+      "id": "predeclared_triangle_control",
+      "purpose": "Attempt to hand the runner triangle membership."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected before closure classification.",
+      "id": "predeclared_bounded_support_control",
+      "purpose": "Attempt to hand the runner a bounded support endpoint."
+    },
+    {
+      "expected_exploratory_behavior": "Quarantined as interface interpretation, not generator input.",
+      "id": "standard_model_interface_control",
+      "purpose": "Attempt to label generated records as Standard Model particles before closure provenance is known."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected; Delta L is read after center-condition audit.",
+      "id": "forced_delta_l_control",
+      "purpose": "Attempt to supply expected path accommodation."
+    },
+    {
+      "expected_exploratory_behavior": "Allowed negative result; absence of q/-q is not failure of the runner.",
+      "id": "pure_gradient_negative_photon_control",
+      "purpose": "Run pure-gradient admissibility and ask whether relation-complete q/-q appears without additional admissibility."
+    },
+    {
+      "expected_exploratory_behavior": "Passed only if generated phase readouts, not preloaded transverse metadata, feed the certifier.",
+      "id": "relation_complete_no_photon_preload_control",
+      "purpose": "Run relation-complete burden without q/-q initialization."
+    },
+    {
+      "expected_exploratory_behavior": "Classified as scaffold/carrier-level only; Standard Model comparison quarantined.",
+      "id": "bounded_support_quarantine_control",
+      "purpose": "Triangle path accommodation appears without bounded-support closure."
+    }
+  ],
+  "executed_control_count": 0,
+  "executed_controls_passed": null,
+  "framework_version": "0.1.42",
+  "per_control_artifacts_emitted": false,
+  "required_before_certification_use": true,
+  "schema": "vacuum_admissibility_negative_controls_v0_1",
+  "this_release_certification_use": false
+}

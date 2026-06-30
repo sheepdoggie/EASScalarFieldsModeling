@@ -1,0 +1,41 @@
+{
+  "checks": {
+    "bounded_support_endpoint_not_supplied": true,
+    "constructed_photon_endpoint_quarantined": true,
+    "delta_l_not_target_or_label_selected": true,
+    "endpoint_class_comparison_removed_from_runner": true,
+    "phase_readout_generated_postrun": true,
+    "photon_like_record_not_supplied": true,
+    "photon_path_facing_zero_layer_quarantined": true,
+    "q_minus_q_not_initialized": true,
+    "single_origin_vacuum_provenance_for_all_candidates": true,
+    "standard_model_interface_quarantined_until_closure": true,
+    "triangle_membership_not_supplied": true
+  },
+  "forbidden_generator_inputs": [
+    "photon_like_endpoint_record",
+    "constructed_photon_endpoint",
+    "constructed_local_photon_certifier",
+    "loaded_photon_transverse_form",
+    "q_minus_q_initializer",
+    "path_facing_zero_layer",
+    "component_zero_sealing",
+    "bounded_support_endpoint_record",
+    "bounded_support_calibration_endpoint",
+    "predeclared_triangle_membership",
+    "predeclared_path_endpoints",
+    "endpoint_class_comparison_set",
+    "standard_model_role_label",
+    "charge_label",
+    "same_opposite_label",
+    "target_delta_l",
+    "expected_delta_l",
+    "preselected_center_action",
+    "photon_label_as_delta_l_zero_selector",
+    "triangle_label_as_particle_endpoint_selector"
+  ],
+  "framework_version": "0.1.42",
+  "passed": true,
+  "schema": "vacuum_admissibility_leakage_manipulation_audit_v0_1",
+  "verdict": "audit_passed_v0142_uses_vacuum_admissibility_variation_not_endpoint_class_comparison"
+}

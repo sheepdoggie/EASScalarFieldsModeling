@@ -1,0 +1,24 @@
+{
+  "bounded_support_candidate": {
+    "calibration_endpoint_records_supplied": false,
+    "source": "postrun_generated_shell_closure_readout_only"
+  },
+  "framework_version": "0.1.42",
+  "photon_like_candidate": {
+    "criteria": [
+      "path_facing_residual_zero",
+      "non_path_phase_readouts_equal_and_opposite_nonzero"
+    ],
+    "forbidden": [
+      "constructed_local_photon_certifier",
+      "loaded_photon_transverse_form",
+      "component_zero_sealing"
+    ],
+    "source": "generated_scalar_field_phase_readout_only"
+  },
+  "schema": "postrun_certifier_rules_v0_1",
+  "triangle_scaffold": {
+    "interface_particle_interpretation": "quarantined_until_bounded_support_closure",
+    "source": "generated_committed_association_graph_only"
+  }
+}

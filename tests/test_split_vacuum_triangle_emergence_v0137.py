@@ -16,8 +16,8 @@ from rank3_enforced.split_vacuum_triangle_emergence import (
 
 
 def test_v0137_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.41"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.41-endpoint-class-loaded-photon-field-processing"
+    assert FRAMEWORK_VERSION == "0.1.42"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.42-vacuum-admissibility-variation"
     assert "split_vacuum_triangle_emergence_exploratory_v0_1" in FRAMEWORK_CAPABILITIES
     assert "split_vacuum_triangle_emergence_runner_repair_v0_2" in FRAMEWORK_CAPABILITIES
     assert "dynamic_lifted_vacuum_splitting_v0_2" in FRAMEWORK_CAPABILITIES

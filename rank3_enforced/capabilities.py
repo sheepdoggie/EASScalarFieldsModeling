@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.41"
-FRAMEWORK_RELEASE_LABEL = "0.1.41-endpoint-class-loaded-photon-field-processing"
+FRAMEWORK_VERSION = "0.1.42"
+FRAMEWORK_RELEASE_LABEL = "0.1.42-vacuum-admissibility-variation"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -226,6 +226,21 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "photon_transverse_load_in_soo_evolved_field_v0_1",
         "all_zero_photon_field_layer_quarantine_v0_1",
         "metadata_only_transverse_load_quarantine_v0_1",
+
+        "vacuum_admissibility_variation_runner_v0_1",
+        "vacuum_admissibility_variants_A_to_E_v0_1",
+        "single_origin_vacuum_provenance_chain_v0_1",
+        "constructed_photon_endpoint_quarantine_v0_1",
+        "photon_path_facing_zero_layer_control_v0_1",
+        "postrun_photon_like_certifier_v0_1",
+        "postrun_triangle_scaffold_report_v0_1",
+        "bounded_support_closure_admissibility_v0_1",
+        "path_facing_residual_discovery_v0_1",
+        "path_accommodation_by_provenance_v0_1",
+        "standard_model_interface_quarantine_v0_1",
+        "relation_complete_burden_admissibility_v0_1",
+        "successor_covariant_cyclic_admissibility_v0_1",
+        "split_conjugacy_preserving_admissibility_v0_1",
     }
 )
 

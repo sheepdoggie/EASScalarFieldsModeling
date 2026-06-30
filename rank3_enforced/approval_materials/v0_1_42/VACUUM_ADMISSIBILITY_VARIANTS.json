@@ -1,0 +1,56 @@
+{
+  "framework_version": "0.1.42",
+  "schema": "vacuum_admissibility_variants_v0_1",
+  "variants": [
+    {
+      "bounded_closure_weight": 0.0,
+      "cyclic_covariance_weight": 0.0,
+      "id": "A_PURE_SCALAR_GRADIENT",
+      "name": "Pure scalar-gradient admissibility",
+      "purpose": "Baseline: select associations by least scalar-gradient burden only.",
+      "relation_complete_weight": 0.0,
+      "scalar_gradient_weight": 1.0,
+      "split_conjugacy_weight": 0.0
+    },
+    {
+      "bounded_closure_weight": 0.0,
+      "cyclic_covariance_weight": 0.0,
+      "id": "B_SPLIT_CONJUGACY_PRESERVING",
+      "name": "Split-conjugacy preserving admissibility",
+      "purpose": "Test whether generated +/- split relations are preserved as relation records after lift/SOO.",
+      "relation_complete_weight": 0.0,
+      "scalar_gradient_weight": 1.0,
+      "split_conjugacy_weight": 0.35
+    },
+    {
+      "bounded_closure_weight": 0.0,
+      "cyclic_covariance_weight": 0.0,
+      "id": "C_RELATION_COMPLETE_BURDEN",
+      "name": "Relation-complete burden admissibility",
+      "purpose": "Minimize burden of the relation, including cancellation and non-path balance, without predeclaring photon form.",
+      "relation_complete_weight": 0.6,
+      "scalar_gradient_weight": 1.0,
+      "split_conjugacy_weight": 0.25
+    },
+    {
+      "bounded_closure_weight": 0.0,
+      "cyclic_covariance_weight": 0.45,
+      "id": "D_SUCCESSOR_COVARIANT_CYCLIC",
+      "name": "Successor-covariant cyclic admissibility",
+      "purpose": "Read candidate records across ordered scalar-field phases instead of loading three local components.",
+      "relation_complete_weight": 0.5,
+      "scalar_gradient_weight": 1.0,
+      "split_conjugacy_weight": 0.25
+    },
+    {
+      "bounded_closure_weight": 0.5,
+      "cyclic_covariance_weight": 0.35,
+      "id": "E_BOUNDED_SUPPORT_CLOSURE",
+      "name": "Bounded-support closure admissibility",
+      "purpose": "Permit post-run separation of triangle-only scaffolds, triangle+shell, bounded-support candidates, transverse records, and unclassified carriers.",
+      "relation_complete_weight": 0.45,
+      "scalar_gradient_weight": 1.0,
+      "split_conjugacy_weight": 0.25
+    }
+  ]
+}

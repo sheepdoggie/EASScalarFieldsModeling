@@ -1,6 +1,30 @@
 # EASScalarFieldsModeling
 
-Current framework release: `0.1.38` / `0.1.38-endpoint-class-path-response-separation`.
+Current framework release: `0.1.42` / `0.1.42-vacuum-admissibility-variation`.
+
+
+## v0.1.42 vacuum-admissibility variation
+
+v0.1.42 adds `rank3-run-vacuum-admissibility-variation` and `rank3-write-vacuum-admissibility-packet`. This release treats v0.1.41 as a useful endpoint-class separation diagnostic, not an emergence model, because its triangle, photon-like, and bounded-support records did not share the same provenance.
+
+The v0.1.42 runner starts every candidate from the same chain:
+
+```text
+undefined vacuum -> split/lift -> SOO -> association selection -> motif discovery -> post-run classification
+```
+
+It varies five admissibility regimes: pure scalar-gradient, split-conjugacy preserving, relation-complete burden, successor-covariant cyclic, and bounded-support closure. Photon-like records, [0,q,-q] transverse forms, path-facing zero layers, bounded-support calibration endpoints, predeclared triangles, predeclared paths, Standard Model labels, and expected Delta L are forbidden generator inputs.
+
+Required reports include the vacuum admissibility variant ledger, split/lift ledger, full-field SOO trace, association burden decomposition, post-run photon-like certifier, triangle scaffold report, bounded-support closure report, path-facing residual discovery, path accommodation by provenance, and Standard Model interface quarantine.
+
+Commands:
+
+```bash
+rank3-write-vacuum-admissibility-packet --output vacuum_admissibility_variation_approval_items_v0142.zip --print-summary
+rank3-run-vacuum-admissibility-variation --output-root vacuum_admissibility_variation_results_v0142 --zip vacuum_admissibility_variation_results_v0142.zip
+```
+
+This release is exploratory only. It does not certify photons, charge, bounded supports, Standard Model particles, or a path-accommodation theorem.
 
 v0.1.33 adds executable admission/control materials requested by the operator-agent workflow: a non-candidate whole-field SOO mechanism declaration, a non-label path-monitor policy declaration, a charge-path admission/control overlay suite, required negative controls, and package-embedded release signature/public-key files for self-consistency. It still does not certify the charge path-adjustment theorem.
 
