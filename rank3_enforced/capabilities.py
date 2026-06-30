@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.35"
-FRAMEWORK_RELEASE_LABEL = "0.1.35-gradient-vacuum-split-planning"
+FRAMEWORK_VERSION = "0.1.36"
+FRAMEWORK_RELEASE_LABEL = "0.1.36-split-vacuum-triangle-emergence-exploratory"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -179,6 +179,18 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "topology_transaction_audit_plan_v0_1",
         "scalar_sign_only_theorem_scope_v0_1",
         "ready_for_certification_plan_not_theorem_certification_v0_1",
+        "split_vacuum_triangle_emergence_exploratory_v0_1",
+        "undefined_vacuum_split_branch_runner_v0_1",
+        "branch_to_zero_vacuum_association_v0_1",
+        "soo_lifted_vacuum_detection_v0_1",
+        "least_gradient_association_selector_v0_1",
+        "triangle_membership_readout_not_input_v0_1",
+        "path_endpoints_detected_not_preselected_v0_1",
+        "emergent_motif_detection_report_v0_1",
+        "triangle_persistence_analysis_v0_1",
+        "relational_path_discovery_from_detected_triangles_v0_1",
+        "off_path_vacuum_facing_influence_required_v0_1",
+        "exploratory_only_no_theorem_certification_v0_1",
     }
 )
 

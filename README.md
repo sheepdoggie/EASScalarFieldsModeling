@@ -76,3 +76,8 @@ To generate the approval-items ZIP:
 ```bash
 rank3-write-gradient-path-accommodation-packet --output gradient_path_accommodation_approval_items_v0135.zip --print-summary
 ```
+
+
+## v0.1.36 exploratory split-vacuum triangle emergence
+
+v0.1.36 adds `rank3-run-split-vacuum-triangle-emergence` and `rank3-write-split-vacuum-triangle-packet`. This is an exploratory mechanism-discovery release only. Triangle membership and path endpoints are readouts, not generator inputs, and the release does not certify a theorem or charge.

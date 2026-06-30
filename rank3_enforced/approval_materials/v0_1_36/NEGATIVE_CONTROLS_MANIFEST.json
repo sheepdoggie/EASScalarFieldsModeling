@@ -1,0 +1,58 @@
+{
+  "controls": [
+    {
+      "expected_exploratory_behavior": "No branches, no lifted vacuum, no triangles, no paths, no accommodation.",
+      "id": "all_vacuum_no_split_control",
+      "purpose": "No initial split event is supplied."
+    },
+    {
+      "expected_exploratory_behavior": "Initial zero associates do not acquire SOO-lift evidence.",
+      "id": "split_without_soo_control",
+      "purpose": "Split branches are created but SOO is disabled."
+    },
+    {
+      "expected_exploratory_behavior": "Triangle dominance is not admission-supported.",
+      "id": "random_association_control",
+      "purpose": "Candidate associations are randomized instead of selected by least gradient."
+    },
+    {
+      "expected_exploratory_behavior": "Quarantined as non-admissible for this exploratory runner.",
+      "id": "no_latency_control",
+      "purpose": "Association proposals commit instantly."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as leakage before motif detection.",
+      "id": "predeclared_triangle_leakage_control",
+      "purpose": "Generator is handed triangle membership."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as leakage before path discovery.",
+      "id": "predeclared_endpoint_leakage_control",
+      "purpose": "Generator is handed theorem path endpoints."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as leakage before center classification.",
+      "id": "forced_delta_l_leakage_control",
+      "purpose": "Generator is handed target Delta L."
+    },
+    {
+      "expected_exploratory_behavior": "Invalid over-closed path diagnostic.",
+      "id": "no_off_path_vacuum_influence_control",
+      "purpose": "Path carriers have no non-path/vacuum-facing influence."
+    },
+    {
+      "expected_exploratory_behavior": "Classified as non-theorem motif, not endpoint support.",
+      "id": "mixed_sign_triangle_control",
+      "purpose": "Detected motif is not sign coherent."
+    },
+    {
+      "expected_exploratory_behavior": "Triangle is not admitted as persistent endpoint candidate.",
+      "id": "nonpersistent_triangle_control",
+      "purpose": "Triangle appears transiently only."
+    }
+  ],
+  "framework_version": "0.1.36",
+  "required_before_certification_use": true,
+  "schema": "split_vacuum_triangle_negative_controls_v0_1",
+  "this_release_certification_use": false
+}

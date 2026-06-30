@@ -1,0 +1,30 @@
+{
+  "checks": {
+    "center_action_not_preselected": true,
+    "charge_labels_not_used": true,
+    "delta_l_read_after_transaction_audit": true,
+    "handedness_labels_not_used": true,
+    "off_path_vacuum_facing_associations_not_rung_isolated": true,
+    "path_endpoints_not_generator_input": true,
+    "same_opposite_labels_not_used": true,
+    "target_delta_l_not_used": true,
+    "topology_transaction_selected_from_center_condition_only": true,
+    "triangle_membership_not_generator_input": true
+  },
+  "forbidden_generator_inputs": [
+    "predeclared_triangle_membership",
+    "predeclared_path_endpoints",
+    "same_label",
+    "opposite_label",
+    "charge_label",
+    "handedness_label",
+    "target_delta_l",
+    "expected_delta_l",
+    "preselected_center_action",
+    "preselected_path_outcome"
+  ],
+  "framework_version": "0.1.36",
+  "passed": true,
+  "schema": "split_vacuum_triangle_leakage_manipulation_audit_v0_1",
+  "verdict": "audit_passed_exploratory_runner_contains_no_label_or_target_delta_dispatch"
+}

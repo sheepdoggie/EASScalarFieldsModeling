@@ -1,0 +1,9 @@
+{
+  "SOO_operator": "bounded_context_soo_v1",
+  "association_selector": "least_scalar_gradient_burden",
+  "cycle_latency": "association proposals made in one cycle become usable in the next cycle",
+  "framework_version": "0.1.36",
+  "path_discovery": "detect paths between persisted sign-coherent triangles only",
+  "schema": "split_vacuum_triangle_soo_association_rules_v0_1",
+  "triangle_detection": "detect from generated association/scalar records only"
+}
