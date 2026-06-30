@@ -12,8 +12,8 @@ def test_release_identity_report_passes_for_current_tree():
     report = check_release_identity(
         repo_root=root,
         manifest_path=root / "releases/current/FRAMEWORK_RELEASE_MANIFEST.json",
-        framework_zip_path=root / "releases/current/enforceable_rank3_modeling_v0.1.37_split_vacuum_triangle_emergence_runner_repair.zip",
-        framework_tar_gz_path=root / "releases/current/enforceable_rank3_modeling_v0.1.37_split_vacuum_triangle_emergence_runner_repair.tar.gz",
+        framework_zip_path=root / "releases/current/enforceable_rank3_modeling_v0.1.38_endpoint_class_path_response_separation.zip",
+        framework_tar_gz_path=root / "releases/current/enforceable_rank3_modeling_v0.1.38_endpoint_class_path_response_separation.tar.gz",
     )
     assert report.passed, report.errors
     assert report.manifest_code_sha256 == report.actual_source_tree_code_sha256
@@ -24,7 +24,7 @@ def test_release_identity_report_passes_for_current_tree():
 def test_framework_zip_code_hash_matches_installed_source_hash():
     root = Path(__file__).resolve().parents[1]
     zip_hash = compute_framework_zip_code_sha256(
-        root / "releases/current/enforceable_rank3_modeling_v0.1.37_split_vacuum_triangle_emergence_runner_repair.zip"
+        root / "releases/current/enforceable_rank3_modeling_v0.1.38_endpoint_class_path_response_separation.zip"
     )
     tree_hash = compute_framework_code_sha256(root)
     assert zip_hash == tree_hash

@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.37"
-FRAMEWORK_RELEASE_LABEL = "0.1.37-split-vacuum-triangle-emergence-runner-repair"
+FRAMEWORK_VERSION = "0.1.38"
+FRAMEWORK_RELEASE_LABEL = "0.1.38-endpoint-class-path-response-separation"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -200,6 +200,15 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "relational_path_discovery_from_detected_triangles_v0_1",
         "off_path_vacuum_facing_influence_required_v0_1",
         "exploratory_only_no_theorem_certification_v0_1",
+        "endpoint_class_path_response_separation_runner_v0_1",
+        "endpoint_class_separation_exploratory_v0_1",
+        "photon_like_local_certifier_report_v0_1",
+        "bounded_support_endpoint_comparison_v0_1",
+        "endpoint_class_not_center_selector_v0_1",
+        "endpoint_class_not_delta_l_selector_v0_1",
+        "path_profile_based_center_classification_v0_1",
+        "triangle_photon_bounded_path_response_separation_v0_1",
+        "standard_model_role_label_leakage_controls_v0_1",
     }
 )
 

@@ -1,0 +1,20 @@
+{
+  "center_classifier": "generated_path_scalar_profile_only",
+  "forbidden_dispatch": [
+    "triangle_sign_label_as_delta_l_selector",
+    "photon_like_label_as_no_accommodation_selector",
+    "bounded_support_label_as_accommodation_selector",
+    "target_delta_l",
+    "expected_delta_l",
+    "preselected_center_point",
+    "preselected_center_action",
+    "preselected_path_action",
+    "charge_label",
+    "standard_model_role_label",
+    "endpoint_class_dispatched_center_condition",
+    "endpoint_class_dispatched_delta_l"
+  ],
+  "framework_version": "0.1.38",
+  "schema": "endpoint_class_path_response_rules_v0_1",
+  "transaction_selector": "center_condition_only"
+}

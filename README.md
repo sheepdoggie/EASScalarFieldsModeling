@@ -1,6 +1,6 @@
 # EASScalarFieldsModeling
 
-Current framework release: `0.1.33` / `0.1.33-admission-control-materials`.
+Current framework release: `0.1.38` / `0.1.38-endpoint-class-path-response-separation`.
 
 v0.1.33 adds executable admission/control materials requested by the operator-agent workflow: a non-candidate whole-field SOO mechanism declaration, a non-label path-monitor policy declaration, a charge-path admission/control overlay suite, required negative controls, and package-embedded release signature/public-key files for self-consistency. It still does not certify the charge path-adjustment theorem.
 
@@ -81,3 +81,15 @@ rank3-write-gradient-path-accommodation-packet --output gradient_path_accommodat
 ## v0.1.37 exploratory split-vacuum triangle emergence
 
 v0.1.37 adds `rank3-run-split-vacuum-triangle-emergence` and `rank3-write-split-vacuum-triangle-packet`. This is an exploratory mechanism-discovery release only. Triangle membership and path endpoints are readouts, not generator inputs, and the release does not certify a theorem or charge.
+
+
+## v0.1.38 endpoint-class path-response separation
+
+v0.1.38 adds an exploratory endpoint-class separation runner. It compares emergent sign-coherent triangle endpoints, locally certified photon-like records, and bounded/support-like sign-coherent endpoint candidates. Center conditions are classified from generated path scalar profiles only, not from endpoint class, charge labels, Standard Model labels, or target Delta L. This release is exploratory only and does not certify charge, photons, lepton supports, or path accommodation.
+
+Commands:
+
+```bash
+rank3-write-endpoint-class-separation-packet --output endpoint_class_path_response_separation_approval_items_v0138.zip --print-summary
+rank3-run-endpoint-class-separation --output-root endpoint_class_path_response_separation_results_v0138 --zip endpoint_class_path_response_separation_results_v0138.zip
+```
