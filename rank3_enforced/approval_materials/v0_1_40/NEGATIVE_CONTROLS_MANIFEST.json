@@ -1,0 +1,81 @@
+{
+  "controls": [
+    {
+      "expected_exploratory_behavior": "Rejected as forbidden generator input.",
+      "id": "triangle_sign_label_leakage_control",
+      "purpose": "Attempt to choose Delta L from triangle sign label."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as forbidden generator input.",
+      "id": "photon_label_no_accommodation_leakage_control",
+      "purpose": "Attempt to choose no-accommodation from photon-like class label."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as forbidden generator input.",
+      "id": "bounded_label_accommodation_leakage_control",
+      "purpose": "Attempt to choose accommodation from bounded-support label."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as forbidden generator input.",
+      "id": "forced_delta_l_leakage_control",
+      "purpose": "Attempt to supply target Delta L to the generator."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as forbidden generator input.",
+      "id": "preselected_center_action_control",
+      "purpose": "Attempt to supply center action to the generator."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected; photon-like records must be field processed first.",
+      "id": "local_photon_certifier_path_component_shortcut_control",
+      "purpose": "Attempt to use the local certifier path-facing component directly as the endpoint path scalar."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as forbidden generator input.",
+      "id": "photon_field_processing_bypass_control",
+      "purpose": "Attempt to skip SOO/field processing for photon-like endpoints."
+    },
+    {
+      "expected_exploratory_behavior": "Fails photon-like certifier; cannot be used as class B endpoint.",
+      "id": "null_loaded_photon_control",
+      "purpose": "Photon-like record with zero transverse load."
+    },
+    {
+      "expected_exploratory_behavior": "Fails photon-like certifier.",
+      "id": "isotropic_photon_exterior_control",
+      "purpose": "Photon-like carrier with isotropic exterior continuation."
+    },
+    {
+      "expected_exploratory_behavior": "Fails photon-like certifier.",
+      "id": "bare_cyclic_carrier_control",
+      "purpose": "Three-point cyclic carrier without transverse loading and anisotropic exterior record."
+    },
+    {
+      "expected_exploratory_behavior": "Quarantined as over-closed path diagnostic.",
+      "id": "no_off_path_vacuum_profile_control",
+      "purpose": "Path profile generated without off-path vacuum-facing influence."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as leakage/manipulation.",
+      "id": "endpoint_class_dispatched_center_control",
+      "purpose": "Center state assigned from endpoint class rather than path scalar profile."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as forbidden generator input.",
+      "id": "photon_transaction_suppression_control",
+      "purpose": "Attempt to suppress topology transaction solely because endpoint class is photon-like."
+    },
+    {
+      "expected_exploratory_behavior": "Rejected as forbidden generator input.",
+      "id": "bounded_expected_delta_l_selector_control",
+      "purpose": "Attempt to choose Delta L from bounded opposite/same calibration expectation."
+    }
+  ],
+  "executed_control_count": 0,
+  "executed_controls_passed": null,
+  "framework_version": "0.1.40",
+  "per_control_artifacts_emitted": false,
+  "required_before_certification_use": true,
+  "schema": "endpoint_class_separation_negative_controls_v0_3",
+  "this_release_certification_use": false
+}

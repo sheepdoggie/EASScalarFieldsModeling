@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.39"
-FRAMEWORK_RELEASE_LABEL = "0.1.39-endpoint-class-center-classifier-repair"
+FRAMEWORK_VERSION = "0.1.40"
+FRAMEWORK_RELEASE_LABEL = "0.1.40-endpoint-class-photon-field-processing"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -205,6 +205,9 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "endpoint_class_separation_exploratory_v0_1",
         "endpoint_class_separation_exploratory_v0_2",
         "photon_like_local_certifier_report_v0_1",
+        "photon_like_field_processing_before_path_readout_v0_1",
+        "processed_path_facing_scalar_readout_v0_1",
+        "local_photon_certifier_not_path_scalar_source_v0_1",
         "bounded_support_endpoint_comparison_v0_1",
         "endpoint_class_not_center_selector_v0_1",
         "endpoint_class_not_delta_l_selector_v0_1",

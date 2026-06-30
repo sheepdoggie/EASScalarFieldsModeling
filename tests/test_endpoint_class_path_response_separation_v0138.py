@@ -16,8 +16,8 @@ from rank3_enforced.endpoint_class_path_response_separation import (
 
 
 def test_v0138_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.39"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.39-endpoint-class-center-classifier-repair"
+    assert FRAMEWORK_VERSION == "0.1.40"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.40-endpoint-class-photon-field-processing"
     assert "endpoint_class_path_response_separation_runner_v0_2" in FRAMEWORK_CAPABILITIES
     assert "photon_like_local_certifier_report_v0_1" in FRAMEWORK_CAPABILITIES
     assert "endpoint_class_not_delta_l_selector_v0_1" in FRAMEWORK_CAPABILITIES
@@ -145,3 +145,37 @@ def test_v0139_photon_records_are_not_transaction_suppressed_by_class():
         assert row["delta_l"] == 0
     audit = reports["LEAKAGE_MANIPULATION_AUDIT.json"]
     assert audit["checks"]["photon_like_class_not_transaction_suppression_selector"] is True
+
+
+def test_v0140_photon_records_are_field_processed_before_path_readout():
+    reports = run_exploratory(path_length=7)
+    field = reports["PHOTON_FIELD_PROCESSING_REPORT.json"]
+    assert field["all_photon_records_field_processed"] is True
+    assert field["field_processing_bypassed"] is False
+    assert field["records"]
+    for rec in field["records"]:
+        assert rec["placed_into_association_graph"] is True
+        assert rec["local_certifier_path_component_used_as_endpoint_scalar"] is False
+        assert rec["readout_source"] == "post_SOO_path_facing_exterior_value"
+
+
+def test_v0140_photon_path_facing_readout_not_from_local_certifier_shortcut():
+    reports = run_exploratory(path_length=7)
+    readouts = reports["PATH_FACING_SCALAR_READOUT_REPORT.json"]["readouts"]
+    photon_readouts = [r for r in readouts if r["endpoint_class"] == "certified_photon_like_local_record"]
+    assert photon_readouts
+    assert all(r["source"] == "processed_field_path_facing_exterior_readout_after_SOO" for r in photon_readouts)
+    assert all(r["local_photon_certifier_component_used_directly"] is False for r in photon_readouts)
+    audit = reports["LEAKAGE_MANIPULATION_AUDIT.json"]
+    assert audit["checks"]["photon_like_records_field_processed_before_path_readout"] is True
+    assert audit["checks"]["local_photon_certifier_path_component_not_endpoint_scalar"] is True
+
+
+def test_v0140_new_photon_shortcut_controls_rejected():
+    for forbidden in ["local_photon_certifier_path_component_as_endpoint_scalar", "photon_field_processing_bypass"]:
+        report = validate_generator_inputs([forbidden])
+        assert not report["passed"]
+        assert forbidden in report["forbidden_inputs_present"]
+    reports = run_exploratory(path_length=7)
+    assert reports["NEGATIVE_CONTROL_local_photon_certifier_path_component_shortcut_control.json"]["passed"] is True
+    assert reports["NEGATIVE_CONTROL_photon_field_processing_bypass_control.json"]["passed"] is True
