@@ -16,9 +16,9 @@ from rank3_enforced.endpoint_class_path_response_separation import (
 
 
 def test_v0138_version_and_capabilities():
-    assert FRAMEWORK_VERSION == "0.1.38"
-    assert FRAMEWORK_RELEASE_LABEL == "0.1.38-endpoint-class-path-response-separation"
-    assert "endpoint_class_path_response_separation_runner_v0_1" in FRAMEWORK_CAPABILITIES
+    assert FRAMEWORK_VERSION == "0.1.39"
+    assert FRAMEWORK_RELEASE_LABEL == "0.1.39-endpoint-class-center-classifier-repair"
+    assert "endpoint_class_path_response_separation_runner_v0_2" in FRAMEWORK_CAPABILITIES
     assert "photon_like_local_certifier_report_v0_1" in FRAMEWORK_CAPABILITIES
     assert "endpoint_class_not_delta_l_selector_v0_1" in FRAMEWORK_CAPABILITIES
     assert "path_profile_based_center_classification_v0_1" in FRAMEWORK_CAPABILITIES
@@ -63,7 +63,7 @@ def test_v0138_photon_like_records_are_locally_certified_but_not_selector():
     comparisons = reports["ENDPOINT_CLASS_COMPARISON_REPORT.json"]["comparisons"]
     photon_pairs = [c for c in comparisons if all(cls == "certified_photon_like_local_record" for cls in c["endpoint_classes"])]
     assert photon_pairs
-    assert all(c["center_state"] == "null_loaded_path_profile_no_charge_like_accommodation" for c in photon_pairs)
+    assert all(c["center_state"] == "null_path_facing_scalar_profile_no_center_invalidity" for c in photon_pairs)
     assert all(c["delta_l"] == 0 for c in photon_pairs)
     assert all(c["endpoint_class_used_as_selector"] is False for c in comparisons)
 
@@ -109,3 +109,39 @@ def test_v0138_packaged_payloads_non_imposing():
     assert audit["checks"]["endpoint_class_not_delta_l_selector"] if "endpoint_class_not_delta_l_selector" in audit["checks"] else True
     assert "target_delta_l" in payloads["EXPLORATORY_RUNNER_SPEC.json"]
     assert "EXPLORATORY" in payloads["APPROVAL_INSTRUCTIONS.md"]
+
+
+def test_v0139_bounded_calibration_exercises_insert_and_remove_branches():
+    reports = run_exploratory(path_length=7)
+    cal = reports["PATH_RESPONSE_CALIBRATION_REPORT.json"]
+    assert cal["passed"] is True
+    checks = {c["comparison_id"]: c for c in cal["checks"]}
+    assert checks["bounded_bounded_same"]["observed_delta_l"] == 1
+    assert checks["bounded_bounded_opposite"]["observed_delta_l"] == -1
+    assert all(c["expectation_available_to_generator"] is False for c in checks.values())
+
+
+def test_v0139_opposite_removal_branch_reachable_from_profile_not_endpoint_label():
+    reports = run_exploratory(path_length=7)
+    comparisons = {c["comparison_id"]: c for c in reports["ENDPOINT_CLASS_COMPARISON_REPORT.json"]["comparisons"]}
+    bounded_opp = comparisons["bounded_bounded_opposite"]
+    assert bounded_opp["delta_l"] == -1
+    assert bounded_opp["center_state"] == "even_center_branch_transition_no_gradient_from_profile"
+    assert bounded_opp["endpoint_class_used_as_selector"] is False
+    centers = {c["path_id"]: c for c in reports["CENTER_CONDITION_REPORT.json"]["centers"]}
+    center = centers[bounded_opp["path_id"]]
+    assert center["endpoint_sign_relation_used_for_classification"] is False
+    assert center["classification_source"] == "generated_path_scalar_profile"
+
+
+def test_v0139_photon_records_are_not_transaction_suppressed_by_class():
+    reports = run_exploratory(path_length=7)
+    comparisons = reports["ENDPOINT_CLASS_COMPARISON_REPORT.json"]["comparisons"]
+    photon_pairs = [c for c in comparisons if all(cls == "certified_photon_like_local_record" for cls in c["endpoint_classes"])]
+    assert photon_pairs
+    for row in photon_pairs:
+        assert row["endpoint_class_used_as_selector"] is False
+        assert row["center_state"] == "null_path_facing_scalar_profile_no_center_invalidity"
+        assert row["delta_l"] == 0
+    audit = reports["LEAKAGE_MANIPULATION_AUDIT.json"]
+    assert audit["checks"]["photon_like_class_not_transaction_suppression_selector"] is True

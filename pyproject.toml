@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "enforceable-rank3-modeling"
-version = "0.1.38"
+version = "0.1.39"
 description = "Enforceable Rank-3 Scalar Field Modeling Framework"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,7 +19,7 @@ py-modules = ["scalar_field_geometry"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-rank3_enforced = ["overlay_suites/charge_same_opposite_association_indexed/*.json", "overlay_suites/charge_role_path_remap_dynamic_path_v0_1/*.json", "overlay_suites/charge_path_admission_controls_v0_1/*.json", "protocols/*.json", "mechanisms/*.json", "approval_materials/v0_1_35/*.json", "approval_materials/v0_1_35/*.md", "approval_materials/v0_1_37/*.json", "approval_materials/v0_1_37/*.md", "approval_materials/v0_1_38/*.json", "approval_materials/v0_1_38/*.md"]
+rank3_enforced = ["overlay_suites/charge_same_opposite_association_indexed/*.json", "overlay_suites/charge_role_path_remap_dynamic_path_v0_1/*.json", "overlay_suites/charge_path_admission_controls_v0_1/*.json", "protocols/*.json", "mechanisms/*.json", "approval_materials/v0_1_35/*.json", "approval_materials/v0_1_35/*.md", "approval_materials/v0_1_37/*.json", "approval_materials/v0_1_37/*.md", "approval_materials/v0_1_38/*.json", "approval_materials/v0_1_38/*.md", "approval_materials/v0_1_39/*.json", "approval_materials/v0_1_39/*.md"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

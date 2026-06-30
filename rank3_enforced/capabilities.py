@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.38"
-FRAMEWORK_RELEASE_LABEL = "0.1.38-endpoint-class-path-response-separation"
+FRAMEWORK_VERSION = "0.1.39"
+FRAMEWORK_RELEASE_LABEL = "0.1.39-endpoint-class-center-classifier-repair"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -201,14 +201,24 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "off_path_vacuum_facing_influence_required_v0_1",
         "exploratory_only_no_theorem_certification_v0_1",
         "endpoint_class_path_response_separation_runner_v0_1",
+        "endpoint_class_path_response_separation_runner_v0_2",
         "endpoint_class_separation_exploratory_v0_1",
+        "endpoint_class_separation_exploratory_v0_2",
         "photon_like_local_certifier_report_v0_1",
         "bounded_support_endpoint_comparison_v0_1",
         "endpoint_class_not_center_selector_v0_1",
         "endpoint_class_not_delta_l_selector_v0_1",
         "path_profile_based_center_classification_v0_1",
+        "path_profile_based_center_classification_v0_2",
         "triangle_photon_bounded_path_response_separation_v0_1",
+        "triangle_photon_bounded_path_response_separation_v0_2",
         "standard_model_role_label_leakage_controls_v0_1",
+        "endpoint_class_center_classifier_repair_v0_2",
+        "opposite_branch_transition_removal_reachable_v0_2",
+        "odd_center_branch_transition_classifier_v0_2",
+        "even_center_branch_transition_classifier_v0_2",
+        "bounded_support_calibration_controls_v0_2",
+        "photon_like_not_transaction_suppression_selector_v0_2",
     }
 )
 

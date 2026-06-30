@@ -1,0 +1,56 @@
+{
+  "allowed_generator_inputs": [
+    "actual_generated_endpoint_record",
+    "actual_association_graph",
+    "actual_loaded_scalar_values",
+    "actual_path_profile",
+    "actual_photon_certifier_pass_fail",
+    "actual_bounded_support_certifier_pass_fail",
+    "off_path_vacuum_facing_profile_rule"
+  ],
+  "critical_rule": "Center condition must be computed from generated path scalar profile, not endpoint class; photon-like labels may not suppress transactions, and bounded/support-like calibration controls may not select Delta L.",
+  "endpoint_classes": [
+    "A_emergent_sign_coherent_triangles",
+    "B_certified_photon_like_local_records",
+    "C_bounded_support_like_sign_coherent_candidates"
+  ],
+  "forbidden_generator_inputs": [
+    "triangle_sign_label_as_delta_l_selector",
+    "photon_like_label_as_no_accommodation_selector",
+    "bounded_support_label_as_accommodation_selector",
+    "target_delta_l",
+    "expected_delta_l",
+    "preselected_center_point",
+    "preselected_center_action",
+    "preselected_path_action",
+    "charge_label",
+    "standard_model_role_label",
+    "endpoint_class_dispatched_center_condition",
+    "endpoint_class_dispatched_delta_l",
+    "photon_class_transaction_suppression",
+    "photon_class_forced_path_facing_nullity",
+    "bounded_opposite_expected_delta_l_selector"
+  ],
+  "framework_version": "0.1.39",
+  "key_question": "Do sign-coherent triangles, photon-like records, and bounded/support-like endpoints produce distinguishable path-center conditions under the same profile-based processing?",
+  "required_artifacts": [
+    "RUN_SCOPE_REPORT.json",
+    "ENDPOINT_CLASSIFICATION_REPORT.json",
+    "TRIANGLE_ENDPOINT_REPORT.json",
+    "PHOTON_LIKE_CERTIFIER_REPORT.json",
+    "BOUNDED_SUPPORT_ENDPOINT_REPORT.json",
+    "RELATIONAL_PATH_DISCOVERY_REPORT.json",
+    "PATH_PROFILE_REPORT.json",
+    "CENTER_CONDITION_REPORT.json",
+    "PATH_ACCOMMODATION_REPORT.json",
+    "ENDPOINT_CLASS_COMPARISON_REPORT.json",
+    "PATH_RESPONSE_CALIBRATION_REPORT.json",
+    "NEGATIVE_CONTROL_REPORT.json",
+    "LEAKAGE_MANIPULATION_AUDIT.json",
+    "EXPLORATORY_VERDICT_REPORT.json"
+  ],
+  "runner_id": "endpoint_class_path_response_separation_runner_v0_2",
+  "schema": "endpoint_class_path_response_separation_spec_v0_2",
+  "status": "exploratory_endpoint_class_separation_only",
+  "theorem_certification_ready": false
+}
