@@ -16,8 +16,12 @@
     "target_delta_l",
     "expected_delta_l",
     "preselected_center_action",
-    "preselected_path_outcome"
+    "preselected_path_outcome",
+    "branch_local_candidate_pool",
+    "same_sign_priority",
+    "fixed_nominal_path_length",
+    "endpoint_sign_dispatched_center_condition"
   ],
   "framework_version": "0.1.37",
-  "schema": "split_vacuum_triangle_initial_conditions_v0_1"
+  "schema": "split_vacuum_triangle_initial_conditions_v0_2"
 }

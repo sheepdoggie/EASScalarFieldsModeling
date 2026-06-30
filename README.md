@@ -78,6 +78,6 @@ rank3-write-gradient-path-accommodation-packet --output gradient_path_accommodat
 ```
 
 
-## v0.1.36 exploratory split-vacuum triangle emergence
+## v0.1.37 exploratory split-vacuum triangle emergence
 
-v0.1.36 adds `rank3-run-split-vacuum-triangle-emergence` and `rank3-write-split-vacuum-triangle-packet`. This is an exploratory mechanism-discovery release only. Triangle membership and path endpoints are readouts, not generator inputs, and the release does not certify a theorem or charge.
+v0.1.37 adds `rank3-run-split-vacuum-triangle-emergence` and `rank3-write-split-vacuum-triangle-packet`. This is an exploratory mechanism-discovery release only. Triangle membership and path endpoints are readouts, not generator inputs, and the release does not certify a theorem or charge.

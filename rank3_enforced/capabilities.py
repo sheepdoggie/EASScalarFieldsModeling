@@ -4,8 +4,8 @@ from dataclasses import dataclass, asdict
 from typing import Iterable
 
 
-FRAMEWORK_VERSION = "0.1.36"
-FRAMEWORK_RELEASE_LABEL = "0.1.36-split-vacuum-triangle-emergence-exploratory"
+FRAMEWORK_VERSION = "0.1.37"
+FRAMEWORK_RELEASE_LABEL = "0.1.37-split-vacuum-triangle-emergence-runner-repair"
 
 FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
     {
@@ -180,6 +180,15 @@ FRAMEWORK_CAPABILITIES: frozenset[str] = frozenset(
         "scalar_sign_only_theorem_scope_v0_1",
         "ready_for_certification_plan_not_theorem_certification_v0_1",
         "split_vacuum_triangle_emergence_exploratory_v0_1",
+        "split_vacuum_triangle_emergence_runner_repair_v0_2",
+        "dynamic_lifted_vacuum_splitting_v0_2",
+        "six_slot_dynamic_branch_ledger_v0_2",
+        "pure_least_gradient_no_same_sign_priority_v0_2",
+        "global_generated_candidate_pool_v0_2",
+        "graph_discovered_relational_paths_v0_2",
+        "association_geometry_shortest_path_readout_v0_1",
+        "path_center_profile_classifier_v0_2",
+        "executed_negative_control_artifacts_v0_2",
         "undefined_vacuum_split_branch_runner_v0_1",
         "branch_to_zero_vacuum_association_v0_1",
         "soo_lifted_vacuum_detection_v0_1",

@@ -1,12 +1,16 @@
 {
   "checks": {
+    "branch_local_candidate_pool_not_used": true,
     "center_action_not_preselected": true,
+    "center_condition_not_endpoint_sign_dispatched": true,
     "charge_labels_not_used": true,
     "delta_l_read_after_transaction_audit": true,
+    "fixed_nominal_path_length_not_used": true,
     "handedness_labels_not_used": true,
     "off_path_vacuum_facing_associations_not_rung_isolated": true,
     "path_endpoints_not_generator_input": true,
     "same_opposite_labels_not_used": true,
+    "same_sign_priority_not_used": true,
     "target_delta_l_not_used": true,
     "topology_transaction_selected_from_center_condition_only": true,
     "triangle_membership_not_generator_input": true
@@ -21,10 +25,14 @@
     "target_delta_l",
     "expected_delta_l",
     "preselected_center_action",
-    "preselected_path_outcome"
+    "preselected_path_outcome",
+    "branch_local_candidate_pool",
+    "same_sign_priority",
+    "fixed_nominal_path_length",
+    "endpoint_sign_dispatched_center_condition"
   ],
   "framework_version": "0.1.37",
   "passed": true,
-  "schema": "split_vacuum_triangle_leakage_manipulation_audit_v0_1",
+  "schema": "split_vacuum_triangle_leakage_manipulation_audit_v0_2",
   "verdict": "audit_passed_exploratory_runner_contains_no_label_or_target_delta_dispatch"
 }

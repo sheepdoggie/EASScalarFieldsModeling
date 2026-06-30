@@ -400,6 +400,150 @@ def all_pairs_shortest_path_lengths(adjacency: IntArray) -> FloatArray:
 
     return L
 
+@dataclass(frozen=True)
+class ShortestPathRecord:
+    """
+    Readout record for one association-native shortest path.
+
+    This is a diagnostic/report over association geometry.
+    It does not modify scalar values or associations.
+    """
+
+    source: int
+    target: int
+    path: tuple[int, ...]
+    length: int
+    reachable: bool
+
+
+def shortest_path_from_adjacency(
+    adjacency: IntArray,
+    *,
+    source: int,
+    target: int,
+) -> ShortestPathRecord:
+    """
+    Return one shortest association path from source to target.
+
+    The path is computed by BFS over the supplied adjacency matrix.
+
+    If target is unreachable:
+
+        path = ()
+        length = -1
+        reachable = False
+
+    This is not coordinate distance.
+    This is not a scalar-value path.
+    This is a graph-combinatorial readout from association geometry.
+    It does not modify scalar values or associations.
+    """
+
+    adjacency = np.asarray(adjacency, dtype=np.int64)
+
+    if adjacency.ndim != 2 or adjacency.shape[0] != adjacency.shape[1]:
+        raise ValueError("adjacency must be square.")
+
+    n = int(adjacency.shape[0])
+
+    if source < 0 or source >= n:
+        raise ValueError(f"source out of range: {source}")
+
+    if target < 0 or target >= n:
+        raise ValueError(f"target out of range: {target}")
+
+    if source == target:
+        return ShortestPathRecord(
+            source=source,
+            target=target,
+            path=(source,),
+            length=0,
+            reachable=True,
+        )
+
+    queue: deque[int] = deque([source])
+    visited = {source}
+    predecessor: dict[int, int] = {}
+
+    while queue:
+        current = queue.popleft()
+
+        for raw_neighbor in np.where(adjacency[current] != 0)[0]:
+            neighbor = int(raw_neighbor)
+
+            if neighbor in visited:
+                continue
+
+            visited.add(neighbor)
+            predecessor[neighbor] = current
+
+            if neighbor == target:
+                # Reconstruct path by walking backward from target.
+                path_reversed = [target]
+                cursor = target
+
+                while cursor != source:
+                    cursor = predecessor[cursor]
+                    path_reversed.append(cursor)
+
+                path = tuple(reversed(path_reversed))
+
+                return ShortestPathRecord(
+                    source=source,
+                    target=target,
+                    path=path,
+                    length=len(path) - 1,
+                    reachable=True,
+                )
+
+            queue.append(neighbor)
+
+    return ShortestPathRecord(
+        source=source,
+        target=target,
+        path=(),
+        length=-1,
+        reachable=False,
+    )
+
+
+def shortest_path_between_points(
+    *,
+    state: FrozenAssociationState,
+    source: int,
+    target: int,
+    graph_mode: GraphMode,
+    path_scope: PathScope,
+    phase: int,
+) -> ShortestPathRecord:
+    """
+    Return one shortest path between two field points using association geometry.
+
+    path_scope="completed":
+        use all three association slots.
+
+    path_scope="active_phase":
+        use only the association slot active in the supplied phase.
+
+    This function only reads association geometry.
+    It does not inspect scalar values.
+    It does not modify association states.
+    It does not certify or impose a relational path.
+    """
+
+    adjacency = adjacency_from_association_state(
+        state=state,
+        graph_mode=graph_mode,
+        path_scope=path_scope,
+        phase=phase,
+    )
+
+    return shortest_path_from_adjacency(
+        adjacency,
+        source=source,
+        target=target,
+    )
+
 
 def inverse_length_pair_weight(path_lengths: FloatArray) -> FloatArray:
     """

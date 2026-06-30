@@ -1,0 +1,10 @@
+{
+  "SOO_operator": "bounded_context_soo_v1",
+  "association_selector": "pure_least_scalar_gradient_burden_global_pool_no_sign_priority",
+  "center_classifier": "classify from generated path-center scalar profile only",
+  "cycle_latency": "association proposals made in one cycle become usable in the next cycle",
+  "framework_version": "0.1.37",
+  "path_discovery": "detect graph paths between persisted sign-coherent triangles only",
+  "schema": "split_vacuum_triangle_soo_association_rules_v0_2",
+  "triangle_detection": "detect from generated association/scalar records only"
+}

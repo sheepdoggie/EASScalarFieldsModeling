@@ -51,8 +51,11 @@
       "purpose": "Triangle appears transiently only."
     }
   ],
+  "executed_control_count": 0,
+  "executed_controls_passed": null,
   "framework_version": "0.1.37",
+  "per_control_artifacts_emitted": false,
   "required_before_certification_use": true,
-  "schema": "split_vacuum_triangle_negative_controls_v0_1",
+  "schema": "split_vacuum_triangle_negative_controls_v0_2",
   "this_release_certification_use": false
 }
